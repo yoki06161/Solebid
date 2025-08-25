@@ -17,6 +17,10 @@ import NicknameSetup from "./features/user/pages/NicknameSetup.tsx";
 import OAuth2Callback from "./features/user/pages/OAuth2Callback.tsx";
 import Signup from "./features/user/pages/Signup.tsx";
 
+import ChargePointsPage from './features/payment/pages/ChargePointsPage.tsx';
+import ChargeResultPage from './features/payment/pages/ChargeResultPage.tsx';
+
+
 const router = createBrowserRouter(
     createRoutesFromElements(
         <Route>
@@ -34,6 +38,8 @@ const router = createBrowserRouter(
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/order" element={<OrderPage />} />
             <Route path="/wish" element={<WishPage />} />
+            <Route path="/points/charge" element={<ChargePointsPage />} />
+            <Route path="/result" element={<ChargeResultPage />} />
             <Route path="/cart" element={<CartPage />} />
         </Route>
     )
