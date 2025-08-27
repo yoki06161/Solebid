@@ -1,8 +1,9 @@
-import { MainContent } from '../components';
+import { MainContent, MainHeader } from '../components';
 
 const MainPage = () => {
   return (
     <div>
+      <MainHeader />
       <MainContent />
     </div>
   );

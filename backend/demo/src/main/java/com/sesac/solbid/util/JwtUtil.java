@@ -5,7 +5,6 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
-import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +13,6 @@ import java.security.Key;
 import java.util.Date;
 import java.util.function.Function;
 
-@Getter
 @Component
 public class JwtUtil {
 
@@ -74,16 +72,8 @@ public class JwtUtil {
                 .compact();
     }
 
-
-    // 토큰만으로 서명 및 만료 여부를 검증하는 보조 메서드
-    public boolean validateToken(String token) {
-        try {
-            // 서명 검증 및 클레임 파싱
-            getAllClaimsFromToken(token);
-            // 만료 여부 확인
-            return !isTokenExpired(token);
-        } catch (Exception e) {
-            return false;
-        }
+    public Boolean validateToken(String token, String username) {
+        final String usernameFromToken = getUsernameFromToken(token);
+        return (usernameFromToken.equals(username) && !isTokenExpired(token));
     }
 }
