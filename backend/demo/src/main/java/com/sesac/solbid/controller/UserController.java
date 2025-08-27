@@ -106,7 +106,13 @@ public class UserController {
                     .body(ApiResponse.error("UNAUTHORIZED", "로그인이 필요합니다."));
         }
         try {
-            String email = jwtUtil.getUsernameFromToken(accessTokenOpt.get());
+            String token = accessTokenOpt.get();
+            // 토큰 유효성(서명/만료) 검증 추가
+            if (!jwtUtil.validateToken(token)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(ApiResponse.error("UNAUTHORIZED", "유효하지 않은 토큰입니다."));
+            }
+            String email = jwtUtil.getUsernameFromToken(token);
             User user = userService.getByEmail(email);
             Map<String, Object> data = new HashMap<>();
             data.put("userId", user.getUserId());

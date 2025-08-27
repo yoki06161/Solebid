@@ -19,8 +19,7 @@ import Signup from "./features/user/pages/Signup.tsx";
 
 import ChargePointsPage from './features/payment/pages/ChargePointsPage.tsx';
 import ChargeResultPage from './features/payment/pages/ChargeResultPage.tsx';
-import AppLayout from './components/AppLayout';
-
+import AppLayout from "./components/AppLayout.tsx";
 
 const router = createBrowserRouter(
     createRoutesFromElements(

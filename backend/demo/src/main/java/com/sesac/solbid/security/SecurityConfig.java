@@ -36,11 +36,12 @@ public class SecurityConfig {
                                 "/api/users/signup",
                                 "/api/users/login"
                         ).permitAll()
-                        // OAuth2 소셜로그인 및 로그아웃 API는 인증 없이 접근 허용
+                        // OAuth2 소셜로그인 및 로그아웃/리프레시 API는 인증 없이 접근 허용
                         .requestMatchers(
                                 "/api/auth/oauth2/*/url",
                                 "/api/auth/oauth2/*/callback",
-                                "/api/auth/logout"
+                                "/api/auth/logout",
+                                "/api/auth/refresh"
                         ).permitAll()
                         // 그 외 모든 요청은 일단 허용 (프로젝트 요구사항에 맞게 .authenticated() 등으로 변경 필요)
                         .anyRequest().permitAll()
