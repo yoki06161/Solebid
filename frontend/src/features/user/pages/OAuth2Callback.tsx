@@ -8,14 +8,43 @@ const OAuth2Callback: React.FC = () => {
   const { provider } = useParams<{ provider: string }>();
   const processedRef = useRef(false);
 
+  const reactivate = async (token: string) => {
+    try {
+      const res = await fetch('/api/users/reactivate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ token }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        try {
+          sessionStorage.setItem('auth.user', JSON.stringify(data.data));
+          const evt = new CustomEvent('auth-changed', { detail: { user: data.data } });
+          window.dispatchEvent(evt);
+        } catch (e) { console.debug('OAuth2Callback: 재활성 캐시 실패', e); }
+        setStatus('success');
+        setMessage('계정이 재활성화되었습니다. 잠시 후 이동합니다.');
+        setTimeout(() => navigate('/'), 600);
+        return true;
+      }
+      setStatus('error');
+      setMessage(data?.message || '계정 재활성화에 실패했습니다.');
+      return false;
+    } catch (e) {
+      console.error('OAuth2Callback: reactivate error', e);
+      setStatus('error');
+      setMessage('네트워크 오류가 발생했습니다. 다시 시도해주세요.');
+      return false;
+    }
+  };
+
   useEffect(() => {
     (async () => {
-      // StrictMode 등으로 인한 중복 실행 가드
       if (processedRef.current) return;
       processedRef.current = true;
 
       try {
-        // URL에서 code와 state 파라미터 추출
         const urlParams = new URLSearchParams(window.location.search);
         const code = urlParams.get('code');
         const state = urlParams.get('state');
@@ -26,10 +55,8 @@ const OAuth2Callback: React.FC = () => {
           return;
         }
 
-        // 동일 state로의 중복 처리 방지 (새로고침/뒤로가기 대비)
         const guardKey = `oauth2_callback_handled_${state}`;
         if (sessionStorage.getItem(guardKey)) {
-          // 이미 처리된 콜백이면 메인으로 유도
           setStatus('success');
           setMessage('이미 로그인 처리가 완료되었습니다. 메인 페이지로 이동합니다.');
           setTimeout(() => {
@@ -39,23 +66,19 @@ const OAuth2Callback: React.FC = () => {
           return;
         }
 
-        // 콜백 처리 API 호출
         const response = await fetch(`/api/auth/oauth2/${provider}/callback`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          credentials: 'include', // 쿠키 포함
+          credentials: 'include',
           body: JSON.stringify({ code, state })
         });
 
         const data = await response.json();
 
         if (data.success) {
-          // 중복 방지를 위해 처리 완료 플래그 저장
           sessionStorage.setItem(guardKey, '1');
-
-          // 로그인 사용자 정보를 즉시 캐시에 저장하고 헤더 즉시 반영
           try {
             if (data.data) {
               sessionStorage.setItem('auth.user', JSON.stringify(data.data));
@@ -69,7 +92,6 @@ const OAuth2Callback: React.FC = () => {
           setStatus('success');
           setMessage('로그인이 완료되었습니다. 잠시 후 이동합니다.');
 
-          // 닉네임 필요 시 닉네임 설정 페이지로 유도
           const requiresNickname: boolean = Boolean(data.data?.requiresNickname);
           setTimeout(() => {
             if (requiresNickname) {
@@ -78,6 +100,14 @@ const OAuth2Callback: React.FC = () => {
               navigate('/');
             }
           }, 600);
+        } else if (data?.errorCode === 'WITHDRAWN_USER' && data?.data?.reactivationToken) {
+          const ok = window.confirm('회원 탈퇴 처리된 계정입니다. 계정을 다시 활성화하시겠습니까?');
+          if (ok) {
+            await reactivate(String(data.data.reactivationToken));
+          } else {
+            setStatus('error');
+            setMessage('재활성화가 취소되었습니다.');
+          }
         } else {
           setStatus('error');
           setMessage(data.message || '로그인에 실패했습니다.');

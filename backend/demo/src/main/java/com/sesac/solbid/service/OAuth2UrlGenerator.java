@@ -77,6 +77,12 @@ public class OAuth2UrlGenerator {
             }
         }
 
+        // Google refresh_token 발급 유도
+        if ("google".equals(clientRegistration.getRegistrationId())) {
+            builder.queryParam("access_type", "offline");
+            builder.queryParam("prompt", "consent");
+        }
+
         return builder.build().toUriString();
     }
 

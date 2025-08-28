@@ -3,6 +3,7 @@ package com.sesac.solbid.service;
 import com.sesac.solbid.domain.User;
 import com.sesac.solbid.dto.OAuth2Dto;
 import com.sesac.solbid.dto.UserDto;
+import com.sesac.solbid.exception.CustomException;
 import com.sesac.solbid.exception.ErrorCode;
 import com.sesac.solbid.exception.OAuth2Exception;
 import com.sesac.solbid.util.JwtUtil;
@@ -88,7 +89,9 @@ public class OAuth2Service {
         
         try {
             ClientRegistration provider = getClientRegistration(providerName);
-            String accessToken = getAccessToken(provider, authCode);
+            Map<String, Object> tokenResp = getTokenResponse(provider, authCode);
+            String accessToken = (String) tokenResp.get("access_token");
+            String refreshToken = (String) tokenResp.get("refresh_token");
             Map<String, Object> userAttributes = getUserAttributes(provider, accessToken);
             
             // 필수 사용자 정보 검증 (Google은 email 필수)
@@ -100,8 +103,8 @@ public class OAuth2Service {
                 }
             }
 
-            // 사용자 정보 동기화 포함
-            User user = userService.saveOrUpdate(providerName, userAttributes);
+            // 사용자 정보 동기화 + 토큰 저장
+            User user = userService.saveOrUpdate(providerName, userAttributes, accessToken, refreshToken);
 
             // JWT 토큰 생성
             final String serviceAccessToken = jwtUtil.generateToken(user.getEmail());
@@ -117,12 +120,14 @@ public class OAuth2Service {
                     providerName, e.getStatusCode());
             log.error("{}", maskSensitiveData(e.getResponseBodyAsString()));
             throw new OAuth2Exception(ErrorCode.OAUTH2_TOKEN_ERROR);
+        } catch (CustomException e) {
+            log.warn("OAuth2 로그인 비즈니스 예외: provider={}, error={}", providerName, e.getMessage());
+            throw e;
         } catch (Exception e) {
             log.error("OAuth2 로그인 처리 중 오류 발생: provider={}", providerName, e);
             throw e;
         }
     }
-
 
 
     /**
@@ -144,6 +149,20 @@ public class OAuth2Service {
      * OAuth2 액세스 토큰 획득 (개선된 에러 처리 및 WebClient 최적화)
      */
     private String getAccessToken(ClientRegistration provider, String authCode) {
+        Map<String, Object> response = getTokenResponse(provider, authCode);
+        String accessToken = (String) response.get("access_token");
+        if (accessToken == null || accessToken.isBlank()) {
+            log.error("OAuth2 토큰 응답에 access_token이 없음: provider={}", provider.getRegistrationId());
+            throw new OAuth2Exception(ErrorCode.OAUTH2_TOKEN_ERROR);
+        }
+        log.debug("OAuth2 액세스 토큰 획득 성공: provider={}", provider.getRegistrationId());
+        return accessToken;
+    }
+
+    /**
+     * 토큰 응답 전체를 반환 (access_token, refresh_token 등)
+     */
+    private Map<String, Object> getTokenResponse(ClientRegistration provider, String authCode) {
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
         formData.add("grant_type", "authorization_code");
         formData.add("client_id", provider.getClientId());
@@ -162,19 +181,19 @@ public class OAuth2Service {
                     .bodyValue(formData)
                     .retrieve()
                     .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {})
-                    .timeout(Duration.ofSeconds(10)) // 10초 타임아웃
+                    .timeout(Duration.ofSeconds(10))
                     .block();
 
             if (response == null || !response.containsKey("access_token")) {
-                log.error("OAuth2 토큰 응답에 access_token이 없음: provider={}", provider.getRegistrationId());
+                log.error("OAuth2 토큰 응답이 비정상: provider={}", provider.getRegistrationId());
                 throw new OAuth2Exception(ErrorCode.OAUTH2_TOKEN_ERROR);
             }
 
-            String accessToken = (String) response.get("access_token");
-            log.debug("OAuth2 액세스 토큰 획득 성공: provider={}", provider.getRegistrationId());
-            
-            return accessToken;
-            
+            // refresh_token은 상황에 따라 없을 수 있음(기존 동의 등)
+            if (response.get("refresh_token") == null) {
+                log.debug("refresh_token 미수신: provider={}", provider.getRegistrationId());
+            }
+            return response;
         } catch (WebClientResponseException e) {
             log.error("OAuth2 토큰 요청 실패: provider={}, status={}, body=",
                     provider.getRegistrationId(), e.getStatusCode());

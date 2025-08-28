@@ -16,7 +16,7 @@ const Login: React.FC = () => {
             ...prev,
             [name]: value,
         }));
-        if (errors[name] || (errors as any).submit) {
+        if (errors[name] || errors.submit) {
             setErrors((prev) => ({
                 ...prev,
                 [name]: "",
@@ -37,6 +37,33 @@ const Login: React.FC = () => {
         }
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
+    };
+
+    const handleReactivate = async (token: string) => {
+        try {
+            const res = await fetch('/api/users/reactivate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ token }),
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                try {
+                    sessionStorage.setItem('auth.user', JSON.stringify(data.data));
+                    const evt = new CustomEvent('auth-changed', { detail: { user: data.data } });
+                    window.dispatchEvent(evt);
+                } catch (e) { console.debug('reactivate cache fail', e); }
+                navigate('/');
+                return true;
+            }
+            setErrors({ submit: data?.message || '계정 재활성화에 실패했습니다.' });
+            return false;
+        } catch (e) {
+            console.error('reactivate error', e);
+            setErrors({ submit: '네트워크 오류가 발생했습니다. 다시 시도해주세요.' });
+            return false;
+        }
     };
 
     const handleLogin = async (e: React.FormEvent) => {
@@ -61,7 +88,6 @@ const Login: React.FC = () => {
 
             if (response.ok && result.success) {
                 setErrors({});
-                // 사용자 정보를 세션에 저장하여 헤더가 즉시 반영할 수 있도록 함
                 if (result.data) {
                     try {
                         sessionStorage.setItem('auth.user', JSON.stringify(result.data));
@@ -69,11 +95,16 @@ const Login: React.FC = () => {
                         console.debug('auth.user 세션 저장 실패', e);
                     }
                 }
-                // 커스텀 이벤트로 사용자 정보를 전달하여 즉시 반영 유도
                 const evt = new CustomEvent('auth-changed', { detail: { user: result.data || null } });
                 window.dispatchEvent(evt);
-                // 홈으로 이동
                 navigate("/");
+            } else if (result?.errorCode === 'WITHDRAWN_USER' && result?.data?.reactivationToken) {
+                const ok = window.confirm('회원 탈퇴 처리된 계정입니다. 계정을 다시 활성화하시겠습니까?');
+                if (ok) {
+                    await handleReactivate(String(result.data.reactivationToken));
+                } else {
+                    setErrors({ submit: '재활성화가 취소되었습니다.' });
+                }
             } else {
                 setErrors({
                     submit: result.message || "로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.",

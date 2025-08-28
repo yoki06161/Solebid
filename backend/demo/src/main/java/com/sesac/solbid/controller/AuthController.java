@@ -5,7 +5,10 @@ import com.sesac.solbid.dto.OAuth2Dto;
 import com.sesac.solbid.dto.UserDto;
 import com.sesac.solbid.exception.ErrorCode;
 import com.sesac.solbid.exception.OAuth2Exception;
+import com.sesac.solbid.exception.CustomException;
+import com.sesac.solbid.exception.ReactivationRequiredException;
 import com.sesac.solbid.service.OAuth2Service;
+import com.sesac.solbid.util.JwtUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,6 +19,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 인증 컨트롤러
@@ -28,6 +33,7 @@ import java.util.Collections;
 public class AuthController {
 
     private final OAuth2Service oAuth2Service;
+    private final JwtUtil jwtUtil;
 
     /**
      * 로그아웃 처리
@@ -108,7 +114,7 @@ public class AuthController {
      * @return 로그인 응답 (JWT 토큰 포함)
      */
     @PostMapping("/oauth2/{provider}/callback")
-    public ResponseEntity<ApiResponse<OAuth2Dto.LoginSuccessResponse>> handleCallback(
+    public ResponseEntity<ApiResponse<Object>> handleCallback(
             @PathVariable String provider,
             @Valid @RequestBody OAuth2Dto.CallbackRequest request,
             HttpServletRequest httpRequest,
@@ -147,13 +153,27 @@ public class AuthController {
             return ResponseEntity.ok(
                 ApiResponse.success(loginSuccessResponse, "소셜로그인이 완료되었습니다.")
             );
-            
         } catch (OAuth2Exception e) {
             log.warn("OAuth2 콜백 처리 실패: provider={}, clientIp={}, error={}, state={}", 
                     provider, clientIp, e.getMessage(), maskState(request.getState()));
             int status = (e.getErrorCode() == ErrorCode.SOCIAL_ACCOUNT_CONFLICT) ? 409 : 400;
             return ResponseEntity.status(status).body(
                 ApiResponse.error(e.getErrorCode().name(), e.getMessage())
+            );
+        } catch (ReactivationRequiredException e) {
+            log.warn("OAuth2 콜백 - 탈퇴 계정: provider={}, email=***", provider);
+            String token = jwtUtil.generateReactivationToken(e.getEmail(), 600); // 10분
+            Map<String, Object> data = new HashMap<>();
+            data.put("reactivationToken", token);
+            data.put("email", e.getEmail());
+            return ResponseEntity.status(401).body(
+                ApiResponse.error(data, "WITHDRAWN_USER", "회원 탈퇴 처리된 계정입니다. 계정을 다시 활성화하시겠습니까?")
+            );
+        } catch (CustomException e) {
+            log.warn("OAuth2 콜백 처리 실패(Custom): provider={}, clientIp={}, error={}, state={}",
+                    provider, clientIp, e.getMessage(), maskState(request.getState()));
+            return ResponseEntity.status(e.getErrorCode().getStatus()).body(
+                    ApiResponse.error(e.getErrorCode().name(), e.getMessage())
             );
         } catch (Exception e) {
             log.error("OAuth2 콜백 처리 중 예외 발생: provider={}, clientIp={}, state={}", 

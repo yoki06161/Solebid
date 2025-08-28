@@ -13,6 +13,7 @@ import org.hibernate.annotations.ColumnDefault;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -55,6 +56,9 @@ public class User extends BaseEntity {
     @Column(length = 20)
     private UserStatus userStatus;
 
+    @Column
+    private LocalDateTime withdrawnAt;
+
     //== 연관관계 편의 메서드 ==//
     @OneToMany(mappedBy = "user")
     private List<SocialLogin> socialLogins = new ArrayList<>();
@@ -88,12 +92,29 @@ public class User extends BaseEntity {
         this.temperature = new BigDecimal("36.5");
         this.point = BigDecimal.ZERO;
         this.userStatus = UserStatus.ACTIVE;
+        // withdrawnAt 기본값은 null
     }
 
     // 닉네임 동기화용 업데이트 메서드
     public void updateNickname(String newNickname) {
         if (newNickname != null && !newNickname.isBlank() && !newNickname.equals(this.nickname)) {
             this.nickname = newNickname;
+        }
+    }
+
+    // 회원 탈퇴(소프트 삭제): 상태 전환 + 일시 기록
+    public void withdraw() {
+        if (this.userStatus != UserStatus.WITHDRAWN) {
+            this.userStatus = UserStatus.WITHDRAWN;
+            this.withdrawnAt = LocalDateTime.now();
+        }
+    }
+
+    // 회원 재활성화: 상태/일시 원복
+    public void reactivate() {
+        if (this.userStatus == UserStatus.WITHDRAWN) {
+            this.userStatus = UserStatus.ACTIVE;
+            this.withdrawnAt = null;
         }
     }
 }
