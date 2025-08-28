@@ -73,4 +73,22 @@ export const wishes = [
         image:
             "https://readdy.ai/api/search-image?query=modern%20desk%20lamp%20adjustable%20LED%20light%20minimalist%20design%20office%20furniture%20clean%20white%20background%20product%20photography%20professional%20lighting%20high%20quality&width=300&height=300&seq=wishlist008&orientation=squarish",
     },
+    {
+        id: 9,
+        name: "럭셔리 시계",
+        price: 299000,
+        category: "패션",
+        dateAdded: "2024-01-15",
+        image:
+            "https://readdy.ai/api/search-image?query=elegant%20luxury%20watch%20silver%20metal%20band%20premium%20timepiece%20clean%20white%20background%20product%20photography%20professional%20lighting%20high%20quality&width=300&height=300&seq=wishlist001&orientation=squarish",
+    },
+    {
+        id: 10,
+        name: "노트북",
+        price: 1299000,
+        category: "전자기기",
+        dateAdded: "2024-01-14",
+        image:
+            "https://readdy.ai/api/search-image?query=modern%20laptop%20computer%20silver%20aluminum%20design%20sleek%20portable%20clean%20white%20background%20product%20photography%20professional%20lighting%20high%20quality&width=300&height=300&seq=wishlist002&orientation=squarish",
+    },
 ]

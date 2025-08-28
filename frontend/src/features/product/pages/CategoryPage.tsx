@@ -57,14 +57,13 @@ const CategoryPage = () => {
     };
 
     const totalPages = Math.ceil(filteredAndSortedCategories.length / ITEMS_PER_PAGE);
-
     const paginatedCategories = filteredAndSortedCategories.slice(
         (currentPage - 1) * ITEMS_PER_PAGE,
         currentPage * ITEMS_PER_PAGE
     );
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <main className="min-h-screen bg-gray-50">
             <CategoryBreadcrumb
                 categoryName={decodedCategory}
             />
@@ -103,13 +102,15 @@ const CategoryPage = () => {
                 <CategoryList
                     categories={paginatedCategories}
                 />
-                <Pagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    onPageChange={setCurrentPage}
-                />
+                {totalPages > 0 && (
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={setCurrentPage}
+                    />
+                )}
             </div>
-        </div>
+        </main>
     );
 }
 

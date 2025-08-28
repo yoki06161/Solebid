@@ -40,7 +40,6 @@ const OrderPage = () => {
     }, [searchQuery, selectedPeriod, selectedStatus]);
 
     const totalPages = Math.ceil(filteredOrders.length / ITEMS_PER_PAGE);
-
     const paginatedOrders = filteredOrders.slice(
         (currentPage - 1) * ITEMS_PER_PAGE,
         currentPage * ITEMS_PER_PAGE
@@ -54,7 +53,7 @@ const OrderPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <main className="min-h-screen bg-gray-50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <OrderSearch
                     searchQuery={searchQuery}
@@ -71,7 +70,7 @@ const OrderPage = () => {
                     expandedOrder={expandedOrder}
                     toggleOrderExpansion={toggleOrderExpansion}
                 />
-                {totalPages > 1 && (
+                {totalPages > 0 && (
                     <Pagination
                         currentPage={currentPage}
                         totalPages={totalPages}
@@ -79,7 +78,7 @@ const OrderPage = () => {
                     />
                 )}
             </div>
-        </div>
+        </main>
     );
 };
 

@@ -55,7 +55,10 @@ const SearchPage = () => {
 
     const totalResults = filteredResults.length;
     const totalPages = Math.ceil(totalResults / ITEMS_PER_PAGE);
-    const currentProducts = filteredResults.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+    const paginatedSearches = filteredResults.slice(
+        (currentPage - 1) * ITEMS_PER_PAGE,
+        currentPage * ITEMS_PER_PAGE
+    );
 
     const handleBrandChange = (brand: string) => {
         setSelectedBrands((prev) =>
@@ -86,7 +89,7 @@ const SearchPage = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <main className="min-h-screen bg-gray-50">
             <div className="max-w-[1440px] mx-auto px-6 py-8">
                 <SearchHeader
                     searchQuery={searchQuery}
@@ -112,7 +115,7 @@ const SearchPage = () => {
                     />
                     <div className="flex-1">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                            {currentProducts.map((product, index) => (
+                            {paginatedSearches.map((product, index) => (
                                 <SearchItem
                                     key={index}
                                     product={product}
@@ -129,7 +132,7 @@ const SearchPage = () => {
                     </div>
                 </div>
             </div>
-        </div>
+        </main>
     );
 };
 
