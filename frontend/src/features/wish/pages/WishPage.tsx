@@ -1,10 +1,8 @@
 import { useState } from 'react';
 import Toast from '../../../components/Toast';
-import { WishHeader, WishList, WishSearch } from '../components';
-import { wishes } from '../components/mockData';
+import { WishList, WishSearch } from '../components';
+import { categories, wishes } from '../components/mockData';
 import type { Wish } from '../types/Wish';
-
-const categories = ["전체", "패션", "전자기기", "뷰티", "식품", "가구"];
 
 const WishPage = () => {
     const [selectedCategory, setSelectedCategory] = useState("전체");
@@ -39,10 +37,7 @@ const WishPage = () => {
     return (
         <div className="min-h-screen bg-gray-50 relative">
             {showToast && <Toast message='장바구니에 추가되었습니다' />}
-            <header className="bg-white shadow-sm border-b border-gray-200">
-                <WishHeader itemCount={wishItem.length} />
-            </header>
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                 <WishSearch
                     categories={categories}
                     selectedCategory={selectedCategory}

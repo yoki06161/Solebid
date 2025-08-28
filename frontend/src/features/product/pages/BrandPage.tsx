@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { BrandHeader, BrandList, BrandPopular } from "../components/Brand";
-import BrandModal from "../components/brand/BrandModal";
+import { BrandList, BrandModal, BrandPopular } from "../components/brand";
 import { brandProducts, popularBrands } from "../components/brand/mockData";
 import type { BrandProduct } from "../types/brand/Brand";
 
@@ -26,10 +25,7 @@ const BrandPage = () => {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <nav className="bg-white shadow-sm fixed w-full z-10">
-                <BrandHeader />
-            </nav>
-            <main className="max-w-[1440px] mx-auto px-6 pt-24 pb-12">
+            <main className="max-w-[1440px] mx-auto px-6 pt-6 pb-12">
                 <BrandPopular brands={popularBrands} />
                 <section>
                     <h2 className="text-2xl font-bold mb-8">브랜드별 상품</h2>

@@ -1,3 +1,5 @@
+export const categories = ["전체", "패션", "전자기기", "뷰티", "식품", "가구"];
+
 export const wishes = [
     {
         id: 1,

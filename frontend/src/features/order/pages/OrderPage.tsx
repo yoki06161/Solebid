@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import Pagination from "../../../components/Pagination";
 import { getFromDate } from "../../../utils/get-from-date";
-import { OrderHeader, OrderList, OrderSearch } from "../components";
+import { OrderList, OrderSearch } from "../components";
 import { orders as mockOrders, periods, statuses } from "../components/mockData";
 
 const ITEMS_PER_PAGE = 3;
@@ -55,7 +55,6 @@ const OrderPage = () => {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <OrderHeader />
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <OrderSearch
                     searchQuery={searchQuery}

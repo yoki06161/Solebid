@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { AuctionHeader, AuctionList, AuctionModal, AuctionSearch } from "../components/auction";
+import { AuctionList, AuctionModal, AuctionSearch } from "../components/auction";
 import { auctions, categories, sortOptions } from "../components/auction/mockData";
 import type { AuctionItem } from "../types/auction/AuctionItem";
 
@@ -49,10 +49,7 @@ const AuctionPage = () => {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <nav className="bg-white shadow-sm fixed w-full z-10">
-                <AuctionHeader />
-            </nav>
-            <main className="max-w-[1440px] mx-auto px-6 pt-24 pb-12">
+            <main className="max-w-[1440px] mx-auto px-6 pt-6 pb-12">
                 <AuctionSearch
                     categories={categories}
                     selectedCategory={selectedCategory}
