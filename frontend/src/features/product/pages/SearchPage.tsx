@@ -1,9 +1,9 @@
 import { useMemo, useState } from "react";
 import Pagination from "../../../components/Pagination";
+import { usePagination } from "../../../hooks/usePagination";
 import { SearchHeader, SearchItem, SearchSidebar } from "../components/search";
 import { allSearchResults, brands, sizes, sortOptions } from "../components/search/mockData";
-
-const ITEMS_PER_PAGE = 6;
+import type { Search } from "../types/search/Search";
 
 const SearchPage = () => {
     const [searchQuery] = useState("나이키");
@@ -12,53 +12,34 @@ const SearchPage = () => {
     const [priceRange, setPriceRange] = useState([0, 500000]);
     const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
     const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
-    const [currentPage, setCurrentPage] = useState(1);
 
-    const filteredResults = useMemo(() => {
-        let results = [...allSearchResults];
+    const getPrice = (priceString: string): number =>
+        parseInt(priceString.replace(/,/g, ""), 10);
 
-        if (selectedBrands.length > 0) {
-            results = results.filter((product) =>
-                selectedBrands.includes(product.brand),
-            );
-        }
+    const filteredResults = useMemo((): Search[] => {
+        const sortFuns: Record<string, (a: Search, b: Search) => number> = {
+            "가격 높은순": (a, b) => getPrice(b.price) - getPrice(a.price),
+            "가격 낮은순": (a, b) => getPrice(a.price) - getPrice(b.price),
+            "인기순": (a, b) => b.bidCount - a.bidCount,
+        };
+        const sortFunction = sortFuns[sortBy] || sortFuns["인기순"];
 
-        results = results.filter((product) => {
-            const price = parseInt(product.price.replace(/,/g, ""));
-            return price >= priceRange[0] && price <= priceRange[1];
-        });
-
-        switch (sortBy) {
-            case "가격 높은순":
-                results.sort(
-                    (a, b) =>
-                        parseInt(b.price.replace(/,/g, ""))
-                        -
-                        parseInt(a.price.replace(/,/g, "")),
-                );
-                break;
-            case "가격 낮은순":
-                results.sort(
-                    (a, b) =>
-                        parseInt(a.price.replace(/,/g, ""))
-                        -
-                        parseInt(b.price.replace(/,/g, "")),
-                );
-                break;
-            case "인기순":
-            default:
-                results.sort((a, b) => b.bidCount - a.bidCount);
-                break;
-        }
-        return results;
+        return allSearchResults
+            .filter((product: Search) => {
+                const isInBrand = selectedBrands.length === 0 || selectedBrands.includes(product.brand);
+                const price = getPrice(product.price);
+                const isInPriceRange = price >= priceRange[0] && price <= priceRange[1];
+                return isInBrand && isInPriceRange;
+            })
+            .sort(sortFunction);
     }, [selectedBrands, priceRange, sortBy]);
 
-    const totalResults = filteredResults.length;
-    const totalPages = Math.ceil(totalResults / ITEMS_PER_PAGE);
-    const paginatedSearches = filteredResults.slice(
-        (currentPage - 1) * ITEMS_PER_PAGE,
-        currentPage * ITEMS_PER_PAGE
-    );
+    const {
+        paginatedData: paginatedSearches,
+        currentPage,
+        setCurrentPage,
+        totalPages
+    } = usePagination({ data: filteredResults, itemsPerPage: 6 });
 
     const handleBrandChange = (brand: string) => {
         setSelectedBrands((prev) =>
@@ -93,7 +74,7 @@ const SearchPage = () => {
             <div className="max-w-[1440px] mx-auto px-6 py-8">
                 <SearchHeader
                     searchQuery={searchQuery}
-                    totalResults={totalResults}
+                    totalResults={filteredResults.length}
                     sortBy={sortBy}
                     setSortBy={handleSortBy}
                     sortOptions={sortOptions}

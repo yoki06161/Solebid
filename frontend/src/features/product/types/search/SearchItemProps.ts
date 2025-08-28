@@ -1,5 +1,5 @@
-import type { SearchProduct } from "./Search";
+import type { Search } from "./Search";
 
 export interface SearchItemProps {
-    product: SearchProduct;
+    product: Search;
 }

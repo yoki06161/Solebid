@@ -1,55 +1,57 @@
 import { useMemo, useState } from "react";
 import Pagination from "../../../components/Pagination";
+import { usePagination } from "../../../hooks/usePagination";
 import { getFromDate } from "../../../utils/get-from-date";
 import { OrderList, OrderSearch } from "../components";
 import { orders as mockOrders, periods, statuses } from "../components/mockData";
-
-const ITEMS_PER_PAGE = 3;
+import type { Order } from "../types/Order";
 
 const OrderPage = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedPeriod, setSelectedPeriod] = useState("전체");
     const [selectedStatus, setSelectedStatus] = useState("전체");
     const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
-    const [currentPage, setCurrentPage] = useState(1);
-
-    const toggleOrderExpansion = (orderId: string) => {
-        setExpandedOrder(expandedOrder === orderId ? null : orderId);
-    };
 
     const filteredOrders = useMemo(() => {
         const fromDate = getFromDate(selectedPeriod);
         const today = new Date();
 
-        return mockOrders.filter((order) => {
-            const matchesSearch =
-                order.id.includes(searchQuery) ||
-                order.items.some((item) => item.name.includes(searchQuery));
-            const matchesStatus =
-                selectedStatus === "전체" || order.status === selectedStatus;
+        const matchesSearch = (order: Order): boolean =>
+            order.id.includes(searchQuery) ||
+            order.items.some((item) => item.name.includes(searchQuery));
 
+        const matchesStatus = (order: Order): boolean =>
+            selectedStatus === "전체" || order.status === selectedStatus;
+
+        const matchesPeriod = (order: Order): boolean => {
             if (!fromDate) {
-                return matchesSearch && matchesStatus;
+                return true;
             }
-
             const orderDate = new Date(order.date.replace(/\./g, "-"));
-            const matchesPeriod = orderDate >= fromDate && orderDate <= today;
+            return orderDate >= fromDate && orderDate <= today;
+        };
 
-            return matchesSearch && matchesStatus && matchesPeriod;
-        });
+        return mockOrders.filter(
+            (order) => matchesSearch(order) && matchesStatus(order) && matchesPeriod
+        );
     }, [searchQuery, selectedPeriod, selectedStatus]);
 
-    const totalPages = Math.ceil(filteredOrders.length / ITEMS_PER_PAGE);
-    const paginatedOrders = filteredOrders.slice(
-        (currentPage - 1) * ITEMS_PER_PAGE,
-        currentPage * ITEMS_PER_PAGE
-    );
+    const {
+        paginatedData: paginatedOrders,
+        currentPage,
+        setCurrentPage,
+        totalPages
+    } = usePagination({ data: filteredOrders, itemsPerPage: 3 });
 
     const handlePageChange = (page: number) => {
         if (page > 0 && page <= totalPages) {
             setCurrentPage(page);
             setExpandedOrder(null);
         }
+    };
+
+    const toggleOrderExpansion = (orderId: string) => {
+        setExpandedOrder(expandedOrder === orderId ? null : orderId);
     };
 
     return (

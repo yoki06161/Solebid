@@ -1,51 +1,49 @@
 import { useMemo, useState } from "react";
 import { useParams } from 'react-router-dom';
 import Pagination from "../../../components/Pagination";
+import { usePagination } from "../../../hooks/usePagination";
 import { CategoryBreadcrumb, CategoryHeader, CategoryList, CategorySearch } from "../components/category";
 import { brands, categories, priceRanges, sortOptions } from "../components/category/mockData";
 import type { Category } from "../types/category/Category";
-
-const ITEMS_PER_PAGE = 4;
 
 const CategoryPage = () => {
     const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
     const [selectedPriceRange, setSelectedPriceRange] = useState<string>('');
     const [sortBy, setSortBy] = useState<string>('popular');
-    const [currentPage, setCurrentPage] = useState<number>(1);
+
+    const filteredAndSortedCategories = useMemo<Category[]>(() => {
+        const sortFns: Record<string, (a: Category, b: Category) => number> = {
+            'popular': (a, b) => b.bidders - a.bidders,
+            'newest': (a, b) => new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime(),
+            'price-asc': (a, b) => a.price - b.price,
+            'price-desc': (a, b) => b.price - a.price,
+        };
+
+        const processedCategories = categories
+            .filter(sneaker =>
+                !selectedBrands.length || selectedBrands.includes(sneaker.brand)
+            )
+            .filter(sneaker => {
+                if (!selectedPriceRange) return true;
+                const [min, max] = selectedPriceRange.split('-').map(Number);
+                return sneaker.price >= min && (isNaN(max) || sneaker.price <= max);
+            });
+
+        const sortFn = sortFns[sortBy] || (() => 0);
+
+        return [...processedCategories].sort(sortFn);
+    }, [selectedBrands, selectedPriceRange, sortBy]);
+
+    const {
+        paginatedData: paginatedCategories,
+        currentPage,
+        setCurrentPage,
+        totalPages
+    } = usePagination({ data: filteredAndSortedCategories, itemsPerPage: 4 });
 
     const { categoryName } = useParams<{ categoryName: string }>();
 
     const decodedCategory = categoryName ? decodeURIComponent(categoryName) : '';
-
-    const filteredAndSortedCategories = useMemo<Category[]>(() => {
-        let result: Category[] = categories;
-
-        if (selectedBrands.length > 0) {
-            result = result.filter((sneaker) => selectedBrands.includes(sneaker.brand));
-        }
-
-        if (selectedPriceRange) {
-            const [min, max] = selectedPriceRange.split('-').map(Number);
-            result = result.filter(sneaker =>
-                sneaker.price >= min && (max ? sneaker.price <= max : true)
-            );
-        }
-
-        return [...result].sort((a, b) => {
-            switch (sortBy) {
-                case 'popular':
-                    return b.bidders - a.bidders;
-                case 'newest':
-                    return new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime();
-                case 'price-asc':
-                    return a.price - a.price;
-                case 'price-desc':
-                    return b.price - a.price;
-                default:
-                    return 0;
-            }
-        });
-    }, [selectedBrands, selectedPriceRange, sortBy]);
 
     const handleBrandFilter = (brand: string) => {
         setSelectedBrands((prev) =>
@@ -55,12 +53,6 @@ const CategoryPage = () => {
         );
         setCurrentPage(1);
     };
-
-    const totalPages = Math.ceil(filteredAndSortedCategories.length / ITEMS_PER_PAGE);
-    const paginatedCategories = filteredAndSortedCategories.slice(
-        (currentPage - 1) * ITEMS_PER_PAGE,
-        currentPage * ITEMS_PER_PAGE
-    );
 
     return (
         <main className="min-h-screen bg-gray-50">
