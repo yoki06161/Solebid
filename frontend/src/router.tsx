@@ -9,17 +9,17 @@ import BrandPage from './features/product/pages/BrandPage';
 import CategoryPage from './features/product/pages/CategoryPage';
 import RankingPage from './features/product/pages/RankingPage';
 import SearchPage from './features/product/pages/SearchPage';
-import WishPage from './features/product/pages/WishPage';
 import ProfilePage from './features/profile/pages/ProfilePage';
+import WishPage from './features/wish/pages/WishPage.tsx';
 
 import Login from "./features/user/pages/Login.tsx";
 import NicknameSetup from "./features/user/pages/NicknameSetup.tsx";
 import OAuth2Callback from "./features/user/pages/OAuth2Callback.tsx";
 import Signup from "./features/user/pages/Signup.tsx";
 
+import AppLayout from "./components/AppLayout.tsx";
 import ChargePointsPage from './features/payment/pages/ChargePointsPage.tsx';
 import ChargeResultPage from './features/payment/pages/ChargeResultPage.tsx';
-import AppLayout from "./components/AppLayout.tsx";
 
 const router = createBrowserRouter(
     createRoutesFromElements(

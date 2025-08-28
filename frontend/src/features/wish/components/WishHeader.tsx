@@ -1,5 +1,5 @@
-import BackPress from "../../../../components/BackPress";
-import type { WishHeaderProps } from "../../types/wish/WishHeaderProps";
+import BackPress from "../../../components/BackPress";
+import type { WishHeaderProps } from "../types/WishHeaderProps";
 
 const WishHeader: React.FC<WishHeaderProps> = ({ itemCount }) => (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
