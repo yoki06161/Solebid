@@ -1,29 +1,16 @@
 import { useState } from 'react';
 import Pagination from '../../../components/Pagination';
 import Toast from '../../../components/Toast';
+import { usePagination } from '../../../hooks/usePagination';
 import { WishList, WishSearch } from '../components';
 import { categories, wishes } from '../components/mockData';
 import type { Wish } from '../types/Wish';
-
-const ITEMS_PER_PAGE = 8;
 
 const WishPage = () => {
     const [selectedCategory, setSelectedCategory] = useState("전체");
     const [sortBy, setSortBy] = useState("latest");
     const [wishItem, setWishItem] = useState(wishes);
-    const [currentPage, setCurrentPage] = useState(1);
     const [showToast, setShowToast] = useState(false);
-
-    const handleRemoveFromWishList = (id: number) => {
-        setWishItem((prev) => prev.filter((item) => item.id !== id));
-    };
-
-    const handleAddToCart = () => {
-        setShowToast(true);
-        setTimeout(() => {
-            setShowToast(false);
-        }, 2500);
-    };
 
     const filteredItems = wishItem.filter(
         (item) => selectedCategory === "전체" || item.category === selectedCategory,
@@ -36,13 +23,23 @@ const WishPage = () => {
         latest: (a, b) => new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime(),
     };
 
-    const sortedItem = [...filteredItems].sort(sortedByCategory[sortBy] || sortedByCategory.latest)
+    const sortedItem = [...filteredItems].sort(sortedByCategory[sortBy] || sortedByCategory.latest);
 
-    const totalPages = Math.ceil(sortedItem.length / ITEMS_PER_PAGE);
-    const paginatedWishes = sortedItem.slice(
-        (currentPage - 1) * ITEMS_PER_PAGE,
-        currentPage * ITEMS_PER_PAGE
-    );
+    const {
+        paginatedData: paginatedWishes,
+        currentPage,
+        setCurrentPage,
+        totalPages
+    } = usePagination({ data: sortedItem, itemsPerPage: 8 });
+
+    const handleRemoveFromWishList = (id: number) => {
+        setWishItem((prev) => prev.filter((item) => item.id !== id));
+    };
+
+    const handleAddToCart = () => {
+        setShowToast(true);
+        setTimeout(() => { setShowToast(false); }, 2500);
+    };
 
     return (
         <main className="min-h-screen bg-gray-50 relative">

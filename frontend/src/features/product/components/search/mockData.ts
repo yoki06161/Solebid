@@ -1,6 +1,6 @@
-import type { SearchProduct } from "../../types/search/Search";
+import type { Search } from "../../types/search/Search";
 
-export const allSearchResults: SearchProduct[] = [
+export const allSearchResults: Search[] = [
     {
         image:
             "https://readdy.ai/api/search-image?query=premium%20white%20Nike%20Air%20Max%20sneakers%20on%20minimal%20light%20background%20with%20subtle%20reflection%2C%20professional%20product%20photography&width=300&height=300&seq=6&orientation=squarish",

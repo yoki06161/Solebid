@@ -1,4 +1,4 @@
-export interface SearchProduct {
+export interface Search {
   image: string;
   brand: string;
   name: string;
