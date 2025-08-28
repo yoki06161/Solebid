@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import Toast from '../../../components/Toast';
-import { WishHeader, WishList, WishSearch } from '../components/wish';
-import { wishes } from '../components/wish/mockData';
-import type { Wish } from '../types/wish/Wish';
+import { WishHeader, WishList, WishSearch } from '../components';
+import { wishes } from '../components/mockData';
+import type { Wish } from '../types/Wish';
 
 const categories = ["전체", "패션", "전자기기", "뷰티", "식품", "가구"];
 
