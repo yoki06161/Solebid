@@ -9,7 +9,7 @@ import com.sesac.solbid.exception.CustomException;
 import com.sesac.solbid.exception.ReactivationRequiredException;
 import com.sesac.solbid.service.OAuth2Service;
 import com.sesac.solbid.util.JwtUtil;
-import jakarta.servlet.http.Cookie;
+import com.sesac.solbid.util.CookieUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -34,6 +34,7 @@ public class AuthController {
 
     private final OAuth2Service oAuth2Service;
     private final JwtUtil jwtUtil;
+    private final CookieUtil cookieUtil;
 
     /**
      * 로그아웃 처리
@@ -46,8 +47,8 @@ public class AuthController {
         
         try {
             // 쿠키 삭제
-            clearTokenCookies(response);
-            
+            cookieUtil.clearTokenCookies(response);
+
             log.info("로그아웃 완료");
             
             return ResponseEntity.ok(
@@ -132,8 +133,12 @@ public class AuthController {
             );
             
             // HttpOnly 쿠키로 토큰 설정
-            setTokenCookies(httpResponse, response.getAccessToken(), response.getRefreshToken());
-            
+            cookieUtil.addTokenCookies(
+                httpResponse,
+                response.getAccessToken(), jwtUtil.getAccessTokenValiditySeconds(),
+                response.getRefreshToken(), jwtUtil.getRefreshTokenValiditySeconds()
+            );
+
             // 임시 닉네임인지 여부 판단 (user_ 접두어)
             boolean requiresNickname = response.getNickname() != null && response.getNickname().startsWith("user_");
 
@@ -221,51 +226,6 @@ public class AuthController {
         return state.substring(0, 4) + "****" + state.substring(state.length() - 4);
     }
 
-    /**
-     * HttpOnly 쿠키로 토큰 설정
-     */
-    private void setTokenCookies(HttpServletResponse response, String accessToken, String refreshToken) {
-        // Access Token 쿠키 설정
-        Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
-        accessTokenCookie.setHttpOnly(true);  // JavaScript 접근 차단
-        accessTokenCookie.setSecure(false);   // 개발환경에서는 false, 운영환경에서는 true
-        accessTokenCookie.setPath("/");
-        accessTokenCookie.setMaxAge(3600);    // 1시간
-        response.addCookie(accessTokenCookie);
-
-        // Refresh Token 쿠키 설정
-        Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setSecure(false);  // 개발환경에서는 false, 운영환경에서는 true
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge(86400);  // 24시간
-        response.addCookie(refreshTokenCookie);
-
-        log.debug("HttpOnly 쿠키 설정 완료: accessToken({}초), refreshToken({}초)", 3600, 86400);
-    }
-
-    /**
-     * 토큰 쿠키 삭제 (로그아웃)
-     */
-    private void clearTokenCookies(HttpServletResponse response) {
-        // Access Token 쿠키 삭제
-        Cookie accessTokenCookie = new Cookie("accessToken", "");
-        accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setSecure(false);
-        accessTokenCookie.setPath("/");
-        accessTokenCookie.setMaxAge(0);  // 즉시 만료
-        response.addCookie(accessTokenCookie);
-
-        // Refresh Token 쿠키 삭제
-        Cookie refreshTokenCookie = new Cookie("refreshToken", "");
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setSecure(false);
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge(0);  // 즉시 만료
-        response.addCookie(refreshTokenCookie);
-
-        log.debug("HttpOnly 쿠키 삭제 완료");
-    }
 
     /**
      * 이메일 마스킹 처리 (보안)
