@@ -6,9 +6,11 @@ import com.sesac.solbid.dto.ApiResponse;
 
 import com.sesac.solbid.exception.CustomException;
 import com.sesac.solbid.exception.ReactivationRequiredException;
+import com.sesac.solbid.repository.SocialLoginRepository;
 import com.sesac.solbid.service.UserService;
 import com.sesac.solbid.service.SocialUnlinkService;
 import com.sesac.solbid.util.JwtUtil;
+import com.sesac.solbid.util.CookieUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -32,7 +34,8 @@ public class UserController {
     private final UserService userService;
     private final JwtUtil jwtUtil;
     private final SocialUnlinkService socialUnlinkService;
-    private final com.sesac.solbid.repository.SocialLoginRepository socialLoginRepository;
+    private final SocialLoginRepository socialLoginRepository;
+    private final CookieUtil cookieUtil;
 
     // 회원가입
     @PostMapping("/signup")
@@ -52,8 +55,12 @@ public class UserController {
         try {
             UserDto.LoginResponse responseDto = userService.login(requestDto);
 
-            // HttpOnly 쿠키로 토큰 설정
-            setTokenCookies(response, responseDto.getAccessToken(), responseDto.getRefreshToken());
+            // HttpOnly 쿠키로 토큰 설정 (CookieUtil 사용)
+            cookieUtil.addTokenCookies(
+                    response,
+                    responseDto.getAccessToken(), jwtUtil.getAccessTokenValiditySeconds(),
+                    responseDto.getRefreshToken(), jwtUtil.getRefreshTokenValiditySeconds()
+            );
 
             // 응답에서는 토큰 제외하고 사용자 정보만 반환
             Map<String, Object> userData = new HashMap<>();
@@ -176,7 +183,7 @@ public class UserController {
             }
             userService.withdrawByEmail(email);
             // 토큰 쿠키 삭제로 자동 로그아웃 처리
-            clearTokenCookies(response);
+            cookieUtil.clearTokenCookies(response);
             return ResponseEntity.ok(ApiResponse.success(new HashMap<>(), "회원탈퇴가 완료되었습니다."));
         } catch (Exception e) {
             log.error("회원탈퇴 처리 중 예외", e);
@@ -234,10 +241,10 @@ public class UserController {
         }
         try {
             User user = userService.reactivateByEmail(email);
-            // 즉시 로그인 쿠키 설정
+            // 즉시 로그인 쿠키 설정 (CookieUtil 사용)
             String at = jwtUtil.generateToken(user.getEmail());
             String rt = jwtUtil.generateRefreshToken(user.getEmail());
-            setTokenCookies(response, at, rt);
+            cookieUtil.addTokenCookies(response, at, jwtUtil.getAccessTokenValiditySeconds(), rt, jwtUtil.getRefreshTokenValiditySeconds());
             Map<String, Object> data = new HashMap<>();
             data.put("userId", user.getUserId());
             data.put("email", user.getEmail());
@@ -261,46 +268,6 @@ public class UserController {
             }
         }
         return Optional.empty();
-    }
-
-    /**
-     * HttpOnly 쿠키로 토큰 설정
-     */
-    private void setTokenCookies(HttpServletResponse response, String accessToken, String refreshToken) {
-        // Access Token 쿠키 설정
-        Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
-        accessTokenCookie.setHttpOnly(true);  // JavaScript 접근 차단
-        accessTokenCookie.setSecure(false);   // 개발환경에서는 false, 운영환경에서는 true
-        accessTokenCookie.setPath("/");
-        accessTokenCookie.setMaxAge(3600);    // 1시간
-        response.addCookie(accessTokenCookie);
-        
-        // Refresh Token 쿠키 설정
-        Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setSecure(false);  // 개발환경에서는 false, 운영환경에서는 true
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge(86400);  // 24시간
-        response.addCookie(refreshTokenCookie);
-    }
-
-    /**
-     * 토큰 쿠키 삭제 (로그아웃)
-     */
-    private void clearTokenCookies(HttpServletResponse response) {
-        Cookie accessTokenCookie = new Cookie("accessToken", "");
-        accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setSecure(false);
-        accessTokenCookie.setPath("/");
-        accessTokenCookie.setMaxAge(0);
-        response.addCookie(accessTokenCookie);
-
-        Cookie refreshTokenCookie = new Cookie("refreshToken", "");
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setSecure(false);
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge(0);
-        response.addCookie(refreshTokenCookie);
     }
 
 }
