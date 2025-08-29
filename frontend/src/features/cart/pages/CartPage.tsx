@@ -15,7 +15,7 @@ const CartPage = () => {
     };
 
     const totalAmount = cartItems.reduce(
-        (sum, item) => sum + item.price * item.quantity,
+        (sum, item) => sum + item.price,
         0,
     );
     const shippingFee = totalAmount >= 50000 ? 0 : 3000;
