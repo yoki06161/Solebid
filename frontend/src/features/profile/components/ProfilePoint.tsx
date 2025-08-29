@@ -72,28 +72,6 @@ const ProfilePoint = () => {
                     <i className="fas fa-exchange-alt mr-2" />
                     현금을 포인트로 전환
                 </button>
-                <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
-                    <div>
-                        <div className="font-medium text-gray-900">
-                            쿠폰
-                        </div>
-                        <div className="text-green-600 font-semibold">
-                            3장
-                        </div>
-                    </div>
-                    <i className="fas fa-ticket-alt text-green-600 text-xl" />
-                </div>
-                <div className="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
-                    <div>
-                        <div className="font-medium text-gray-900">
-                            등급
-                        </div>
-                        <div className="text-purple-600 font-semibold">
-                            골드
-                        </div>
-                    </div>
-                    <i className="fas fa-crown text-purple-600 text-xl" />
-                </div>
             </div>
             <Modal
                 isOpen={isModalOpen}
