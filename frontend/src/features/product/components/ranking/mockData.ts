@@ -1,5 +1,3 @@
-import type { Tab } from "../../types/ranking/RankingTabProps";
-
 export const productRankings = [
     {
         rank: 1,
@@ -81,7 +79,7 @@ export const bidderRankings = [
     },
 ];
 
-export const tabs: { id: Tab; label: string }[] = [
+export const tabs: { id: string; label: string }[] = [
     { id: "products", label: "상품 랭킹" },
     { id: "sellers", label: "판매자 랭킹" },
     { id: "bidders", label: "입찰자 랭킹" },

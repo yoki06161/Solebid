@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { RankingBidderList, RankingProductList, RankingSellerList, RankingTab } from "../components/ranking";
 import { bidderRankings, productRankings, sellerRankings } from "../components/ranking/mockData";
-import type { Tab } from "../types/ranking/RankingTabProps";
 
 const RankingPage = () => {
-    const [activeTab, setActiveTab] = useState<Tab>("products");
+    const [activeTab, setActiveTab] = useState<string>("products");
     const renderContent = () => {
         switch (activeTab) {
             case "products":
