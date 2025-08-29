@@ -1,12 +1,15 @@
 import { RouterProvider } from "react-router-dom";
-import router from "./router";
 import TokenRefreshManager from "./components/TokenRefreshManager";
+import { ModalProvider } from "./contexts/modal/ModalContext";
+import router from "./router";
 
 function App() {
     return (
         <>
-            <TokenRefreshManager />
-            <RouterProvider router={router} />
+            <ModalProvider>
+                <TokenRefreshManager />
+                <RouterProvider router={router} />
+            </ModalProvider>
         </>
     );
 }

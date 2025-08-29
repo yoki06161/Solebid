@@ -1,5 +1,40 @@
-import { Fragment, useState } from "react";
-import Modal from "../../../components/Modal";
+import { Fragment } from "react";
+import { useModal } from "../../../contexts/modal/modal";
+
+const ProfilePoint = () => {
+    const { openModal, closeModal } = useModal();
+
+    const handleOpenModal = () => {
+        openModal(<PointConvertFormat onClose={closeModal} />);
+    };
+
+    return (
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                포인트 & 혜택
+            </h3>
+            <div className="space-y-4">
+                <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+                    <div>
+                        <div className="font-medium text-gray-900">
+                            적립 포인트
+                        </div>
+                        <div className="text-blue-600 font-semibold">
+                            2,450P
+                        </div>
+                    </div>
+                    <i className="fas fa-coins text-blue-600 text-xl" />
+                </div>
+                <button
+                    onClick={handleOpenModal}
+                    className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 !rounded-button whitespace-nowrap">
+                    <i className="fas fa-exchange-alt mr-2" />
+                    현금을 포인트로 전환
+                </button>
+            </div>
+        </div>
+    );
+};
 
 const PointConvertFormat = ({ onClose }: { onClose: () => void }) => {
     const handleConvert = () => {
@@ -44,41 +79,6 @@ const PointConvertFormat = ({ onClose }: { onClose: () => void }) => {
                 </button>
             </div>
         </Fragment>
-    );
-};
-
-const ProfilePoint = () => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    return (
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                포인트 & 혜택
-            </h3>
-            <div className="space-y-4">
-                <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
-                    <div>
-                        <div className="font-medium text-gray-900">
-                            적립 포인트
-                        </div>
-                        <div className="text-blue-600 font-semibold">
-                            2,450P
-                        </div>
-                    </div>
-                    <i className="fas fa-coins text-blue-600 text-xl" />
-                </div>
-                <button
-                    onClick={() => setIsModalOpen(true)}
-                    className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 !rounded-button whitespace-nowrap">
-                    <i className="fas fa-exchange-alt mr-2" />
-                    현금을 포인트로 전환
-                </button>
-            </div>
-            <Modal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}>
-                <PointConvertFormat onClose={() => setIsModalOpen(false)} />
-            </Modal>
-        </div>
     );
 };
 
