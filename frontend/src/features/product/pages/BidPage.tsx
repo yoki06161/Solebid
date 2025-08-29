@@ -8,8 +8,6 @@ import type { Bid } from "../types/bid/Bid";
 
 
 const BidPage = () => {
-    const navigate = useNavigate();
-
     const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
     const [previewUrls, setPreviewUrls] = useState<string[]>([]);
     const [bidInfo, setBidInfo] = useState<Bid>({
@@ -27,6 +25,8 @@ const BidPage = () => {
         };
     }, [selectedFiles]);
 
+    const navigate = useNavigate();
+
     const handleBidChange = (field: keyof Bid, value: string) => {
         setBidInfo(prev => ({ ...prev, [field]: value }));
         if (errors[field]) {
@@ -39,17 +39,25 @@ const BidPage = () => {
     };
 
     const validateForm = () => {
-        const newErrors: { [key: string]: string } = {};
-        if (!bidInfo.name.trim()) newErrors.name = "상품명을 입력해주세요.";
-        if (!bidInfo.brand) newErrors.brand = "브랜드를 선택해주세요.";
-        if (!bidInfo.category) newErrors.category = "카테고리를 선택해주세요.";
-        if (!bidInfo.size) newErrors.size = "사이즈를 선택해주세요.";
-        if (!bidInfo.startPrice) newErrors.startPrice = "시작가를 입력해주세요.";
-        if (!bidInfo.confirmationPrice) newErrors.confirmationPrice = "즉시 구매가를 입력해주세요.";
-        if (!bidInfo.startDate) newErrors.startDate = "경매 시작일을 선택해주세요.";
-        if (!bidInfo.endDate) newErrors.endDate = "경매 종료일을 선택해주세요.";
-        if (!bidInfo.condition) newErrors.condition = "상품 상태를 선택해주세요.";
-        if (selectedFiles.length === 0) newErrors.files = "이미지를 1장 이상 등록해주세요.";
+        const validationRules: { key: keyof Bid | 'files'; message: string; isValid: () => boolean }[] = [
+            { key: 'name', message: '상품명을 입력해주세요.', isValid: () => !!bidInfo.name.trim() },
+            { key: 'brand', message: '브랜드를 선택해주세요.', isValid: () => !!bidInfo.brand },
+            { key: 'category', message: '카테고리를 선택해주세요.', isValid: () => !!bidInfo.category },
+            { key: 'size', message: '사이즈를 선택해주세요.', isValid: () => !!bidInfo.size },
+            { key: 'startPrice', message: '시작가를 입력해주세요.', isValid: () => !!bidInfo.startPrice },
+            { key: 'confirmationPrice', message: '즉시 구매가를 입력해주세요.', isValid: () => !!bidInfo.confirmationPrice },
+            { key: 'startDate', message: '경매 시작일을 선택해주세요.', isValid: () => !!bidInfo.startDate },
+            { key: 'endDate', message: '경매 종료일을 선택해주세요.', isValid: () => !!bidInfo.endDate },
+            { key: 'condition', message: '상품 상태를 선택해주세요.', isValid: () => !!bidInfo.condition },
+            { key: 'files', message: '이미지를 1장 이상 등록해주세요.', isValid: () => selectedFiles.length > 0 },
+        ];
+
+        const newErrors = validationRules.reduce((errors, { key, message, isValid }) => {
+            if (!isValid()) {
+                errors[key as string] = message;
+            }
+            return errors;
+        }, {} as { [key: string]: string });
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
