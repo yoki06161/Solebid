@@ -72,7 +72,7 @@ const OrderPage = () => {
                     expandedOrder={expandedOrder}
                     toggleOrderExpansion={toggleOrderExpansion}
                 />
-                {totalPages > 0 && (
+                {filteredOrders.length > 0 && (
                     <Pagination
                         currentPage={currentPage}
                         totalPages={totalPages}

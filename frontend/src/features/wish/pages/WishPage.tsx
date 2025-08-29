@@ -12,7 +12,7 @@ const WishPage = () => {
     const [wishItem, setWishItem] = useState(wishes);
     const [showToast, setShowToast] = useState(false);
 
-    const filteredItems = wishItem.filter(
+    const filteredWishes = wishItem.filter(
         (item) => selectedCategory === "전체" || item.category === selectedCategory,
     );
 
@@ -23,7 +23,7 @@ const WishPage = () => {
         latest: (a, b) => new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime(),
     };
 
-    const sortedItem = [...filteredItems].sort(sortedByCategory[sortBy] || sortedByCategory.latest);
+    const sortedItem = [...filteredWishes].sort(sortedByCategory[sortBy] || sortedByCategory.latest);
 
     const {
         paginatedData: paginatedWishes,
@@ -57,7 +57,7 @@ const WishPage = () => {
                     onRemove={handleRemoveFromWishList}
                     onAddToCart={handleAddToCart}
                 />
-                {totalPages > 0 && (
+                {filteredWishes.length > 0 && (
                     <Pagination
                         currentPage={currentPage}
                         totalPages={totalPages}
