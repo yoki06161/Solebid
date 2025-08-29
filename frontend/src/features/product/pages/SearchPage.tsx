@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import Pagination from "../../../components/Pagination";
 import { usePagination } from "../../../hooks/usePagination";
 import { SearchHeader, SearchItem, SearchSidebar } from "../components/search";
-import { allSearchResults, brands, sizes, sortOptions } from "../components/search/mockData";
+import { searchResults } from "../components/search/mockData";
 import type { Search } from "../types/search/Search";
 
 const SearchPage = () => {
@@ -11,28 +11,30 @@ const SearchPage = () => {
     const [showFilters, setShowFilters] = useState(false);
     const [priceRange, setPriceRange] = useState([0, 500000]);
     const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
-    const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
+    const [selectedSizes, setSelectedSizes] = useState<number[]>([]);
 
-    const getPrice = (priceString: string): number =>
-        parseInt(priceString.replace(/,/g, ""), 10);
+    const brands = useMemo(() => [...new Set(searchResults.map((p) => p.brand))], []);
+    const sizes = useMemo(() => [...new Set(searchResults.map((p) => p.size))].sort((a, b) => a - b), []);
+    const sortOptions = ["인기순", "가격 높은순", "가격 낮은순"];
 
     const filteredResults = useMemo((): Search[] => {
         const sortFuns: Record<string, (a: Search, b: Search) => number> = {
-            "가격 높은순": (a, b) => getPrice(b.price) - getPrice(a.price),
-            "가격 낮은순": (a, b) => getPrice(a.price) - getPrice(b.price),
+            "가격 높은순": (a, b) => b.price - a.price,
+            "가격 낮은순": (a, b) => a.price - b.price,
             "인기순": (a, b) => b.bidCount - a.bidCount,
         };
+        
         const sortFunction = sortFuns[sortBy] || sortFuns["인기순"];
 
-        return allSearchResults
+        return searchResults
             .filter((product: Search) => {
                 const isInBrand = selectedBrands.length === 0 || selectedBrands.includes(product.brand);
-                const price = getPrice(product.price);
-                const isInPriceRange = price >= priceRange[0] && price <= priceRange[1];
-                return isInBrand && isInPriceRange;
+                const isInPriceRange = product.price >= priceRange[0] && product.price <= priceRange[1];
+                const isInSize = selectedSizes.length === 0 || selectedSizes.includes(product.size);
+                return isInBrand && isInPriceRange && isInSize;
             })
             .sort(sortFunction);
-    }, [selectedBrands, priceRange, sortBy]);
+    }, [selectedBrands, priceRange, sortBy, selectedSizes]);
 
     const {
         paginatedData: paginatedSearches,
@@ -50,7 +52,7 @@ const SearchPage = () => {
         setCurrentPage(1);
     };
 
-    const handleSizeChange = (size: string) => {
+    const handleSizeChange = (size: number) => {
         setSelectedSizes((prev) =>
             prev.includes(size) ? prev.filter((s) => s !== size) : [...prev, size],
         );
@@ -89,9 +91,9 @@ const SearchPage = () => {
                         brands={brands}
                         selectedBrands={selectedBrands}
                         handleBrandChange={handleBrandChange}
-                        sizes={sizes}
-                        selectedSizes={selectedSizes}
-                        handleSizeChange={handleSizeChange}
+                        sizes={sizes.map(s => s.toString())}
+                        selectedSizes={selectedSizes.map(s => s.toString())}
+                        handleSizeChange={(s) => handleSizeChange(parseInt(s))}
                         resetFilters={resetFilters}
                     />
                     <div className="flex-1">
@@ -103,7 +105,7 @@ const SearchPage = () => {
                                 />
                             ))}
                         </div>
-                        {totalPages > 0 && (
+                        {filteredResults.length > 0 && (
                             <Pagination
                                 currentPage={currentPage}
                                 totalPages={totalPages}
