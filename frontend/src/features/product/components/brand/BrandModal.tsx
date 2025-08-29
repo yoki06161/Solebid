@@ -39,7 +39,7 @@ const BrandModal = ({
             return;
         }
 
-        onSubmit(newBid);
+        onSubmit(product.id, newBid);
     };
 
     if (!isOpen || !product) {

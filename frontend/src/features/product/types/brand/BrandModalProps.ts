@@ -4,5 +4,5 @@ export interface BrandModalProps {
     isOpen: boolean;
     onClose: () => void;
     product: BrandProduct | null;
-    onSubmit: (bidAmount: number) => void;
+    onSubmit: (productInd: number, bidAmount: number) => void;
 }
