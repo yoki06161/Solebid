@@ -11,7 +11,7 @@ const CategoryPage = () => {
     const [selectedPriceRange, setSelectedPriceRange] = useState<string>('');
     const [sortBy, setSortBy] = useState<string>('popular');
 
-    const filteredAndSortedCategories = useMemo<Category[]>(() => {
+    const filteredCategories = useMemo<Category[]>(() => {
         const sortFns: Record<string, (a: Category, b: Category) => number> = {
             'popular': (a, b) => b.bidders - a.bidders,
             'newest': (a, b) => new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime(),
@@ -39,7 +39,7 @@ const CategoryPage = () => {
         currentPage,
         setCurrentPage,
         totalPages
-    } = usePagination({ data: filteredAndSortedCategories, itemsPerPage: 4 });
+    } = usePagination({ data: filteredCategories, itemsPerPage: 4 });
 
     const { categoryName } = useParams<{ categoryName: string }>();
 
@@ -78,7 +78,7 @@ const CategoryPage = () => {
                     <p className="text-gray-600">
                         총
                         <span className="font-semibold text-gray-900">
-                            {filteredAndSortedCategories.length}
+                            {filteredCategories.length}
                         </span>
                         개의 상품
                     </p>
@@ -94,7 +94,7 @@ const CategoryPage = () => {
                 <CategoryList
                     categories={paginatedCategories}
                 />
-                {totalPages > 0 && (
+                {filteredCategories.length > 0 && (
                     <Pagination
                         currentPage={currentPage}
                         totalPages={totalPages}
