@@ -53,7 +53,6 @@ function MainContent() {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            {/* Navigation */}
             {/* Hero Section */}
             <div className="relative bg-gradient-to-r from-gray-50 to-transparent overflow-hidden">
                 <div className="max-w-[1440px] mx-auto px-6 py-16">
@@ -68,11 +67,6 @@ function MainContent() {
                                 <br />
                                 투명한 경매를 통해 원하는 신발을 만나보세요.
                             </p>
-                            <button
-                                className="px-6 py-3 bg-blue-500 text-white !rounded-button hover:bg-blue-600 cursor-pointer whitespace-nowrap"
-                            >
-                                지금 시작하기
-                            </button>
                         </div>
                         <div className="relative">
                             <img
