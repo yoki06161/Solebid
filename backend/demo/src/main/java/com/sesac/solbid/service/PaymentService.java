@@ -4,7 +4,7 @@ import com.sesac.solbid.dto.request.PaymentPrepareRequest;
 import com.sesac.solbid.dto.response.PaymentPrepareResponse;
 import org.springframework.stereotype.Service;
 
-@Service
+
 public interface PaymentService {
 
     //결제 준비
