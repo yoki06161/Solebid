@@ -29,6 +29,8 @@ public class JwtUtil {
 
     private Key key;
 
+    private static final String REACTIVATE_PREFIX = "reactivate:";
+
     @PostConstruct
     public void init() {
         byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
@@ -63,6 +65,29 @@ public class JwtUtil {
 
     public String generateRefreshToken(String username) {
         return doGenerateToken(username, refreshTokenValiditySeconds * 1000);
+    }
+
+    // 재활성화 전용 토큰 (주체에 접두어 부여)
+    public String generateReactivationToken(String email, long validitySeconds) {
+        String subject = REACTIVATE_PREFIX + email;
+        return doGenerateToken(subject, validitySeconds * 1000);
+    }
+
+    public boolean isReactivationToken(String token) {
+        try {
+            String sub = getUsernameFromToken(token);
+            return sub != null && sub.startsWith(REACTIVATE_PREFIX);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public String extractEmailFromReactivationToken(String token) {
+        String sub = getUsernameFromToken(token);
+        if (sub != null && sub.startsWith(REACTIVATE_PREFIX)) {
+            return sub.substring(REACTIVATE_PREFIX.length());
+        }
+        return null;
     }
 
     private String doGenerateToken(String subject, long validityInMilliseconds) {

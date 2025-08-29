@@ -3,6 +3,7 @@ package com.sesac.solbid.controller;
 import com.sesac.solbid.dto.ApiResponse;
 import com.sesac.solbid.service.UserService;
 import com.sesac.solbid.util.JwtUtil;
+import com.sesac.solbid.util.CookieUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -26,6 +27,7 @@ public class AuthTokenController {
 
     private final JwtUtil jwtUtil;
     private final UserService userService;
+    private final CookieUtil cookieUtil;
 
     /**
      * 리프레시 토큰으로 액세스 토큰 재발급
@@ -80,8 +82,12 @@ public class AuthTokenController {
             String newAccessToken = jwtUtil.generateToken(email);
             String newRefreshToken = jwtUtil.generateRefreshToken(email);
 
-            // 쿠키 재설정
-            setTokenCookies(response, newAccessToken, newRefreshToken);
+            // 쿠키 재설정 (CookieUtil 사용)
+            cookieUtil.addTokenCookies(
+                    response,
+                    newAccessToken, jwtUtil.getAccessTokenValiditySeconds(),
+                    newRefreshToken, jwtUtil.getRefreshTokenValiditySeconds()
+            );
 
             Map<String, Object> body = new HashMap<>();
             body.put("accessTokenExpiresIn", jwtUtil.getAccessTokenValiditySeconds());
@@ -137,25 +143,6 @@ public class AuthTokenController {
             body.put("refreshAvailable", false);
             return ResponseEntity.ok(ApiResponse.success(body));
         }
-    }
-
-    private void setTokenCookies(HttpServletResponse response, String accessToken, String refreshToken) {
-        Cookie at = new Cookie("accessToken", accessToken);
-        at.setHttpOnly(true);
-        at.setSecure(false); // 운영 환경에서는 true 권장
-        at.setPath("/");
-        at.setMaxAge((int) jwtUtil.getAccessTokenValiditySeconds());
-        response.addCookie(at);
-
-        Cookie rt = new Cookie("refreshToken", refreshToken);
-        rt.setHttpOnly(true);
-        rt.setSecure(false);
-        rt.setPath("/");
-        rt.setMaxAge((int) jwtUtil.getRefreshTokenValiditySeconds());
-        response.addCookie(rt);
-
-        log.debug("쿠키 재설정 완료: accessToken({}s), refreshToken({}s)",
-                jwtUtil.getAccessTokenValiditySeconds(), jwtUtil.getRefreshTokenValiditySeconds());
     }
 
     private String extractRefreshTokenCookie(HttpServletRequest request) {

@@ -1,4 +1,3 @@
-// src/features/payment/pages/ChargePointsPage.tsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -46,11 +45,15 @@ const ChargePointsPage: React.FC = () => {
         }
     };
 
-    // payMethod 매핑: quickBank → 'trans', 나머지 → 'card'
+    // UI → PortOne pay_method 매핑
     const toPayMethod = (p: PaymentId | ""): "card" | "trans" => {
         if (p === "quickBank") return "trans";
         return "card";
     };
+
+    // 결과 페이지 경로
+    const RESULT_PATH = "/points/result";
+    const resultUrl = `${window.location.origin}${RESULT_PATH}`;
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -92,7 +95,7 @@ const ChargePointsPage: React.FC = () => {
 
                         <PaymentMethodList
                             selectedPayment={selectedPayment}
-                            setSelectedPayment={(v) => setSelectedPayment(v)}
+                            setSelectedPayment={setSelectedPayment}
                             registeredPayments={registeredPayments}
                             setSelectedCard={setSelectedCard}
                             setSelectedAccount={setSelectedAccount}
@@ -105,30 +108,55 @@ const ChargePointsPage: React.FC = () => {
                             selectedAmount={selectedAmount}
                             selectedPayment={selectedPayment}
                             onSubmit={async () => {
-                                try {
-                                    if (selectedAmount <= 0) return;
+                                try { //테스트용 임시 100원 설정
+
+                                    /*
+                                    if (selectedAmount < 1000 || selectedAmount > 1_000_000) {
+                                        alert("충전 금액은 1,000원 ~ 1,000,000원 사이여야 합니다.");
+                                        return;
+                                    }
+                                    if (!selectedPayment) {
+                                        alert("결제 수단을 선택해 주세요.");
+                                        return;
+                                    }*/
+
+                                    const isTestAmount = selectedAmount === 100;
+
+                                    if ((!isTestAmount && selectedAmount < 1000) || selectedAmount > 1_000_000) {
+                                        alert("충전 금액은 1,000원 ~ 1,000,000원 사이여야 합니다. (테스트용 100원 허용)");
+                                        return;
+                                    }
+
+                                    if (!selectedPayment) {
+                                        alert("결제 수단을 선택해 주세요.");
+                                        return;
+                                    }
+
+
+
 
                                     const result = await startPortoneCharge({
                                         amount: selectedAmount,
                                         payMethod: toPayMethod(selectedPayment),
+                                        redirectUrl: resultUrl, // 모바일 결제창 리디렉션 / 서버에도 전달
                                         buyer: {
-                                            // 필요 시 실제 사용자 정보로 대체
+                                            // 로그인 사용자 정보가 있다면 매핑
                                             // email: currentUser?.email,
                                             // name: currentUser?.name,
                                             // tel: currentUser?.phone,
                                         },
                                     });
 
-                                    // 결제 성공 후 결과 페이지로 라우팅
                                     navigate(
-                                        `/result?success=1` +
+                                        `${RESULT_PATH}?success=1` +
                                         `&imp_uid=${encodeURIComponent(result.impUid ?? "")}` +
                                         `&merchant_uid=${encodeURIComponent(result.merchantUid ?? "")}` +
                                         `&orderId=${encodeURIComponent(result.orderId)}`
                                     );
-                                } catch {
-                                    // 실패 시 결과 페이지로(간단 표시)
-                                    navigate(`/result?success=0`);
+                                } catch (e) {
+                                    console.error(e);
+                                    alert("결제에 실패했습니다. 다시 시도해 주세요.");
+                                    navigate(`${RESULT_PATH}?success=0`);
                                 }
                             }}
                         />

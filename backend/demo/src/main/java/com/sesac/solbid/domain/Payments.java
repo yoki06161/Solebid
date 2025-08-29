@@ -41,7 +41,7 @@ public class Payments extends BaseEntity {
     private int amount;
 
     @Column(name = "payment_method", length = 20, nullable = false)
-    private String paymentMethod; // 필요 시 enum으로 변경 권장
+    private String paymentMethod; // 필요 시 enum으로 변경
 
     @Column(name = "transaction_id", length = 100, unique = true)
     private String transactionId;

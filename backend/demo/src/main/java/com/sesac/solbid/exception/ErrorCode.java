@@ -17,6 +17,8 @@ public enum ErrorCode {
     // 로그인 에러
     LOGIN_FAILED(401, "이메일 또는 비밀번호가 올바르지 않습니다."),
     INACTIVE_USER(401, "비활성화된 계정입니다."),
+    WITHDRAWN_USER(401, "회원 탈퇴 처리된 계정입니다."),
+    WITHDRAWAL_GRACE_PERIOD_EXPIRED(401, "탈퇴 유예 기간이 만료된 계정입니다."),
 
     // OAuth2 소셜로그인 에러
     INVALID_OAUTH2_PROVIDER(400, "지원하지 않는 OAuth2 제공자입니다."),

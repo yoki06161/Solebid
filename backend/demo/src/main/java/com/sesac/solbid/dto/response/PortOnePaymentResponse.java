@@ -21,6 +21,8 @@ public class PortOnePaymentResponse {
 
         private String status;
         private int amount;
+
+        @JsonProperty("pay_method")
         private String payMethod;
 
         @JsonProperty("paid_at")

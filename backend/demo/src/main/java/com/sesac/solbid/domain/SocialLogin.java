@@ -32,6 +32,13 @@ public class SocialLogin {
     @Column(length = 100, nullable = false)
     private String providerId;
 
+    // 제공자 토큰 저장: Google revoke 자동화를 위해 사용
+    @Column(length = 2048)
+    private String providerAccessToken;
+
+    @Column(length = 2048)
+    private String providerRefreshToken;
+
     @CreatedDate
     @Column(updatable = false, nullable = false)
     private LocalDateTime createdAt;
@@ -41,5 +48,10 @@ public class SocialLogin {
         this.user = user;
         this.provider = provider;
         this.providerId = providerId;
+    }
+
+    public void updateProviderTokens(String accessToken, String refreshToken) {
+        this.providerAccessToken = accessToken;
+        this.providerRefreshToken = refreshToken;
     }
 }

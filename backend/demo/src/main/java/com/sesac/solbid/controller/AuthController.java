@@ -5,8 +5,11 @@ import com.sesac.solbid.dto.OAuth2Dto;
 import com.sesac.solbid.dto.UserDto;
 import com.sesac.solbid.exception.ErrorCode;
 import com.sesac.solbid.exception.OAuth2Exception;
+import com.sesac.solbid.exception.CustomException;
+import com.sesac.solbid.exception.ReactivationRequiredException;
 import com.sesac.solbid.service.OAuth2Service;
-import jakarta.servlet.http.Cookie;
+import com.sesac.solbid.util.JwtUtil;
+import com.sesac.solbid.util.CookieUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -16,6 +19,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 인증 컨트롤러
@@ -28,6 +33,8 @@ import java.util.Collections;
 public class AuthController {
 
     private final OAuth2Service oAuth2Service;
+    private final JwtUtil jwtUtil;
+    private final CookieUtil cookieUtil;
 
     /**
      * 로그아웃 처리
@@ -40,8 +47,8 @@ public class AuthController {
         
         try {
             // 쿠키 삭제
-            clearTokenCookies(response);
-            
+            cookieUtil.clearTokenCookies(response);
+
             log.info("로그아웃 완료");
             
             return ResponseEntity.ok(
@@ -108,7 +115,7 @@ public class AuthController {
      * @return 로그인 응답 (JWT 토큰 포함)
      */
     @PostMapping("/oauth2/{provider}/callback")
-    public ResponseEntity<ApiResponse<OAuth2Dto.LoginSuccessResponse>> handleCallback(
+    public ResponseEntity<ApiResponse<Object>> handleCallback(
             @PathVariable String provider,
             @Valid @RequestBody OAuth2Dto.CallbackRequest request,
             HttpServletRequest httpRequest,
@@ -126,8 +133,12 @@ public class AuthController {
             );
             
             // HttpOnly 쿠키로 토큰 설정
-            setTokenCookies(httpResponse, response.getAccessToken(), response.getRefreshToken());
-            
+            cookieUtil.addTokenCookies(
+                httpResponse,
+                response.getAccessToken(), jwtUtil.getAccessTokenValiditySeconds(),
+                response.getRefreshToken(), jwtUtil.getRefreshTokenValiditySeconds()
+            );
+
             // 임시 닉네임인지 여부 판단 (user_ 접두어)
             boolean requiresNickname = response.getNickname() != null && response.getNickname().startsWith("user_");
 
@@ -147,13 +158,27 @@ public class AuthController {
             return ResponseEntity.ok(
                 ApiResponse.success(loginSuccessResponse, "소셜로그인이 완료되었습니다.")
             );
-            
         } catch (OAuth2Exception e) {
             log.warn("OAuth2 콜백 처리 실패: provider={}, clientIp={}, error={}, state={}", 
                     provider, clientIp, e.getMessage(), maskState(request.getState()));
             int status = (e.getErrorCode() == ErrorCode.SOCIAL_ACCOUNT_CONFLICT) ? 409 : 400;
             return ResponseEntity.status(status).body(
                 ApiResponse.error(e.getErrorCode().name(), e.getMessage())
+            );
+        } catch (ReactivationRequiredException e) {
+            log.warn("OAuth2 콜백 - 탈퇴 계정: provider={}, email=***", provider);
+            String token = jwtUtil.generateReactivationToken(e.getEmail(), 600); // 10분
+            Map<String, Object> data = new HashMap<>();
+            data.put("reactivationToken", token);
+            data.put("email", e.getEmail());
+            return ResponseEntity.status(401).body(
+                ApiResponse.error(data, "WITHDRAWN_USER", "회원 탈퇴 처리된 계정입니다. 계정을 다시 활성화하시겠습니까?")
+            );
+        } catch (CustomException e) {
+            log.warn("OAuth2 콜백 처리 실패(Custom): provider={}, clientIp={}, error={}, state={}",
+                    provider, clientIp, e.getMessage(), maskState(request.getState()));
+            return ResponseEntity.status(e.getErrorCode().getStatus()).body(
+                    ApiResponse.error(e.getErrorCode().name(), e.getMessage())
             );
         } catch (Exception e) {
             log.error("OAuth2 콜백 처리 중 예외 발생: provider={}, clientIp={}, state={}", 
@@ -201,51 +226,6 @@ public class AuthController {
         return state.substring(0, 4) + "****" + state.substring(state.length() - 4);
     }
 
-    /**
-     * HttpOnly 쿠키로 토큰 설정
-     */
-    private void setTokenCookies(HttpServletResponse response, String accessToken, String refreshToken) {
-        // Access Token 쿠키 설정
-        Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
-        accessTokenCookie.setHttpOnly(true);  // JavaScript 접근 차단
-        accessTokenCookie.setSecure(false);   // 개발환경에서는 false, 운영환경에서는 true
-        accessTokenCookie.setPath("/");
-        accessTokenCookie.setMaxAge(3600);    // 1시간
-        response.addCookie(accessTokenCookie);
-
-        // Refresh Token 쿠키 설정
-        Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setSecure(false);  // 개발환경에서는 false, 운영환경에서는 true
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge(86400);  // 24시간
-        response.addCookie(refreshTokenCookie);
-
-        log.debug("HttpOnly 쿠키 설정 완료: accessToken({}초), refreshToken({}초)", 3600, 86400);
-    }
-
-    /**
-     * 토큰 쿠키 삭제 (로그아웃)
-     */
-    private void clearTokenCookies(HttpServletResponse response) {
-        // Access Token 쿠키 삭제
-        Cookie accessTokenCookie = new Cookie("accessToken", "");
-        accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setSecure(false);
-        accessTokenCookie.setPath("/");
-        accessTokenCookie.setMaxAge(0);  // 즉시 만료
-        response.addCookie(accessTokenCookie);
-
-        // Refresh Token 쿠키 삭제
-        Cookie refreshTokenCookie = new Cookie("refreshToken", "");
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setSecure(false);
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge(0);  // 즉시 만료
-        response.addCookie(refreshTokenCookie);
-
-        log.debug("HttpOnly 쿠키 삭제 완료");
-    }
 
     /**
      * 이메일 마스킹 처리 (보안)
