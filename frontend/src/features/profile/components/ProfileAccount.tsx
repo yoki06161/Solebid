@@ -1,5 +1,5 @@
-import { Link, useNavigate } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 type AuthUser = {
     [key: string]: unknown;
@@ -168,7 +168,7 @@ const ProfileAccount = () => {
                         회원 탈퇴
                     </button>
                     <Link
-                        to="#"
+                        to="/policy"
                         className="block text-gray-600 text-sm hover:text-gray-900 cursor-pointer">
                         개인정보 처리방침
                     </Link>
