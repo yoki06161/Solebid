@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@plugin '@tailwindcss/typography';
+
 @font-face {
     font-family: 'Pretendard';
     src: url('./assets/fonts/Pretendard-Regular.woff2') format('woff2');
