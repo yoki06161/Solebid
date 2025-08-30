@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Pagination from '../../../components/Pagination';
-import Toast from '../../../components/Toast';
+import { useToast } from '../../../contexts/toast/toast';
 import { usePagination } from '../../../hooks/usePagination';
 import { WishList, WishSearch } from '../components';
 import { categories, wishes } from '../components/mockData';
@@ -10,7 +10,7 @@ const WishPage = () => {
     const [selectedCategory, setSelectedCategory] = useState("전체");
     const [sortBy, setSortBy] = useState("latest");
     const [wishItem, setWishItem] = useState(wishes);
-    const [showToast, setShowToast] = useState(false);
+    const { showToast } = useToast();
 
     const filteredWishes = wishItem.filter(
         (item) => selectedCategory === "전체" || item.category === selectedCategory,
@@ -37,13 +37,11 @@ const WishPage = () => {
     };
 
     const handleAddToCart = () => {
-        setShowToast(true);
-        setTimeout(() => { setShowToast(false); }, 2500);
+        showToast('장바구니에 추가되었습니다');
     };
 
     return (
         <main className="min-h-screen bg-gray-50 relative">
-            {showToast && <Toast message='장바구니에 추가되었습니다' />}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                 <WishSearch
                     categories={categories}

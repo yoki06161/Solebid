@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Toast from "../../../components/Toast";
+import { useToast } from "../../../contexts/toast/toast";
 import { BidForm, BidHeader, BidImageUploader } from "../components/bid";
 import BidFormAction from "../components/bid/BidFormAction";
 import { brands, categories, sizes } from "../components/bid/mockData";
@@ -15,7 +15,7 @@ const BidPage = () => {
         confirmationPrice: "", startDate: "", endDate: "", condition: "", description: "",
     });
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
-    const [showSuccessToast, setShowSuccessToast] = useState(false);
+    const { showToast } = useToast();
 
     useEffect(() => {
         const newPreviewUrls = selectedFiles.map(file => URL.createObjectURL(file));
@@ -79,9 +79,8 @@ const BidPage = () => {
                 const errorData = await res.json();
                 throw new Error(errorData.message || "등록에 실패했습니다.");
             }
-            setShowSuccessToast(true);
+            showToast("상품이 성공적으로 등록되었습니다");
             setTimeout(() => {
-                setShowSuccessToast(false);
                 navigate("/");
             }, 2000);
         } catch (error) {
@@ -91,9 +90,6 @@ const BidPage = () => {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            {
-                showSuccessToast && (<Toast message="상품이 성공적으로 등록되었습니다" />)
-            }
             <div className="max-w-[1440px] mx-auto">
                 <BidHeader
                     title="경매 상품 등록"

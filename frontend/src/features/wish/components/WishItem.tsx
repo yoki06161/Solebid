@@ -1,7 +1,6 @@
-import { Link } from "react-router-dom";
 import type { WishItemProps } from "../types/WishItemProps";
 
-const WishItem = ({ item, onRemove }: WishItemProps) => (
+const WishItem = ({ item, onRemove, onAddToCart }: WishItemProps) => (
     <div className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
         <div className="relative">
             <img
@@ -26,11 +25,11 @@ const WishItem = ({ item, onRemove }: WishItemProps) => (
             <p className="text-gray-500 text-xs mb-4">
                 {item.dateAdded} 등록
             </p>
-            <Link
-                to="https://readdy.ai/home/..."
+            <button
+                onClick={() => onAddToCart(item.id)}
                 className="flex justify-center w-full px-3 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 cursor-pointer !rounded-button whitespace-nowrap">
                 입찰하기
-            </Link>
+            </button>
         </div>
     </div>
 );
