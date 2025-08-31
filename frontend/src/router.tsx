@@ -2,6 +2,7 @@ import { createBrowserRouter, createRoutesFromElements, Route } from 'react-rout
 
 import CartPage from './features/cart/pages/CartPage';
 import MainPage from './features/main/pages/MainPage';
+import OrderDetailPage from './features/order/pages/OrderDetailPage';
 import OrderPage from "./features/order/pages/OrderPage";
 import PolicyPage from './features/policy/pages/PolicyPage';
 import AuctionPage from './features/product/pages/AuctionPage';
@@ -39,6 +40,8 @@ const router = createBrowserRouter(
             <Route path="/ranking" element={<RankingPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/order" element={<OrderPage />} />
+            {/* /order/:orderId */}
+            <Route path="/order/detail" element={<OrderDetailPage />} />
             <Route path="/wish" element={<WishPage />} />
             <Route path="/points/charge" element={<ChargePointsPage />} />
             <Route path="/result" element={<ChargeResultPage />} />

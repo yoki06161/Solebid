@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { getBadgeClass } from "../../../utils/get-badge-class";
 import type { OrderItemProps } from "../types/OrderItemProps";
 
@@ -126,17 +127,15 @@ const OrderItem = ({ order, isExpanded, onToggleExpand }: OrderItemProps) => {
                                     </p>
                                 </div>
                             </div>
-                            {/* Order Details Buttons */}
+                            {/* Order Details Button */}
                             <div className="mt-4 flex space-x-2">
-                                <a
-                                    href="https://readdy.ai/home/8c14b666-4886-429c-ad07-c16c2cd22c03/fef002e5-e670-4c9a-abc6-8e14c7b1cf6a"
-                                    data-readdy="true"
-                                    className="flex-1"
+                                <Link
+                                    // to={`/order:${order.id}`}
+                                    to="/order/detail"
+                                    className="flex-1 w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer !rounded-button whitespace-nowrap text-center"
                                 >
-                                    <button className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer !rounded-button whitespace-nowrap">
-                                        주문 상세
-                                    </button>
-                                </a>
+                                    주문 상세
+                                </Link>
                                 {(
                                     order.status === "결제완료" ||
                                     order.status === "배송준비중") && (
