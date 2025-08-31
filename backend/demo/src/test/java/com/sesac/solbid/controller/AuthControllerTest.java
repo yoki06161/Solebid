@@ -3,13 +3,16 @@ package com.sesac.solbid.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sesac.solbid.config.WebConfig;
 import com.sesac.solbid.domain.enums.UserType;
-import com.sesac.solbid.dto.OAuth2Dto;
 import com.sesac.solbid.dto.UserDto;
 import com.sesac.solbid.exception.ErrorCode;
 import com.sesac.solbid.exception.GlobalExceptionHandler;
 import com.sesac.solbid.exception.OAuth2Exception;
 import com.sesac.solbid.security.SecurityConfig;
 import com.sesac.solbid.service.OAuth2Service;
+import com.sesac.solbid.dto.auth.response.AuthUrlResponse;
+import com.sesac.solbid.dto.auth.request.CallbackRequest;
+import com.sesac.solbid.util.CookieUtil;
+import com.sesac.solbid.util.JwtUtil;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +40,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @WebMvcTest(controllers = AuthController.class)
 @TestPropertySource(properties = "spring.main.web-application-type=servlet")
-@Import({WebConfig.class, GlobalExceptionHandler.class, SecurityConfig.class}) // WebConfig와 GlobalExceptionHandler, SecurityConfig를 임포트하여 설정 적용
+@Import({WebConfig.class, GlobalExceptionHandler.class, SecurityConfig.class, CookieUtil.class})
 @DisplayName("AuthController 통합 테스트")
 class AuthControllerTest {
 
@@ -53,6 +56,9 @@ class AuthControllerTest {
     @MockitoBean
     private JpaMetamodelMappingContext jpaMetamodelMappingContext;
 
+    @MockitoBean
+    private JwtUtil jwtUtil;
+
     // === 성공 시나리오 테스트 ===
 
     @Test
@@ -60,7 +66,7 @@ class AuthControllerTest {
     void generateAuthUrl_Success_Google() throws Exception {
         // Given
         String provider = "google";
-        OAuth2Dto.AuthUrlResponse mockResponse = OAuth2Dto.AuthUrlResponse.builder()
+        AuthUrlResponse mockResponse = AuthUrlResponse.builder()
                 .authUrl("https://accounts.google.com/oauth/authorize?client_id=test&state=test-state")
                 .state("test-state-12345")
                 .provider(provider)
@@ -86,7 +92,7 @@ class AuthControllerTest {
     void generateAuthUrl_Success_Kakao() throws Exception {
         // Given
         String provider = "kakao";
-        OAuth2Dto.AuthUrlResponse mockResponse = OAuth2Dto.AuthUrlResponse.builder()
+        AuthUrlResponse mockResponse = AuthUrlResponse.builder()
                 .authUrl("https://kauth.kakao.com/oauth/authorize?client_id=test&state=kakao-state")
                 .state("kakao-state-67890")
                 .provider(provider)
@@ -111,10 +117,14 @@ class AuthControllerTest {
     void handleCallback_Success_Google() throws Exception {
         // Given
         String provider = "google";
-        OAuth2Dto.CallbackRequest request = OAuth2Dto.CallbackRequest.builder()
+        CallbackRequest request = CallbackRequest.builder()
                 .code("test-auth-code-12345")
                 .state("test-state-12345")
                 .build();
+
+        // TTL 스텁
+        when(jwtUtil.getAccessTokenValiditySeconds()).thenReturn(3600L);
+        when(jwtUtil.getRefreshTokenValiditySeconds()).thenReturn(86400L);
 
         UserDto.LoginResponse mockLoginResponse = UserDto.LoginResponse.builder()
                 .userId(1L)
@@ -168,10 +178,13 @@ class AuthControllerTest {
     void handleCallback_Success_Kakao() throws Exception {
         // Given
         String provider = "kakao";
-        OAuth2Dto.CallbackRequest request = OAuth2Dto.CallbackRequest.builder()
+        CallbackRequest request = CallbackRequest.builder()
                 .code("kakao-auth-code-67890")
                 .state("kakao-state-67890")
                 .build();
+
+        when(jwtUtil.getAccessTokenValiditySeconds()).thenReturn(3600L);
+        when(jwtUtil.getRefreshTokenValiditySeconds()).thenReturn(86400L);
 
         UserDto.LoginResponse mockLoginResponse = UserDto.LoginResponse.builder()
                 .userId(2L)
@@ -270,7 +283,7 @@ class AuthControllerTest {
     void handleCallback_Fail_StateMismatch() throws Exception {
         // Given
         String provider = "google";
-        OAuth2Dto.CallbackRequest request = OAuth2Dto.CallbackRequest.builder()
+        CallbackRequest request = CallbackRequest.builder()
                 .code("test-auth-code")
                 .state("invalid-state")
                 .build();
@@ -297,7 +310,7 @@ class AuthControllerTest {
     void handleCallback_Fail_TokenError() throws Exception {
         // Given
         String provider = "google";
-        OAuth2Dto.CallbackRequest request = OAuth2Dto.CallbackRequest.builder()
+        CallbackRequest request = CallbackRequest.builder()
                 .code("invalid-auth-code")
                 .state("valid-state")
                 .build();
@@ -324,7 +337,7 @@ class AuthControllerTest {
     void handleCallback_Fail_UserInfoError() throws Exception {
         // Given
         String provider = "kakao";
-        OAuth2Dto.CallbackRequest request = OAuth2Dto.CallbackRequest.builder()
+        CallbackRequest request = CallbackRequest.builder()
                 .code("valid-auth-code")
                 .state("valid-state")
                 .build();
@@ -351,7 +364,7 @@ class AuthControllerTest {
     void handleCallback_Fail_SocialAccountConflict() throws Exception {
         // Given
         String provider = "google";
-        OAuth2Dto.CallbackRequest request = OAuth2Dto.CallbackRequest.builder()
+        CallbackRequest request = CallbackRequest.builder()
                 .code("valid-auth-code")
                 .state("valid-state")
                 .build();
@@ -378,7 +391,7 @@ class AuthControllerTest {
     void handleCallback_Fail_InternalServerError() throws Exception {
         // Given
         String provider = "google";
-        OAuth2Dto.CallbackRequest request = OAuth2Dto.CallbackRequest.builder()
+        CallbackRequest request = CallbackRequest.builder()
                 .code("valid-auth-code")
                 .state("valid-state")
                 .build();
@@ -407,7 +420,7 @@ class AuthControllerTest {
     void handleCallback_Fail_MissingCode() throws Exception {
         // Given
         String provider = "google";
-        OAuth2Dto.CallbackRequest request = OAuth2Dto.CallbackRequest.builder()
+        CallbackRequest request = CallbackRequest.builder()
                 .code("") // 빈 문자열
                 .state("valid-state")
                 .build();
@@ -431,7 +444,7 @@ class AuthControllerTest {
     void handleCallback_Fail_MissingState() throws Exception {
         // Given
         String provider = "google";
-        OAuth2Dto.CallbackRequest request = OAuth2Dto.CallbackRequest.builder()
+        CallbackRequest request = CallbackRequest.builder()
                 .code("valid-auth-code")
                 .state("") // 빈 문자열
                 .build();
@@ -474,7 +487,7 @@ class AuthControllerTest {
     void handleCallback_Fail_MissingContentType() throws Exception {
         // Given
         String provider = "google";
-        OAuth2Dto.CallbackRequest request = OAuth2Dto.CallbackRequest.builder()
+        CallbackRequest request = CallbackRequest.builder()
                 .code("valid-auth-code")
                 .state("valid-state")
                 .build();
@@ -499,7 +512,7 @@ class AuthControllerTest {
     void generateAuthUrl_VariousClientIpHeaders() throws Exception {
         // Given
         String provider = "google";
-        OAuth2Dto.AuthUrlResponse mockResponse = OAuth2Dto.AuthUrlResponse.builder()
+        AuthUrlResponse mockResponse = AuthUrlResponse.builder()
                 .authUrl("https://accounts.google.com/oauth/authorize")
                 .state("test-state")
                 .provider(provider)
@@ -529,7 +542,7 @@ class AuthControllerTest {
     void generateAuthUrl_NoUserAgent() throws Exception {
         // Given
         String provider = "google";
-        OAuth2Dto.AuthUrlResponse mockResponse = OAuth2Dto.AuthUrlResponse.builder()
+        AuthUrlResponse mockResponse = AuthUrlResponse.builder()
                 .authUrl("https://accounts.google.com/oauth/authorize")
                 .state("test-state")
                 .provider(provider)
@@ -550,10 +563,13 @@ class AuthControllerTest {
         // Given
         String provider = "google";
         String longAuthCode = "a".repeat(1000); // 1000자 인증 코드
-        OAuth2Dto.CallbackRequest request = OAuth2Dto.CallbackRequest.builder()
+        CallbackRequest request = CallbackRequest.builder()
                 .code(longAuthCode)
                 .state("valid-state")
                 .build();
+
+        when(jwtUtil.getAccessTokenValiditySeconds()).thenReturn(3600L);
+        when(jwtUtil.getRefreshTokenValiditySeconds()).thenReturn(86400L);
 
         UserDto.LoginResponse mockResponse = UserDto.LoginResponse.builder()
                 .userId(1L)
@@ -584,10 +600,13 @@ class AuthControllerTest {
         // Given
         String provider = "kakao";
         String specialState = "state-with-special-chars-!@#$%^&*()_+-=[]{}|;:,.<>?";
-        OAuth2Dto.CallbackRequest request = OAuth2Dto.CallbackRequest.builder()
+        CallbackRequest request = CallbackRequest.builder()
                 .code("valid-code")
                 .state(specialState)
                 .build();
+
+        when(jwtUtil.getAccessTokenValiditySeconds()).thenReturn(3600L);
+        when(jwtUtil.getRefreshTokenValiditySeconds()).thenReturn(86400L);
 
         UserDto.LoginResponse mockResponse = UserDto.LoginResponse.builder()
                 .userId(2L)

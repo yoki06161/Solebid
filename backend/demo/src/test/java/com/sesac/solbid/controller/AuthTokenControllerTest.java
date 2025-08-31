@@ -6,6 +6,7 @@ import com.sesac.solbid.exception.GlobalExceptionHandler;
 import com.sesac.solbid.security.SecurityConfig;
 import com.sesac.solbid.service.UserService;
 import com.sesac.solbid.util.JwtUtil;
+import com.sesac.solbid.util.CookieUtil;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = AuthTokenController.class)
 @TestPropertySource(properties = "spring.main.web-application-type=servlet")
-@Import({WebConfig.class, GlobalExceptionHandler.class, SecurityConfig.class})
+@Import({WebConfig.class, GlobalExceptionHandler.class, SecurityConfig.class, CookieUtil.class})
 @DisplayName("AuthTokenController 리프레시 토큰 갱신 테스트")
 class AuthTokenControllerTest {
 
@@ -133,4 +134,3 @@ class AuthTokenControllerTest {
                 .andExpect(jsonPath("$.message").value("유효하지 않은 토큰입니다."));
     }
 }
-

@@ -1,8 +1,6 @@
 package com.sesac.solbid.service;
 
 import com.sesac.solbid.domain.User;
-import com.sesac.solbid.dto.OAuth2Dto;
-import com.sesac.solbid.dto.UserDto;
 import com.sesac.solbid.exception.CustomException;
 import com.sesac.solbid.exception.ErrorCode;
 import com.sesac.solbid.exception.OAuth2Exception;
@@ -24,6 +22,9 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
+
+import com.sesac.solbid.dto.auth.response.AuthUrlResponse;
+import com.sesac.solbid.dto.UserDto;
 
 @Slf4j
 @Service
@@ -47,7 +48,7 @@ public class OAuth2Service {
      * @param provider 소셜 플랫폼 이름
      * @return 인증 URL과 state 정보
      */
-    public OAuth2Dto.AuthUrlResponse generateAuthUrl(String provider) {
+    public AuthUrlResponse generateAuthUrl(String provider) {
         log.debug("OAuth2 인증 URL 생성 요청: provider={}", provider);
         
         // State 생성
@@ -57,7 +58,7 @@ public class OAuth2Service {
         String authUrl = urlGenerator.generateAuthUrl(provider, state);
         
         log.info("OAuth2 인증 URL 생성 완료: provider={}", provider);
-        return OAuth2Dto.AuthUrlResponse.of(authUrl, state, provider);
+        return AuthUrlResponse.of(authUrl, state, provider);
     }
 
     /**
