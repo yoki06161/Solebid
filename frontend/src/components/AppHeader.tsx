@@ -141,7 +141,7 @@ function AppHeader() {
                                     <button onClick={() => navigate('/wish')} className="text-gray-700 hover:text-black" style={{ fontSize: '1.5rem' }} aria-label="위시리스트">
                                         <i className="fas fa-heart"></i>
                                     </button>
-                                    <button onClick={() => navigate('/notifications')} className="text-gray-700 hover:text-black" style={{ fontSize: '1.5rem' }} aria-label="알림">
+                                    <button onClick={() => navigate('/notification')} className="text-gray-700 hover:text-black" style={{ fontSize: '1.5rem' }} aria-label="알림">
                                         <i className="fas fa-bell"></i>
                                     </button>
                                 </>
