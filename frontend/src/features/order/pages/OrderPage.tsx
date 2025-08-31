@@ -3,14 +3,13 @@ import Pagination from "../../../components/Pagination";
 import { usePagination } from "../../../hooks/usePagination";
 import { getFromDate } from "../../../utils/get-from-date";
 import { OrderList, OrderSearch } from "../components";
-import { orders as mockOrders, periods, statuses } from "../components/mockData";
+import { orders, periods, statuses } from "../components/mockData";
 import type { Order } from "../types/Order";
 
 const OrderPage = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedPeriod, setSelectedPeriod] = useState("전체");
     const [selectedStatus, setSelectedStatus] = useState("전체");
-    const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
 
     const filteredOrders = useMemo(() => {
         const fromDate = getFromDate(selectedPeriod);
@@ -31,8 +30,8 @@ const OrderPage = () => {
             return orderDate >= fromDate && orderDate <= today;
         };
 
-        return mockOrders.filter(
-            (order) => matchesSearch(order) && matchesStatus(order) && matchesPeriod
+        return orders.filter(
+            (order) => matchesSearch(order) && matchesStatus(order) && matchesPeriod(order)
         );
     }, [searchQuery, selectedPeriod, selectedStatus]);
 
@@ -46,12 +45,7 @@ const OrderPage = () => {
     const handlePageChange = (page: number) => {
         if (page > 0 && page <= totalPages) {
             setCurrentPage(page);
-            setExpandedOrder(null);
         }
-    };
-
-    const toggleOrderExpansion = (orderId: string) => {
-        setExpandedOrder(expandedOrder === orderId ? null : orderId);
     };
 
     return (
@@ -69,8 +63,6 @@ const OrderPage = () => {
                 />
                 <OrderList
                     orders={paginatedOrders}
-                    expandedOrder={expandedOrder}
-                    toggleOrderExpansion={toggleOrderExpansion}
                 />
                 {filteredOrders.length > 0 && (
                     <Pagination

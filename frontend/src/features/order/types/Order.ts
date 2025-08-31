@@ -1,3 +1,8 @@
+import type { OrderItem } from "./OrderItem";
+import type { OrderPayment } from "./OrderPayment";
+import type { OrderShipping } from "./OrderShipping";
+import type { OrderTimeline } from "./OrderTimeline";
+
 export interface Order {
     id: string;
     date: string;
@@ -7,11 +12,11 @@ export interface Order {
     statusColor: string;
     trackingNumber: string;
     deliveryAddress: string;
+    payment: OrderPayment;
+    shipping: OrderShipping;
+    timeline: OrderTimeline[];
 }
 
-export interface OrderItem {
-    name: string;
-    image: string;
-    quantity: number;
-    price: number;
+export interface OrderProps {
+    order: Order;
 }

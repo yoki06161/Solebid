@@ -1,4 +1,4 @@
-import type { OrderDetailTimelineProps } from "../../types/detail/OrderDetailTimelineProps";
+import type { OrderDetailTimelineProps } from "../../types/OrderTimeline";
 
 const OrderDetailTimeline = ({ timeline }: OrderDetailTimelineProps) => {
     return (

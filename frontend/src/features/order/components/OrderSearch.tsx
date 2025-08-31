@@ -1,4 +1,4 @@
-import type { OrderSearchProps } from "../types/OrderSearchProps";
+import type { OrderSearchProps } from "../types/OrderSearch";
 
 const OrderSearch = ({
     searchQuery,

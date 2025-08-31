@@ -1,4 +1,4 @@
-export { default as OrderDetailList } from './detail/OrderDetailList';
+export { default as OrderDetailItem } from './detail/OrderDetailItem';
 export { default as OrderDetailPayment } from './detail/OrderDetailPayment';
 export { default as OrderDetailShipping } from './detail/OrderDetailShipping';
 export { default as OrderDetailSummary } from './detail/OrderDetailSummary';

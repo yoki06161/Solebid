@@ -1,6 +1,6 @@
-import type { OrderDetailListProps } from "../../types/detail/OrderDetailListProps";
+import type { OrderDetailListProps } from "../../types/OrderList";
 
-const OrderDetailList = ({ items }: OrderDetailListProps) => {
+const OrderDetailItem = ({ items }: OrderDetailListProps) => {
     return (
         <div className="bg-white rounded-lg shadow-sm p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
@@ -24,9 +24,6 @@ const OrderDetailList = ({ items }: OrderDetailListProps) => {
                             <p className="text-gray-600 text-sm mb-1">
                                 {item.options}
                             </p>
-                            <p className="text-gray-600 text-sm">
-                                수량: {item.quantity}개
-                            </p>
                         </div>
                         <div className="text-right">
                             <div className="font-semibold text-gray-900">
@@ -40,4 +37,4 @@ const OrderDetailList = ({ items }: OrderDetailListProps) => {
     );
 };
 
-export default OrderDetailList;
+export default OrderDetailItem;

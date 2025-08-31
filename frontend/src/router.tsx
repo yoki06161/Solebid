@@ -40,8 +40,7 @@ const router = createBrowserRouter(
             <Route path="/ranking" element={<RankingPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/order" element={<OrderPage />} />
-            {/* /order/:orderId */}
-            <Route path="/order/detail" element={<OrderDetailPage />} />
+            <Route path="/order/:orderId" element={<OrderDetailPage />} />
             <Route path="/wish" element={<WishPage />} />
             <Route path="/points/charge" element={<ChargePointsPage />} />
             <Route path="/result" element={<ChargeResultPage />} />

@@ -1,4 +1,4 @@
-import type { OrderDetailShippingProps } from "../../types/detail/OrderDetailShippingProps";
+import type { OrderDetailShippingProps } from "../../types/OrderShipping";
 
 const OrderDetailShipping = ({ shipping }: OrderDetailShippingProps) => {
     return (

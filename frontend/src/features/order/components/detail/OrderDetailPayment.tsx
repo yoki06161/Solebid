@@ -1,4 +1,4 @@
-import type { OrderDetailPaymentProps } from "../../types/detail/OrderDetailPaymentProps";
+import type { OrderDetailPaymentProps } from "../../types/OrderPayment";
 
 const OrderDetailPayment = ({ payment }: OrderDetailPaymentProps) => {
     return (

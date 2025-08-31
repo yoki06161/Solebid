@@ -1,5 +1,5 @@
 import { getBadgeClass } from "../../../../utils/get-badge-class";
-import type { OrderDetailSummaryProps } from "../../types/detail/OrderDetailSummaryProps";
+import type { OrderDetailSummaryProps } from "../../types/OrderSummary";
 
 const OrderDetailSummary = ({
     id,

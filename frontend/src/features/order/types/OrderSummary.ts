@@ -1,6 +1,6 @@
-import type { OrderDetail } from "./OrderDetail";
+import type { Order } from "./Order";
 
 export type OrderDetailSummaryProps = Pick<
-    OrderDetail,
+    Order,
     "id" | "date" | "status" | "statusColor" | "totalAmount"
 >;
