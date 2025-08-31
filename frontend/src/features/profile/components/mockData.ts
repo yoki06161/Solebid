@@ -6,7 +6,7 @@ export const menu = [
     { icon: "fas fa-shopping-cart", text: "주문/배송 조회", href: "/order" },
     { icon: "fas fa-credit-card", text: "결제 내역 조회", href: "/payment/records" },
     { icon: "fas fa-heart", text: "찜한 상품", href: "/wish" },
-    { icon: "fas fa-cog", text: "설정", href: "#" },
+    { icon: "fas fa-cog", text: "설정", href: "/setting" },
 ];
 
 export const bidData: ProfileBidProps[] = [

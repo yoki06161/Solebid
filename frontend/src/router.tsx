@@ -13,6 +13,7 @@ import CategoryPage from './features/product/pages/CategoryPage';
 import RankingPage from './features/product/pages/RankingPage';
 import SearchPage from './features/product/pages/SearchPage';
 import ProfilePage from './features/profile/pages/ProfilePage';
+import SettingPage from './features/setting/pages/SettingPage';
 import WishPage from './features/wish/pages/WishPage';
 
 import Login from "./features/user/pages/Login.tsx";
@@ -48,6 +49,7 @@ const router = createBrowserRouter(
             <Route path="/cart" element={<CartPage />} />
             <Route path="/policy" element={<PolicyPage />} />
             <Route path="/notification" element={<NotificationPage />} />
+            <Route path="/setting" element={<SettingPage />} />
         </Route>
     )
 )

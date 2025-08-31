@@ -1,7 +1,6 @@
 package com.sesac.solbid.controller;
 
 import com.sesac.solbid.dto.ApiResponse;
-import com.sesac.solbid.dto.OAuth2Dto;
 import com.sesac.solbid.dto.UserDto;
 import com.sesac.solbid.exception.ErrorCode;
 import com.sesac.solbid.exception.OAuth2Exception;
@@ -21,6 +20,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.sesac.solbid.dto.auth.response.AuthUrlResponse;
+import com.sesac.solbid.dto.auth.request.CallbackRequest;
+import com.sesac.solbid.dto.auth.response.LoginSuccessResponse;
 
 /**
  * 인증 컨트롤러
@@ -71,7 +74,7 @@ public class AuthController {
      * @return 인증 URL과 state 정보
      */
     @GetMapping("/oauth2/{provider}/url")
-    public ResponseEntity<ApiResponse<OAuth2Dto.AuthUrlResponse>> generateAuthUrl(
+    public ResponseEntity<ApiResponse<AuthUrlResponse>> generateAuthUrl(
             @PathVariable String provider,
             HttpServletRequest request) {
         
@@ -82,8 +85,8 @@ public class AuthController {
                 provider, clientIp, maskUserAgent(userAgent));
         
         try {
-            OAuth2Dto.AuthUrlResponse response = oAuth2Service.generateAuthUrl(provider);
-            
+            AuthUrlResponse response = oAuth2Service.generateAuthUrl(provider);
+
             log.info("OAuth2 인증 URL 생성 성공: provider={}, clientIp={}, state={}", 
                     provider, clientIp, maskState(response.getState()));
             
@@ -117,7 +120,7 @@ public class AuthController {
     @PostMapping("/oauth2/{provider}/callback")
     public ResponseEntity<ApiResponse<Object>> handleCallback(
             @PathVariable String provider,
-            @Valid @RequestBody OAuth2Dto.CallbackRequest request,
+            @Valid @RequestBody CallbackRequest request,
             HttpServletRequest httpRequest,
             HttpServletResponse httpResponse) {
         
@@ -143,7 +146,7 @@ public class AuthController {
             boolean requiresNickname = response.getNickname() != null && response.getNickname().startsWith("user_");
 
             // 응답에서는 토큰 제외하고 사용자 정보만 반환
-            OAuth2Dto.LoginSuccessResponse loginSuccessResponse = OAuth2Dto.LoginSuccessResponse.builder()
+            LoginSuccessResponse loginSuccessResponse = LoginSuccessResponse.builder()
                     .userId(response.getUserId())
                     .email(response.getEmail())
                     .nickname(response.getNickname())
