@@ -2,6 +2,7 @@ import { createBrowserRouter, createRoutesFromElements, Route } from 'react-rout
 
 import CartPage from './features/cart/pages/CartPage';
 import MainPage from './features/main/pages/MainPage';
+import NotificationPage from './features/nofitication/pages/NotificationPage';
 import OrderDetailPage from './features/order/pages/OrderDetailPage';
 import OrderPage from "./features/order/pages/OrderPage";
 import PolicyPage from './features/policy/pages/PolicyPage';
@@ -46,6 +47,7 @@ const router = createBrowserRouter(
             <Route path="/result" element={<ChargeResultPage />} />
             <Route path="/cart" element={<CartPage />} />
             <Route path="/policy" element={<PolicyPage />} />
+            <Route path="/notification" element={<NotificationPage />} />
         </Route>
     )
 )
