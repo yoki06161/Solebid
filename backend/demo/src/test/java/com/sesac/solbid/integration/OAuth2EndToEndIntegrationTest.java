@@ -4,10 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sesac.solbid.domain.User;
 import com.sesac.solbid.domain.enums.ProviderType;
 import com.sesac.solbid.domain.enums.UserType;
-import com.sesac.solbid.dto.OAuth2Dto;
 import com.sesac.solbid.repository.SocialLoginRepository;
 import com.sesac.solbid.repository.UserRepository;
 import com.sesac.solbid.service.OAuth2StateService;
+import com.sesac.solbid.dto.auth.response.AuthUrlResponse;
+import com.sesac.solbid.dto.auth.request.CallbackRequest;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -166,9 +167,9 @@ class OAuth2EndToEndIntegrationTest {
 
         // 응답에서 state 추출
         String responseContent = authUrlResult.getResponse().getContentAsString();
-        OAuth2Dto.AuthUrlResponse authUrlResponse = objectMapper.readValue(
-            objectMapper.readTree(responseContent).get("data").toString(), 
-            OAuth2Dto.AuthUrlResponse.class
+        AuthUrlResponse authUrlResponse = objectMapper.readValue(
+            objectMapper.readTree(responseContent).get("data").toString(),
+            AuthUrlResponse.class
         );
         String state = authUrlResponse.getState();
         
@@ -204,7 +205,7 @@ class OAuth2EndToEndIntegrationTest {
                 """));
 
         // === 3단계: OAuth2 콜백 처리 ===
-        OAuth2Dto.CallbackRequest callbackRequest = OAuth2Dto.CallbackRequest.builder()
+        CallbackRequest callbackRequest = CallbackRequest.builder()
                 .code("mock-authorization-code")
                 .state(state)
                 .build();
@@ -280,9 +281,9 @@ class OAuth2EndToEndIntegrationTest {
                 .andReturn();
 
         String responseContent = authUrlResult.getResponse().getContentAsString();
-        OAuth2Dto.AuthUrlResponse authUrlResponse = objectMapper.readValue(
-            objectMapper.readTree(responseContent).get("data").toString(), 
-            OAuth2Dto.AuthUrlResponse.class
+        AuthUrlResponse authUrlResponse = objectMapper.readValue(
+            objectMapper.readTree(responseContent).get("data").toString(),
+            AuthUrlResponse.class
         );
         String state = authUrlResponse.getState();
 
@@ -311,7 +312,7 @@ class OAuth2EndToEndIntegrationTest {
                 """));
 
         // === 3단계: OAuth2 콜백 처리 ===
-        OAuth2Dto.CallbackRequest callbackRequest = OAuth2Dto.CallbackRequest.builder()
+        CallbackRequest callbackRequest = CallbackRequest.builder()
                 .code("mock-existing-user-code")
                 .state(state)
                 .build();
@@ -350,9 +351,9 @@ class OAuth2EndToEndIntegrationTest {
                 .andReturn();
 
         String responseContent = authUrlResult.getResponse().getContentAsString();
-        OAuth2Dto.AuthUrlResponse authUrlResponse = objectMapper.readValue(
-            objectMapper.readTree(responseContent).get("data").toString(), 
-            OAuth2Dto.AuthUrlResponse.class
+        AuthUrlResponse authUrlResponse = objectMapper.readValue(
+            objectMapper.readTree(responseContent).get("data").toString(),
+            AuthUrlResponse.class
         );
         String state = authUrlResponse.getState();
 
@@ -387,7 +388,7 @@ class OAuth2EndToEndIntegrationTest {
                 """));
 
         // === 3단계: OAuth2 콜백 처리 ===
-        OAuth2Dto.CallbackRequest callbackRequest = OAuth2Dto.CallbackRequest.builder()
+        CallbackRequest callbackRequest = CallbackRequest.builder()
                 .code("mock-kakao-authorization-code")
                 .state(state)
                 .build();
@@ -438,9 +439,9 @@ class OAuth2EndToEndIntegrationTest {
                 .andReturn();
 
         String responseContent = authUrlResult.getResponse().getContentAsString();
-        OAuth2Dto.AuthUrlResponse authUrlResponse = objectMapper.readValue(
-            objectMapper.readTree(responseContent).get("data").toString(), 
-            OAuth2Dto.AuthUrlResponse.class
+        AuthUrlResponse authUrlResponse = objectMapper.readValue(
+            objectMapper.readTree(responseContent).get("data").toString(),
+            AuthUrlResponse.class
         );
         String state = authUrlResponse.getState();
 
@@ -456,7 +457,7 @@ class OAuth2EndToEndIntegrationTest {
                 """));
 
         // === 3단계: OAuth2 콜백 처리 (실패) ===
-        OAuth2Dto.CallbackRequest callbackRequest = OAuth2Dto.CallbackRequest.builder()
+        CallbackRequest callbackRequest = CallbackRequest.builder()
                 .code("invalid-authorization-code")
                 .state(state)
                 .build();
@@ -491,9 +492,9 @@ class OAuth2EndToEndIntegrationTest {
                 .andReturn();
 
         String responseContent = authUrlResult.getResponse().getContentAsString();
-        OAuth2Dto.AuthUrlResponse authUrlResponse = objectMapper.readValue(
-            objectMapper.readTree(responseContent).get("data").toString(), 
-            OAuth2Dto.AuthUrlResponse.class
+        AuthUrlResponse authUrlResponse = objectMapper.readValue(
+            objectMapper.readTree(responseContent).get("data").toString(),
+            AuthUrlResponse.class
         );
         String state = authUrlResponse.getState();
 
@@ -520,7 +521,7 @@ class OAuth2EndToEndIntegrationTest {
                 """));
 
         // === 3단계: OAuth2 콜백 처리 (실패) ===
-        OAuth2Dto.CallbackRequest callbackRequest = OAuth2Dto.CallbackRequest.builder()
+        CallbackRequest callbackRequest = CallbackRequest.builder()
                 .code("valid-code-but-invalid-token")
                 .state(state)
                 .build();
@@ -558,14 +559,14 @@ class OAuth2EndToEndIntegrationTest {
                 .andReturn();
 
         String responseContent = authUrlResult.getResponse().getContentAsString();
-        OAuth2Dto.AuthUrlResponse authUrlResponse = objectMapper.readValue(
-            objectMapper.readTree(responseContent).get("data").toString(), 
-            OAuth2Dto.AuthUrlResponse.class
+        AuthUrlResponse authUrlResponse = objectMapper.readValue(
+            objectMapper.readTree(responseContent).get("data").toString(),
+            AuthUrlResponse.class
         );
         String validState = authUrlResponse.getState();
 
         // === 2단계: 잘못된 state로 콜백 요청 ===
-        OAuth2Dto.CallbackRequest callbackRequest = OAuth2Dto.CallbackRequest.builder()
+        CallbackRequest callbackRequest = CallbackRequest.builder()
                 .code("valid-authorization-code")
                 .state("invalid-state-parameter") // 잘못된 state
                 .build();
@@ -614,9 +615,9 @@ class OAuth2EndToEndIntegrationTest {
                 .andReturn();
 
         String responseContent = authUrlResult.getResponse().getContentAsString();
-        OAuth2Dto.AuthUrlResponse authUrlResponse = objectMapper.readValue(
-            objectMapper.readTree(responseContent).get("data").toString(), 
-            OAuth2Dto.AuthUrlResponse.class
+        AuthUrlResponse authUrlResponse = objectMapper.readValue(
+            objectMapper.readTree(responseContent).get("data").toString(),
+            AuthUrlResponse.class
         );
         String state = authUrlResponse.getState();
 
@@ -644,7 +645,7 @@ class OAuth2EndToEndIntegrationTest {
                 """));
 
         // === 3단계: OAuth2 콜백 처리 (충돌 발생) ===
-        OAuth2Dto.CallbackRequest callbackRequest = OAuth2Dto.CallbackRequest.builder()
+        CallbackRequest callbackRequest = CallbackRequest.builder()
                 .code("google-auth-code")
                 .state(state)
                 .build();
@@ -684,9 +685,9 @@ class OAuth2EndToEndIntegrationTest {
                 .andReturn();
 
         String responseContent = authUrlResult.getResponse().getContentAsString();
-        OAuth2Dto.AuthUrlResponse authUrlResponse = objectMapper.readValue(
-            objectMapper.readTree(responseContent).get("data").toString(), 
-            OAuth2Dto.AuthUrlResponse.class
+        AuthUrlResponse authUrlResponse = objectMapper.readValue(
+            objectMapper.readTree(responseContent).get("data").toString(),
+            AuthUrlResponse.class
         );
         String state = authUrlResponse.getState();
 
@@ -703,7 +704,7 @@ class OAuth2EndToEndIntegrationTest {
             .setBodyDelay(15, TimeUnit.SECONDS)); // 15초 지연 (타임아웃 유발)
 
         // === 3단계: OAuth2 콜백 처리 (타임아웃 발생) ===
-        OAuth2Dto.CallbackRequest callbackRequest = OAuth2Dto.CallbackRequest.builder()
+        CallbackRequest callbackRequest = CallbackRequest.builder()
                 .code("timeout-test-code")
                 .state(state)
                 .build();
@@ -732,9 +733,9 @@ class OAuth2EndToEndIntegrationTest {
                 .andReturn();
 
         String responseContent = authUrlResult.getResponse().getContentAsString();
-        OAuth2Dto.AuthUrlResponse authUrlResponse = objectMapper.readValue(
-            objectMapper.readTree(responseContent).get("data").toString(), 
-            OAuth2Dto.AuthUrlResponse.class
+        AuthUrlResponse authUrlResponse = objectMapper.readValue(
+            objectMapper.readTree(responseContent).get("data").toString(),
+            AuthUrlResponse.class
         );
         String state = authUrlResponse.getState();
 
@@ -761,7 +762,7 @@ class OAuth2EndToEndIntegrationTest {
                 """)); // 이메일 필드 누락
 
         // === 3단계: OAuth2 콜백 처리 (실패) ===
-        OAuth2Dto.CallbackRequest callbackRequest = OAuth2Dto.CallbackRequest.builder()
+        CallbackRequest callbackRequest = CallbackRequest.builder()
                 .code("valid-code")
                 .state(state)
                 .build();
@@ -797,13 +798,13 @@ class OAuth2EndToEndIntegrationTest {
         String responseContent1 = authUrlResult1.getResponse().getContentAsString();
         String responseContent2 = authUrlResult2.getResponse().getContentAsString();
         
-        OAuth2Dto.AuthUrlResponse authUrlResponse1 = objectMapper.readValue(
-            objectMapper.readTree(responseContent1).get("data").toString(), 
-            OAuth2Dto.AuthUrlResponse.class
+        AuthUrlResponse authUrlResponse1 = objectMapper.readValue(
+            objectMapper.readTree(responseContent1).get("data").toString(),
+            AuthUrlResponse.class
         );
-        OAuth2Dto.AuthUrlResponse authUrlResponse2 = objectMapper.readValue(
-            objectMapper.readTree(responseContent2).get("data").toString(), 
-            OAuth2Dto.AuthUrlResponse.class
+        AuthUrlResponse authUrlResponse2 = objectMapper.readValue(
+            objectMapper.readTree(responseContent2).get("data").toString(),
+            AuthUrlResponse.class
         );
 
         String state1 = authUrlResponse1.getState();
@@ -833,7 +834,7 @@ class OAuth2EndToEndIntegrationTest {
                 }
                 """));
 
-        OAuth2Dto.CallbackRequest callbackRequest1 = OAuth2Dto.CallbackRequest.builder()
+        CallbackRequest callbackRequest1 = CallbackRequest.builder()
                 .code("first-code")
                 .state(state1)
                 .build();
@@ -847,7 +848,7 @@ class OAuth2EndToEndIntegrationTest {
                 .andExpect(jsonPath("$.data.email").value("first@example.com"));
 
         // === 3단계: 두 번째 요청은 다른 state로 실패해야 함 ===
-        OAuth2Dto.CallbackRequest callbackRequest2 = OAuth2Dto.CallbackRequest.builder()
+        CallbackRequest callbackRequest2 = CallbackRequest.builder()
                 .code("second-code")
                 .state(state2) // 여전히 유효한 state
                 .build();

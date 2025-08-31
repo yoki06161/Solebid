@@ -118,7 +118,7 @@ class OAuth2ServiceIntegrationTest {
 
         when(clientRegistrationRepository.findByRegistrationId("google"))
                 .thenReturn(testClientRegistration);
-        when(userService.saveOrUpdate(eq("google"), any())).thenReturn(testUser);
+        when(userService.saveOrUpdate(eq("google"), any(), any(), any())).thenReturn(testUser);
         when(jwtUtil.generateToken(testUser.getEmail())).thenReturn("jwt-access-token");
         when(jwtUtil.generateRefreshToken(testUser.getEmail())).thenReturn("jwt-refresh-token");
 
@@ -148,7 +148,7 @@ class OAuth2ServiceIntegrationTest {
         assertThat(userInfoRequest.getMethod()).isEqualTo("GET");
         assertThat(userInfoRequest.getHeader("Authorization")).isEqualTo("Bearer " + expectedAccessToken);
 
-        verify(userService).saveOrUpdate(eq("google"), any());
+        verify(userService).saveOrUpdate(eq("google"), any(), any(), any());
         verify(jwtUtil).generateToken(testUser.getEmail());
         verify(jwtUtil).generateRefreshToken(testUser.getEmail());
     }
@@ -307,7 +307,7 @@ class OAuth2ServiceIntegrationTest {
 
         when(clientRegistrationRepository.findByRegistrationId("kakao"))
                 .thenReturn(kakaoClientRegistration);
-        when(userService.saveOrUpdate(eq("kakao"), any())).thenReturn(testUser);
+        when(userService.saveOrUpdate(eq("kakao"), any(), any(), any())).thenReturn(testUser);
         when(jwtUtil.generateToken(testUser.getEmail())).thenReturn("jwt-token");
         when(jwtUtil.generateRefreshToken(testUser.getEmail())).thenReturn("jwt-refresh");
 
@@ -328,7 +328,7 @@ class OAuth2ServiceIntegrationTest {
         assertThat(userInfoRequest.getPath()).isEqualTo("/userinfo");
         assertThat(userInfoRequest.getHeader("Authorization")).isEqualTo("Bearer kakao-access-token");
 
-        verify(userService).saveOrUpdate(eq("kakao"), any());
+        verify(userService).saveOrUpdate(eq("kakao"), any(), any(), any());
     }
 
     @Test
