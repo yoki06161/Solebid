@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.Map;
 
 import com.sesac.solbid.dto.auth.response.AuthUrlResponse;
-import com.sesac.solbid.dto.UserDto;
+import com.sesac.solbid.dto.user.response.LoginResponse;
 
 @Slf4j
 @Service
@@ -69,11 +69,11 @@ public class OAuth2Service {
      * @return 로그인 응답
      */
     @Transactional
-    public UserDto.LoginResponse processCallback(String providerName, String authCode, String state) {
+    public LoginResponse processCallback(String providerName, String authCode, String state) {
         log.debug("OAuth2 콜백 처리 시작: provider={}", providerName);
         try {
             stateService.validateState(state);
-            UserDto.LoginResponse response = login(providerName, authCode);
+            LoginResponse response = login(providerName, authCode);
             log.info("OAuth2 콜백 처리 완료: provider={}, userId={}", providerName, response.getUserId());
             return response;
         } finally {
@@ -85,7 +85,7 @@ public class OAuth2Service {
      * 기존 로그인 메서드 (내부 사용)
      */
     @Transactional
-    public UserDto.LoginResponse login(String providerName, String authCode) {
+    public LoginResponse login(String providerName, String authCode) {
         log.debug("OAuth2 로그인 처리 시작: provider={}", providerName);
         
         try {
@@ -114,8 +114,8 @@ public class OAuth2Service {
             log.info("OAuth2 로그인 완료: provider={}, userId={}, email={}", 
                     providerName, user.getUserId(), maskEmail(user.getEmail()));
             
-            return UserDto.LoginResponse.from(user, serviceAccessToken, serviceRefreshToken);
-            
+            return LoginResponse.from(user, serviceAccessToken, serviceRefreshToken);
+
         } catch (WebClientResponseException e) {
             log.error("OAuth2 통신 오류: provider={}, status={}, body=",
                     providerName, e.getStatusCode());

@@ -3,7 +3,7 @@ package com.sesac.solbid.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sesac.solbid.config.WebConfig;
 import com.sesac.solbid.domain.enums.UserType;
-import com.sesac.solbid.dto.UserDto;
+import com.sesac.solbid.dto.user.response.LoginResponse;
 import com.sesac.solbid.exception.ErrorCode;
 import com.sesac.solbid.exception.GlobalExceptionHandler;
 import com.sesac.solbid.exception.OAuth2Exception;
@@ -126,7 +126,7 @@ class AuthControllerTest {
         when(jwtUtil.getAccessTokenValiditySeconds()).thenReturn(3600L);
         when(jwtUtil.getRefreshTokenValiditySeconds()).thenReturn(86400L);
 
-        UserDto.LoginResponse mockLoginResponse = UserDto.LoginResponse.builder()
+        LoginResponse mockLoginResponse = LoginResponse.builder()
                 .userId(1L)
                 .email("test@gmail.com")
                 .nickname("테스트사용자")
@@ -186,7 +186,7 @@ class AuthControllerTest {
         when(jwtUtil.getAccessTokenValiditySeconds()).thenReturn(3600L);
         when(jwtUtil.getRefreshTokenValiditySeconds()).thenReturn(86400L);
 
-        UserDto.LoginResponse mockLoginResponse = UserDto.LoginResponse.builder()
+        LoginResponse mockLoginResponse = LoginResponse.builder()
                 .userId(2L)
                 .email("user@kakao.com")
                 .nickname("카카오사용자")
@@ -571,7 +571,7 @@ class AuthControllerTest {
         when(jwtUtil.getAccessTokenValiditySeconds()).thenReturn(3600L);
         when(jwtUtil.getRefreshTokenValiditySeconds()).thenReturn(86400L);
 
-        UserDto.LoginResponse mockResponse = UserDto.LoginResponse.builder()
+        LoginResponse mockResponse = LoginResponse.builder()
                 .userId(1L)
                 .email("test@example.com")
                 .nickname("테스트")
@@ -608,7 +608,7 @@ class AuthControllerTest {
         when(jwtUtil.getAccessTokenValiditySeconds()).thenReturn(3600L);
         when(jwtUtil.getRefreshTokenValiditySeconds()).thenReturn(86400L);
 
-        UserDto.LoginResponse mockResponse = UserDto.LoginResponse.builder()
+        LoginResponse mockResponse = LoginResponse.builder()
                 .userId(2L)
                 .email("kakao@example.com")
                 .nickname("카카오")

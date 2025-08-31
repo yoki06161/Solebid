@@ -7,7 +7,9 @@ import com.sesac.solbid.domain.User;
 import com.sesac.solbid.domain.enums.ProviderType;
 import com.sesac.solbid.domain.enums.UserStatus;
 import com.sesac.solbid.domain.enums.UserType;
-import com.sesac.solbid.dto.UserDto;
+import com.sesac.solbid.dto.user.request.SignupRequest;
+import com.sesac.solbid.dto.user.request.LoginRequest;
+import com.sesac.solbid.dto.user.response.LoginResponse;
 import com.sesac.solbid.exception.CustomException;
 import com.sesac.solbid.exception.ErrorCode;
 import com.sesac.solbid.exception.OAuth2Exception;
@@ -38,7 +40,7 @@ public class UserService {
     private static final long WITHDRAWAL_GRACE_DAYS = 30L;
 
     @Transactional
-    public User signup(UserDto.SignupRequest requestDto) {
+    public User signup(SignupRequest requestDto) {
         if (userRepository.findByEmail(requestDto.getEmail()).isPresent()) {
             throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
         }
@@ -51,7 +53,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserDto.LoginResponse login(UserDto.LoginRequest requestDto) {
+    public LoginResponse login(LoginRequest requestDto) {
         User user = userRepository.findByEmail(requestDto.getEmail())
                 .orElseThrow(() -> new CustomException(ErrorCode.LOGIN_FAILED));
 
@@ -71,11 +73,10 @@ public class UserService {
             throw new CustomException(ErrorCode.INACTIVE_USER);
         }
 
-        // JwtUtil의 토큰 생성 메서드명에 맞춰 수정
         final String accessToken = jwtUtil.generateToken(user.getEmail());
         final String refreshToken = jwtUtil.generateRefreshToken(user.getEmail());
 
-        return UserDto.LoginResponse.from(user, accessToken, refreshToken);
+        return LoginResponse.from(user, accessToken, refreshToken);
     }
 
     public User findById(Long userId) {

@@ -1,9 +1,14 @@
 package com.sesac.solbid.controller;
 
 import com.sesac.solbid.domain.User;
-import com.sesac.solbid.dto.UserDto;
 import com.sesac.solbid.dto.ApiResponse;
 
+import com.sesac.solbid.dto.user.request.SignupRequest;
+import com.sesac.solbid.dto.user.request.LoginRequest;
+import com.sesac.solbid.dto.user.request.NicknameUpdateRequest;
+import com.sesac.solbid.dto.user.response.SignupResponse;
+import com.sesac.solbid.dto.user.response.LoginResponse;
+import com.sesac.solbid.dto.user.response.NicknameAvailabilityResponse;
 import com.sesac.solbid.exception.CustomException;
 import com.sesac.solbid.exception.ReactivationRequiredException;
 import com.sesac.solbid.repository.SocialLoginRepository;
@@ -39,9 +44,9 @@ public class UserController {
 
     // 회원가입
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse<UserDto.SignupResponse>> signup(@Valid @RequestBody UserDto.SignupRequest requestDto) {
+    public ResponseEntity<ApiResponse<SignupResponse>> signup(@Valid @RequestBody SignupRequest requestDto) {
         User user = userService.signup(requestDto);
-        UserDto.SignupResponse responseDto = new UserDto.SignupResponse(user);
+        SignupResponse responseDto = new SignupResponse(user);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(responseDto));
@@ -50,10 +55,10 @@ public class UserController {
     // 로그인
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<Map<String, Object>>> login(
-            @Valid @RequestBody UserDto.LoginRequest requestDto,
+            @Valid @RequestBody LoginRequest requestDto,
             HttpServletResponse response) {
         try {
-            UserDto.LoginResponse responseDto = userService.login(requestDto);
+            LoginResponse responseDto = userService.login(requestDto);
 
             // HttpOnly 쿠키로 토큰 설정 (CookieUtil 사용)
             cookieUtil.addTokenCookies(
@@ -92,10 +97,10 @@ public class UserController {
 
     // 닉네임 가용성 확인
     @GetMapping("/nickname/available")
-    public ResponseEntity<ApiResponse<UserDto.NicknameAvailabilityResponse>> isNicknameAvailable(
+    public ResponseEntity<ApiResponse<NicknameAvailabilityResponse>> isNicknameAvailable(
             @RequestParam("nickname") String nickname) {
         boolean available = userService.isNicknameAvailable(nickname);
-        return ResponseEntity.ok(ApiResponse.success(UserDto.NicknameAvailabilityResponse.builder()
+        return ResponseEntity.ok(ApiResponse.success(NicknameAvailabilityResponse.builder()
                 .available(available)
                 .build()));
     }
@@ -104,7 +109,7 @@ public class UserController {
     @PostMapping("/nickname")
     public ResponseEntity<ApiResponse<Map<String, Object>>> updateNickname(
             HttpServletRequest request,
-            @Valid @RequestBody UserDto.NicknameUpdateRequest body) {
+            @Valid @RequestBody NicknameUpdateRequest body) {
         Optional<String> accessTokenOpt = getCookieValue(request, "accessToken");
         if (accessTokenOpt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -137,7 +142,7 @@ public class UserController {
         }
         try {
             String token = accessTokenOpt.get();
-            // 토큰 유효성(서명/만료) 검증 추가
+            // 토큰 유효성(서명/���료) 검증 추가
             if (!jwtUtil.validateToken(token)) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(ApiResponse.error("UNAUTHORIZED", "유효하지 않은 토큰입니다."));

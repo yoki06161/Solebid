@@ -1,7 +1,6 @@
 package com.sesac.solbid.controller;
 
 import com.sesac.solbid.dto.ApiResponse;
-import com.sesac.solbid.dto.UserDto;
 import com.sesac.solbid.exception.ErrorCode;
 import com.sesac.solbid.exception.OAuth2Exception;
 import com.sesac.solbid.exception.CustomException;
@@ -24,6 +23,7 @@ import java.util.Map;
 import com.sesac.solbid.dto.auth.response.AuthUrlResponse;
 import com.sesac.solbid.dto.auth.request.CallbackRequest;
 import com.sesac.solbid.dto.auth.response.LoginSuccessResponse;
+import com.sesac.solbid.dto.user.response.LoginResponse;
 
 /**
  * 인증 컨트롤러
@@ -131,7 +131,7 @@ public class AuthController {
                 provider, clientIp, maskUserAgent(userAgent), maskState(request.getState()));
         
         try {
-            UserDto.LoginResponse response = oAuth2Service.processCallback(
+            LoginResponse response = oAuth2Service.processCallback(
                 provider, request.getCode(), request.getState()
             );
             

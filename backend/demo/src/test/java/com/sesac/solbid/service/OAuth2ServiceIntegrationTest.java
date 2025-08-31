@@ -1,7 +1,6 @@
 package com.sesac.solbid.service;
 
 import com.sesac.solbid.domain.User;
-import com.sesac.solbid.dto.UserDto;
 import com.sesac.solbid.exception.ErrorCode;
 import com.sesac.solbid.exception.OAuth2Exception;
 import com.sesac.solbid.util.JwtUtil;
@@ -123,7 +122,7 @@ class OAuth2ServiceIntegrationTest {
         when(jwtUtil.generateRefreshToken(testUser.getEmail())).thenReturn("jwt-refresh-token");
 
         // When
-        UserDto.LoginResponse response = oAuth2Service.login("google", authCode);
+        com.sesac.solbid.dto.user.response.LoginResponse response = oAuth2Service.login("google", authCode);
 
         // Then
         assertThat(response).isNotNull();
@@ -312,7 +311,7 @@ class OAuth2ServiceIntegrationTest {
         when(jwtUtil.generateRefreshToken(testUser.getEmail())).thenReturn("jwt-refresh");
 
         // When
-        UserDto.LoginResponse response = oAuth2Service.login("kakao", authCode);
+        com.sesac.solbid.dto.user.response.LoginResponse response = oAuth2Service.login("kakao", authCode);
 
         // Then
         assertThat(response).isNotNull();
