@@ -21,7 +21,7 @@ const AuctionSearch = ({
                             key={category}
                             onClick={() => onCategoryChange(category)}
                             className={
-                                `px-4 py-2 !rounded-button whitespace-nowrap cursor-pointer 
+                                `px-4 py-2 rounded-lg whitespace-nowrap cursor-pointer shadow-sm
                                 ${selectedCategory === category
                                     ? 'bg-blue-500 text-white'
                                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -36,9 +36,11 @@ const AuctionSearch = ({
                     <div className="relative">
                         <button
                             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                            className="px-4 py-2 bg-white border border-gray-300 !rounded-button text-gray-700 flex items-center space-x-2 cursor-pointer"
+                            className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 flex items-center space-x-2 cursor-pointer"
                         >
-                            <span>{sortOption}</span>
+                            <span>
+                                {sortOption}
+                            </span>
                             <i className="fas fa-chevron-down text-sm" />
                         </button>
                         {isDropdownOpen && (

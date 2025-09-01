@@ -84,7 +84,7 @@ const SearchSidebar = ({
                             key={size}
                             onClick={() => handleSizeChange(size)}
                             className={
-                                `px-3 py-2 text-sm !rounded-button border
+                                `px-3 py-2 text-sm rounded-lg border
                                  ${selectedSizes.includes(size)
                                     ? "bg-blue-500 text-white border-blue-500"
                                     : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"}

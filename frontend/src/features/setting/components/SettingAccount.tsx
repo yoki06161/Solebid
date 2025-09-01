@@ -78,12 +78,12 @@ const SettingAccount = () => {
             <div className="flex justify-end space-x-3">
                 <button
                     onClick={() => { }}
-                    className="px-6 py-2 text-gray-600 hover:text-gray-900 cursor-pointer !rounded-button whitespace-nowrap">
+                    className="px-6 py-2 text-gray-600 hover:text-gray-900 rounded-lg cursor-pointer whitespace-nowrap shadow-sm">
                     취소
                 </button>
                 <button
                     onClick={() => { }}
-                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer !rounded-button whitespace-nowrap">
+                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer whitespace-nowrap shadow-sm">
                     저장
                 </button>
             </div>

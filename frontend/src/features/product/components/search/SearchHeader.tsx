@@ -41,7 +41,7 @@ const SearchHeader = ({
                     >
                         <button
                             onClick={() => setIsSortOpen(!isSortOpen)}
-                            className="flex items-center justify-between min-w-[120px] bg-white border border-gray-300 px-4 py-2 !rounded-button text-sm focus:outline-none"
+                            className="flex items-center justify-between min-w-[120px] bg-white border border-gray-300 px-4 py-2 rounded-lg text-sm focus:outline-none"
                         >
                             <span>
                                 {sortBy}

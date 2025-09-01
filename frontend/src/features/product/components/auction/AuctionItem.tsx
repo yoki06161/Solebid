@@ -39,7 +39,7 @@ const AuctionItem = ({ item, onBidClick }: AuctionItemProps) => {
                     </span>
                     <button
                         onClick={() => onBidClick(item)}
-                        className="px-6 py-2 bg-blue-500 text-white !rounded-button hover:bg-blue-600 whitespace-nowrap cursor-pointer"
+                        className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 whitespace-nowrap cursor-pointer"
                     >
                         입찰하기
                     </button>
