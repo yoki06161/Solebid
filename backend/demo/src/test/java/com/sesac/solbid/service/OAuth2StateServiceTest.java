@@ -23,11 +23,11 @@ import static org.assertj.core.api.Assertions.*;
 @DisplayName("OAuth2StateService 단위 테스트")
 class OAuth2StateServiceTest {
 
-    private OAuth2StateService stateService;
+    private InMemoryOAuth2StateService stateService;
 
     @BeforeEach
     void setUp() {
-        stateService = new OAuth2StateService();
+        stateService = new InMemoryOAuth2StateService();
     }
 
     @Test
@@ -255,7 +255,7 @@ class OAuth2StateServiceTest {
         String state = stateService.generateState();
         
         // 리플렉션으로 private 메서드 접근
-        Method maskStateMethod = OAuth2StateService.class.getDeclaredMethod("maskState", String.class);
+        Method maskStateMethod = InMemoryOAuth2StateService.class.getDeclaredMethod("maskState", String.class);
         maskStateMethod.setAccessible(true);
 
         // When
@@ -272,7 +272,7 @@ class OAuth2StateServiceTest {
     @DisplayName("짧은 State 마스킹 테스트")
     void maskState_ShortState_Test() throws Exception {
         // Given
-        Method maskStateMethod = OAuth2StateService.class.getDeclaredMethod("maskState", String.class);
+        Method maskStateMethod = InMemoryOAuth2StateService.class.getDeclaredMethod("maskState", String.class);
         maskStateMethod.setAccessible(true);
 
         // When & Then
@@ -287,7 +287,7 @@ class OAuth2StateServiceTest {
      * 리플렉션을 사용하여 특정 state를 만료시키는 헬퍼 메서드
      */
     private void expireState(String state) throws Exception {
-        Field stateStoreField = OAuth2StateService.class.getDeclaredField("stateStore");
+        Field stateStoreField = InMemoryOAuth2StateService.class.getDeclaredField("stateStore");
         stateStoreField.setAccessible(true);
         
         @SuppressWarnings("unchecked")

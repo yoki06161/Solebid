@@ -142,7 +142,7 @@ public class UserController {
         }
         try {
             String token = accessTokenOpt.get();
-            // 토큰 유효성(서명/���료) 검증 추가
+            // 토큰 유효성(서명/만료) 검증 추가
             if (!jwtUtil.validateToken(token)) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(ApiResponse.error("UNAUTHORIZED", "유효하지 않은 토큰입니다."));
