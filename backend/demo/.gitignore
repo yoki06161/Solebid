@@ -39,3 +39,4 @@ out/
 ### Environment variables and sensitive data ###
 .env
 application.properties
+application-redis.properties

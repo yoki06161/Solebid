@@ -71,13 +71,16 @@ public class OAuth2Service {
     @Transactional
     public LoginResponse processCallback(String providerName, String authCode, String state) {
         log.debug("OAuth2 콜백 처리 시작: provider={}", providerName);
+        // 원자적 소비로 동시 요청 차단
+        stateService.consumeState(state);
         try {
-            stateService.validateState(state);
             LoginResponse response = login(providerName, authCode);
             log.info("OAuth2 콜백 처리 완료: provider={}, userId={}", providerName, response.getUserId());
             return response;
-        } finally {
-            stateService.removeState(state);
+        } catch (CustomException e) {
+            throw e;
+        } catch (Exception e) {
+            throw e;
         }
     }
 

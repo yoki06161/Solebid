@@ -170,17 +170,16 @@ class OAuth2ServiceTest {
         String authCode = "test-auth-code";
         String state = "test-state";
 
-        // Mock ClientRegistration을 반환하도록 설정
         when(clientRegistrationRepository.findByRegistrationId("google")).thenReturn(googleClientRegistration);
-        when(stateService.validateState(state)).thenReturn(true);
+        // stateService.consumeState는 정상 동작 (void) 가정
+        doNothing().when(stateService).consumeState(state);
 
         // When & Then - 실제 HTTP 통신이 발생하므로 예외가 발생할 것으로 예상
         assertThatThrownBy(() -> oAuth2Service.processCallback(provider, authCode, state))
                 .isInstanceOf(OAuth2Exception.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.OAUTH2_TOKEN_ERROR);
 
-        verify(stateService).validateState(state);
-        verify(stateService).removeState(state); // 에러 발생 시에도 state 삭제
+        verify(stateService).consumeState(state);
     }
 
     @Test
@@ -191,16 +190,15 @@ class OAuth2ServiceTest {
         String authCode = "test-auth-code";
         String invalidState = "invalid-state";
 
-        when(stateService.validateState(invalidState))
-                .thenThrow(new OAuth2Exception(ErrorCode.OAUTH2_STATE_MISMATCH));
+        doThrow(new OAuth2Exception(ErrorCode.OAUTH2_STATE_MISMATCH))
+                .when(stateService).consumeState(invalidState);
 
         // When & Then
         assertThatThrownBy(() -> oAuth2Service.processCallback(provider, authCode, invalidState))
                 .isInstanceOf(OAuth2Exception.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.OAUTH2_STATE_MISMATCH);
 
-        verify(stateService).validateState(invalidState);
-        verify(stateService).removeState(invalidState); // 에러 발생 시에도 state 삭제
+        verify(stateService).consumeState(invalidState);
         verify(userService, never()).saveOrUpdate(any(), any());
     }
 
@@ -212,7 +210,7 @@ class OAuth2ServiceTest {
         String authCode = "test-auth-code";
         String state = "test-state";
 
-        when(stateService.validateState(state)).thenReturn(true);
+        doNothing().when(stateService).consumeState(state);
         when(clientRegistrationRepository.findByRegistrationId("unsupported")).thenReturn(null);
 
         // When & Then
@@ -220,7 +218,7 @@ class OAuth2ServiceTest {
                 .isInstanceOf(OAuth2Exception.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.INVALID_OAUTH2_PROVIDER);
 
-        verify(stateService).removeState(state); // 에러 발생 시에도 state 삭제
+        verify(stateService).consumeState(state);
     }
 
     @Test
@@ -271,7 +269,7 @@ class OAuth2ServiceTest {
         String authCode = "invalid-auth-code";
         String state = "valid-state";
 
-        when(stateService.validateState(state)).thenReturn(true);
+        doNothing().when(stateService).consumeState(state);
         when(clientRegistrationRepository.findByRegistrationId("google")).thenReturn(null);
 
         // When & Then
@@ -279,8 +277,7 @@ class OAuth2ServiceTest {
                 .isInstanceOf(OAuth2Exception.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.INVALID_OAUTH2_PROVIDER);
 
-        verify(stateService).validateState(state);
-        verify(stateService).removeState(state); // 에러 발생 시에도 state 삭제 확인
+        verify(stateService).consumeState(state);
     }
 
 
@@ -367,17 +364,15 @@ class OAuth2ServiceTest {
         String authCode = "test-auth-code";
         String state = "test-state";
 
-        // Mock ClientRegistration을 반환하도록 설정
         when(clientRegistrationRepository.findByRegistrationId("google")).thenReturn(googleClientRegistration);
-        when(stateService.validateState(state)).thenReturn(true);
+        doNothing().when(stateService).consumeState(state);
 
         // When & Then - 실제 HTTP 통신에서 예외 발생
         assertThatThrownBy(() -> oAuth2Service.processCallback(provider, authCode, state))
                 .isInstanceOf(OAuth2Exception.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.OAUTH2_TOKEN_ERROR);
 
-        verify(stateService).validateState(state);
-        verify(stateService).removeState(state); // 예외 발생 시에도 state 삭제 확인
+        verify(stateService).consumeState(state);
     }
 
     @Test
