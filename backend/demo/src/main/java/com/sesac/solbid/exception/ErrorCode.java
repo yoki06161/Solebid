@@ -25,7 +25,12 @@ public enum ErrorCode {
     OAUTH2_STATE_MISMATCH(400, "OAuth2 state 파라미터가 일치하지 않습니다."),
     OAUTH2_TOKEN_ERROR(400, "OAuth2 액세스 토큰 획득에 실패했습니다."),
     OAUTH2_USER_INFO_ERROR(400, "OAuth2 사용자 정보 획득에 실패했습니다."),
-    SOCIAL_ACCOUNT_CONFLICT(409, "이미 다른 소셜 계정으로 연결된 이메일입니다.");
+    SOCIAL_ACCOUNT_CONFLICT(409, "이미 다른 소셜 계정으로 연결된 이메일입니다."),
+
+    // 포인트 관련 에러
+    POINT_NOT_FOUND(404, "해당 사용자의 포인트 정보가 존재하지 않습니다."),
+    INSUFFICIENT_POINT(400, "포인트가 부족합니다."),
+    POINT_TRANSACTION_ERROR(500, "포인트 트랜잭션 처리 중 오류가 발생했습니다.");
 
     private final int status;
     private final String message;

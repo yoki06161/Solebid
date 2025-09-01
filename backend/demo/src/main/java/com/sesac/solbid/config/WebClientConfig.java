@@ -12,6 +12,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class WebClientConfig implements WebMvcConfigurer {
+    //겹쳐서 후에 수정 예정
 
     @Value("${portone.base-url}")
     private String portoneBaseUrl;
