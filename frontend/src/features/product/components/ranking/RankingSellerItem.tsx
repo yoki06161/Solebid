@@ -1,8 +1,9 @@
+import { Link } from "react-router-dom";
 import type { RankingSeller } from "../../types/ranking/RankingSellerProps";
 
 const RankingSellerItem = ({ rank, image, nickname, successRate, trustScore }: RankingSeller) => (
-    <a
-        href="#"
+    <Link
+        to=""
         className="block bg-white rounded-lg p-4 hover:shadow-md transition-shadow"
     >
         <div className="flex items-center space-x-6">
@@ -42,7 +43,7 @@ const RankingSellerItem = ({ rank, image, nickname, successRate, trustScore }: R
                 </div>
             </div>
         </div>
-    </a>
+    </Link>
 );
 
 export default RankingSellerItem;
