@@ -1,8 +1,9 @@
+import { Link } from "react-router-dom";
 import type { RankingBidderProps } from "../../types/ranking/RankingBidderProps";
 
 const RankingBidderItem = ({ rank, image, nickname, winCount, totalAmount }: RankingBidderProps) => (
-    <a
-        href="#"
+    <Link
+        to=""
         className="block bg-white rounded-lg p-4 hover:shadow-md transition-shadow"
     >
         <div className="flex items-center space-x-6">
@@ -38,7 +39,7 @@ const RankingBidderItem = ({ rank, image, nickname, winCount, totalAmount }: Ran
                 </div>
             </div>
         </div>
-    </a>
+    </Link>
 );
 
 export default RankingBidderItem;

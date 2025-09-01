@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import type { BrandPopularProps } from "../../types/brand/BrandPopular";
 
 const BrandPopular = ({ brands }: BrandPopularProps) => (
@@ -7,9 +8,9 @@ const BrandPopular = ({ brands }: BrandPopularProps) => (
         </h2>
         <div className="grid grid-cols-4 gap-6">
             {brands.map((brand) => (
-                <a
+                <Link
                     key={brand.id}
-                    href="#"
+                    to=""
                     className="bg-white rounded-xl p-6 flex flex-col items-center cursor-pointer hover:shadow-lg transition-shadow"
                 >
                     <img
@@ -20,7 +21,7 @@ const BrandPopular = ({ brands }: BrandPopularProps) => (
                     <h3 className="text-lg font-medium text-gray-900">
                         {brand.name}
                     </h3>
-                </a>
+                </Link>
             ))}
         </div>
     </section>
