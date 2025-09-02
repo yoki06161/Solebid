@@ -1,9 +1,9 @@
 package com.sesac.solbid.service;
 
 
-import com.sesac.solbid.dto.request.PortOneTokenRequest;
-import com.sesac.solbid.dto.response.PortOnePaymentResponse;
-import com.sesac.solbid.dto.response.PortOneTokenResponse;
+import com.sesac.solbid.dto.payment.request.PortOneTokenRequest;
+import com.sesac.solbid.dto.payment.response.PortOnePaymentResponse;
+import com.sesac.solbid.dto.payment.response.PortOneTokenResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

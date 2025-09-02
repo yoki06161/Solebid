@@ -1,4 +1,4 @@
-package com.sesac.solbid.dto.response;
+package com.sesac.solbid.dto.payment.response;
 
 import com.sesac.solbid.domain.Payments;
 import com.sesac.solbid.domain.enums.PaymentStatus;

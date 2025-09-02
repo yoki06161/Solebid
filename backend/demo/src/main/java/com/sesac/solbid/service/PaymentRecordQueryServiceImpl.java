@@ -1,8 +1,8 @@
 package com.sesac.solbid.service;
 
-import com.sesac.solbid.dto.request.PaymentRecordSearchRequest;
-import com.sesac.solbid.dto.response.PageResponse;
-import com.sesac.solbid.dto.response.PaymentRecordItemResponse;
+import com.sesac.solbid.dto.payment.request.PaymentRecordSearchRequest;
+import com.sesac.solbid.dto.payment.response.PageResponse;
+import com.sesac.solbid.dto.payment.response.PaymentRecordItemResponse;
 import com.sesac.solbid.repository.PaymentsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

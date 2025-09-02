@@ -2,7 +2,7 @@ package com.sesac.solbid.repository;
 
 import com.sesac.solbid.domain.Payments;
 import com.sesac.solbid.domain.enums.PaymentStatus;
-import com.sesac.solbid.dto.response.PaymentRecordItemResponse;
+import com.sesac.solbid.dto.payment.response.PaymentRecordItemResponse;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

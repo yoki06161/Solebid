@@ -1,4 +1,4 @@
-package com.sesac.solbid.dto.response;
+package com.sesac.solbid.dto.payment.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;

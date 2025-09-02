@@ -1,8 +1,8 @@
 package com.sesac.solbid.controller;
 
-import com.sesac.solbid.dto.request.PaymentRecordSearchRequest;
-import com.sesac.solbid.dto.response.PageResponse;
-import com.sesac.solbid.dto.response.PaymentRecordItemResponse;
+import com.sesac.solbid.dto.payment.request.PaymentRecordSearchRequest;
+import com.sesac.solbid.dto.payment.response.PageResponse;
+import com.sesac.solbid.dto.payment.response.PaymentRecordItemResponse;
 import com.sesac.solbid.service.PaymentRecordQueryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

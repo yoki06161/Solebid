@@ -1,6 +1,6 @@
 package com.sesac.solbid.controller;
 
-import com.sesac.solbid.dto.response.PointSummaryResponse;
+import com.sesac.solbid.dto.payment.response.PointSummaryResponse;
 import com.sesac.solbid.service.PointService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

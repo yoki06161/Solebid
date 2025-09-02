@@ -1,4 +1,4 @@
-package com.sesac.solbid.dto.request;
+package com.sesac.solbid.dto.payment.request;
 
 import com.sesac.solbid.domain.enums.PaymentStatus;
 import jakarta.validation.constraints.NotNull;

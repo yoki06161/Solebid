@@ -1,7 +1,7 @@
 package com.sesac.solbid.controller;
 
-import com.sesac.solbid.dto.request.PaymentPrepareRequest;
-import com.sesac.solbid.dto.response.PaymentPrepareResponse;
+import com.sesac.solbid.dto.payment.request.PaymentPrepareRequest;
+import com.sesac.solbid.dto.payment.response.PaymentPrepareResponse;
 import com.sesac.solbid.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

@@ -1,7 +1,6 @@
 package com.sesac.solbid.service;
 
-import com.sesac.solbid.dto.response.PortOnePaymentResponse;
-import org.springframework.stereotype.Service;
+import com.sesac.solbid.dto.payment.response.PortOnePaymentResponse;
 
 
 public interface PortOneService {

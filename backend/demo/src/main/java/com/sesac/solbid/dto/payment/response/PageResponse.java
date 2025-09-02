@@ -1,4 +1,4 @@
-package com.sesac.solbid.dto.response;
+package com.sesac.solbid.dto.payment.response;
 
 import lombok.Getter;
 import org.springframework.data.domain.Page;

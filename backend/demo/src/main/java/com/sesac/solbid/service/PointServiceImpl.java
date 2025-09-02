@@ -1,7 +1,7 @@
 package com.sesac.solbid.service;
 
 import com.sesac.solbid.domain.User;
-import com.sesac.solbid.dto.response.PointSummaryResponse;
+import com.sesac.solbid.dto.payment.response.PointSummaryResponse;
 import com.sesac.solbid.exception.PointNotFoundException;
 import com.sesac.solbid.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
