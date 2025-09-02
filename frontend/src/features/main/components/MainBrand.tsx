@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
-import type { BrandPopularProps } from "../../types/brand/BrandPopular";
+import type { MainBrandProps } from "../types/MainBrandProps";
 
-const BrandPopular = ({ brands }: BrandPopularProps) => (
-    <section className="mb-12">
-        <h2 className="text-2xl font-bold mb-8">
+const MainBrand = ({ brands }: MainBrandProps) => (
+    <section className="max-w-[1440px] mx-auto px-6 pb-12">
+        <h2 className="text-xl font-semibold text-gray-900 mb-6">
             인기 브랜드
         </h2>
         <div className="grid grid-cols-4 gap-6">
@@ -27,4 +27,4 @@ const BrandPopular = ({ brands }: BrandPopularProps) => (
     </section>
 );
 
-export default BrandPopular;
+export default MainBrand;
