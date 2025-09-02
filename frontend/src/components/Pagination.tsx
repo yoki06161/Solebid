@@ -8,6 +8,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }: PaginationProps) 
                 <button
                     onClick={() => onPageChange(currentPage - 1)}
                     disabled={currentPage === 1}
+                    className="px-3 py-2 text-gray-500 hover:text-gray-700 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     <i className="fas fa-chevron-left" />
                 </button>
