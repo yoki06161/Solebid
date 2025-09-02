@@ -8,7 +8,6 @@ import OrderPage from "./features/order/pages/OrderPage";
 import PolicyPage from './features/policy/pages/PolicyPage';
 import AuctionPage from './features/product/pages/AuctionPage';
 import BidPage from './features/product/pages/BidPage';
-import BrandPage from './features/product/pages/BrandPage';
 import CategoryPage from './features/product/pages/CategoryPage';
 import RankingPage from './features/product/pages/RankingPage';
 import SearchPage from './features/product/pages/SearchPage';
@@ -38,7 +37,6 @@ const router = createBrowserRouter(
             <Route path="/bid" element={<BidPage />} />
             <Route path="/category/:categoryName" element={<CategoryPage />} />
             <Route path="/search" element={<SearchPage />} />
-            <Route path="/brand" element={<BrandPage />} />
             <Route path="/ranking" element={<RankingPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/order" element={<OrderPage />} />

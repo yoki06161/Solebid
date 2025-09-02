@@ -1,16 +1,20 @@
+import type { MainBrand } from "../types/MainBrandProps";
+import type { MainCategory } from "../types/MainCategoryProps";
+import type { MainProduct } from "../types/MainProductProps";
 
 export const heroImage =
     "https://readdy.ai/api/search-image?query=modern%20elegant%20luxury%20sneakers%20artistically%20arranged%20in%20minimal%20studio%20setting%20with%20soft%20gradient%20background%2C%20professional%20product%20photography%20with%20dramatic%20lighting%20and%20shadows&width=800&height=600&seq=1&orientation=landscape";
 
-export const categories = [
+export const categories: MainCategory[] = [
     { name: "스니커즈", icon: "fa-shoe-prints", count: "2,431" },
     { name: "러닝화", icon: "fa-running", count: "1,523" },
     { name: "농구화", icon: "fa-basketball", count: "842" },
     { name: "캔버스화", icon: "fa-socks", count: "976" },
 ];
 
-export const trendingProducts = [
+export const trendingProducts: MainProduct[] = [
     {
+        id: 1,
         image:
             "https://readdy.ai/api/search-image?query=premium%20white%20and%20blue%20athletic%20sneakers%20on%20minimal%20light%20background%20with%20subtle%20reflection%2C%20professional%20product%20photography&width=300&height=300&seq=2&orientation=squarish",
         name: "Nike Air Max 2025",
@@ -19,6 +23,7 @@ export const trendingProducts = [
         timeLeft: "2:14:53",
     },
     {
+        id: 2,
         image:
             "https://readdy.ai/api/search-image?query=luxury%20black%20and%20red%20sports%20sneakers%20on%20minimal%20light%20background%20with%20soft%20shadows%2C%20high-end%20product%20shot&width=300&height=300&seq=3&orientation=squarish",
         name: "Adidas Ultra Boost",
@@ -27,6 +32,7 @@ export const trendingProducts = [
         timeLeft: "1:45:21",
     },
     {
+        id: 3,
         image:
             "https://readdy.ai/api/search-image?query=premium%20gray%20and%20white%20running%20shoes%20on%20minimal%20light%20background%20with%20clean%20composition%2C%20professional%20studio%20photography&width=300&height=300&seq=4&orientation=squarish",
         name: "New Balance 990v6",
@@ -35,11 +41,55 @@ export const trendingProducts = [
         timeLeft: "3:22:15",
     },
     {
+        id: 4,
         image:
             "https://readdy.ai/api/search-image?query=trendy%20beige%20and%20white%20lifestyle%20sneakers%20on%20minimal%20light%20background%20with%20artistic%20shadows%2C%20commercial%20product%20photography&width=300&height=300&seq=5&orientation=squarish",
         name: "Converse Chuck 70",
         price: "129,000",
         bidCount: 18,
         timeLeft: "4:55:32",
+    },
+];
+
+export const popularBrands: MainBrand[] = [
+    {
+        id: 1,
+        name: "나이키",
+        logo: "https://readdy.ai/api/search-image?query=minimal%20modern%20nike%20logo%20design%20on%20clean%20white%20background%20professional%20branding%20photography%20elegant%20commercial%20shot%20with%20soft%20shadows&width=120&height=120&seq=10&orientation=squarish",
+    },
+    {
+        id: 2,
+        name: "아디다스",
+        logo: "https://readdy.ai/api/search-image?query=minimal%20modern%20adidas%20logo%20design%20on%20clean%20white%20background%20professional%20branding%20photography%20elegant%20commercial%20shot%20with%20soft%20shadows&width=120&height=120&seq=11&orientation=squarish",
+    },
+    {
+        id: 3,
+        name: "뉴발란스",
+        logo: "https://readdy.ai/api/search-image?query=minimal%20modern%20new%20balance%20logo%20design%20on%20clean%20white%20background%20professional%20branding%20photography%20elegant%20commercial%20shot%20with%20soft%20shadows&width=120&height=120&seq=12&orientation=squarish",
+    },
+    {
+        id: 4,
+        name: "컨버스",
+        logo: "https://readdy.ai/api/search-image?query=minimal%20modern%20converse%20logo%20design%20on%20clean%20white%20background%20professional%20branding%20photography%20elegant%20commercial%20shot%20with%20soft%20shadows&width=120&height=120&seq=13&orientation=squarish",
+    },
+    {
+        id: 5,
+        name: "반스",
+        logo: "https://readdy.ai/api/search-image?query=minimal%20modern%20vans%20logo%20design%20on%20clean%20white%20background%20professional%20branding%20photography%20elegant%20commercial%20shot%20with%20soft%20shadows&width=120&height=120&seq=14&orientation=squarish",
+    },
+    {
+        id: 6,
+        name: "푸마",
+        logo: "https://readdy.ai/api/search-image?query=minimal%20modern%20puma%20logo%20design%20on%20clean%20white%20background%20professional%20branding%20photography%20elegant%20commercial%20shot%20with%20soft%20shadows&width=120&height=120&seq=15&orientation=squarish",
+    },
+    {
+        id: 7,
+        name: "리복",
+        logo: "https://readdy.ai/api/search-image?query=minimal%20modern%20reebok%20logo%20design%20on%20clean%20white%20background%20professional%20branding%20photography%20elegant%20commercial%20shot%20with%20soft%20shadows&width=120&height=120&seq=16&orientation=squarish",
+    },
+    {
+        id: 8,
+        name: "아식스",
+        logo: "https://readdy.ai/api/search-image?query=minimal%20modern%20asics%20logo%20design%20on%20clean%20white%20background%20professional%20branding%20photography%20elegant%20commercial%20shot%20with%20soft%20shadows&width=120&height=120&seq=17&orientation=squarish",
     },
 ];

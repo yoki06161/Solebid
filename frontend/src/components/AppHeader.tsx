@@ -121,11 +121,6 @@ function AppHeader() {
                             </span>
                             <span className="text-gray-800 hover:text-black cursor-pointer"
                                   style={{ fontSize: '1.125rem' }}
-                                  onClick={() => navigate("/brand")}>
-                                BRAND
-                            </span>
-                            <span className="text-gray-800 hover:text-black cursor-pointer"
-                                  style={{ fontSize: '1.125rem' }}
                                   onClick={() => navigate("/auction")}>
                                 AUCTION
                             </span>
