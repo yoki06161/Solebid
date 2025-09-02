@@ -36,7 +36,7 @@ public interface PaymentsRepository extends JpaRepository<Payments, Long>, JpaSp
 
     //포인트 전환건만 조회, 필터 활성 user 예약어 이슈 회피
     @Query(value = """
-        SELECT new com.sesac.solbid.dto.response.PaymentRecordItemResponse(
+        SELECT new com.sesac.solbid.dto.payment.response.PaymentRecordItemResponse(
             p.paymentId, u.userId, p.orderId, p.transactionId, p.amount,
             p.paymentMethod, p.provider, p.paymentStatus, p.charged,
             p.convertedPoint, p.requestedAt, p.confirmedAt

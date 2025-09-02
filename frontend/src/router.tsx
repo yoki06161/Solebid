@@ -25,6 +25,9 @@ import AppLayout from "./components/AppLayout.tsx";
 import ChargePointsPage from './features/payment/pages/ChargePointsPage.tsx';
 import ChargeResultPage from './features/payment/pages/ChargeResultPage.tsx';
 
+import PaymentRecordsPage from './features/payment/pages/PaymentRecordsPage.tsx';
+
+
 const router = createBrowserRouter(
     createRoutesFromElements(
         <Route element={<AppLayout />}>
@@ -43,6 +46,7 @@ const router = createBrowserRouter(
             <Route path="/order/:orderId" element={<OrderDetailPage />} />
             <Route path="/wish" element={<WishPage />} />
             <Route path="/points/charge" element={<ChargePointsPage />} />
+            <Route path="/points/records" element={<PaymentRecordsPage />} />
             <Route path="/result" element={<ChargeResultPage />} />
             <Route path="/cart" element={<CartPage />} />
             <Route path="/policy" element={<PolicyPage />} />
