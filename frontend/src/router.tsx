@@ -10,8 +10,8 @@ import AuctionPage from './features/product/pages/AuctionPage';
 import BidPage from './features/product/pages/BidPage';
 import CategoryPage from './features/product/pages/CategoryPage';
 import RankingPage from './features/product/pages/RankingPage';
-import SearchPage from './features/product/pages/SearchPage';
 import ProfilePage from './features/profile/pages/ProfilePage';
+import SearchPage from './features/search/pages/SearchPage';
 import SettingPage from './features/setting/pages/SettingPage';
 import WishPage from './features/wish/pages/WishPage';
 
@@ -28,7 +28,6 @@ import ProtectedRoute from './features/user/components/ProtectedRoute';
 
 import PaymentRecordsPage from './features/payment/pages/PaymentRecordsPage.tsx';
 
-
 const router = createBrowserRouter(
     createRoutesFromElements(
         <Route element={<AppLayout />}>
@@ -40,7 +39,6 @@ const router = createBrowserRouter(
             <Route path="/auction" element={<AuctionPage />} />
             <Route path="/bid" element={<BidPage />} />
             <Route path="/category/:categoryName" element={<CategoryPage />} />
-            <Route path="/search" element={<SearchPage />} />
             <Route path="/ranking" element={<RankingPage />} />
             <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
             <Route path="/order" element={<ProtectedRoute><OrderPage /></ProtectedRoute>} />
@@ -51,6 +49,7 @@ const router = createBrowserRouter(
             <Route path="/result" element={<ChargeResultPage />} />
             <Route path="/cart" element={<CartPage />} />
             <Route path="/policy" element={<PolicyPage />} />
+            <Route path="/search" element={<SearchPage />} />
             <Route path="/notification" element={<ProtectedRoute><NotificationPage /></ProtectedRoute>} />
             <Route path="/setting" element={<ProtectedRoute><SettingPage /></ProtectedRoute>} />
         </Route>
