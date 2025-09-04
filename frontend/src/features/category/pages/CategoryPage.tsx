@@ -2,9 +2,9 @@ import { useMemo, useState } from "react";
 import { useParams } from 'react-router-dom';
 import Pagination from "../../../components/Pagination";
 import { usePagination } from "../../../hooks/usePagination";
-import { CategoryBreadcrumb, CategoryHeader, CategoryList, CategorySearch } from "../components/category";
-import { brands, categories, priceRanges, sortOptions } from "../components/category/mockData";
-import type { Category } from "../types/category/Category";
+import { CategoryBreadcrumb, CategoryHeader, CategoryList, CategorySearch } from "../components";
+import { brands, categories, priceRanges, sortOptions } from "../components/mockData";
+import type { Category } from "../types/Category";
 
 const CategoryPage = () => {
     const [selectedBrands, setSelectedBrands] = useState<string[]>([]);

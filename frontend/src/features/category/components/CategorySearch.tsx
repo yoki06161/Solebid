@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { CategorySearchProps } from "../../types/category/CategorySearchProps";
+import type { CategorySearchProps } from "../types/CategorySearchProps";
 
 const CategorySearch = ({
     brands,

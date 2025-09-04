@@ -1,4 +1,4 @@
-import type { CategoryListProps } from "../../types/category/CategoryListProps";
+import type { CategoryListProps } from "../types/CategoryListProps";
 import CategoryItem from "./CategoryItem";
 
 const CategoryList = ({ categories }: CategoryListProps) => {

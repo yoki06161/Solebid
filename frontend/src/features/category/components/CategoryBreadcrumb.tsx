@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import type { CategoryBreadcrumbProps } from "../../types/category/CategoryBreadcrumb";
+import type { CategoryBreadcrumbProps } from "../types/CategoryBreadcrumb";
 
 const CategoryBreadcrumb = ({ categoryName }: CategoryBreadcrumbProps) => {
     return (

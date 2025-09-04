@@ -1,4 +1,4 @@
-import type { CategoryHeaderProps } from "../../types/category/CategoryHeaderProps";
+import type { CategoryHeaderProps } from "../types/CategoryHeaderProps";
 
 const CategoryHeader = ({ categoryName }: CategoryHeaderProps) => {
     return (
