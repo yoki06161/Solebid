@@ -12,6 +12,7 @@ import CategoryPage from './features/product/pages/CategoryPage';
 import ProfilePage from './features/profile/pages/ProfilePage';
 import SearchPage from './features/search/pages/SearchPage';
 import SettingPage from './features/setting/pages/SettingPage';
+import TransactionPage from './features/transaction/pages/TransactionPage';
 import WishPage from './features/wish/pages/WishPage';
 
 import Login from "./features/user/pages/Login.tsx";
@@ -50,6 +51,7 @@ const router = createBrowserRouter(
             <Route path="/search" element={<SearchPage />} />
             <Route path="/notification" element={<ProtectedRoute><NotificationPage /></ProtectedRoute>} />
             <Route path="/setting" element={<ProtectedRoute><SettingPage /></ProtectedRoute>} />
+            <Route path="/transaction" element={<ProtectedRoute><TransactionPage /></ProtectedRoute>} />
         </Route>
     )
 )

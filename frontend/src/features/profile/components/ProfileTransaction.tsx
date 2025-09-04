@@ -36,7 +36,7 @@ const ProfileTransaction = () => {
                     최근 판매 내역
                 </h3>
                 <Link
-                    to="/cart"
+                    to="/transaction"
                     className="text-blue-600 text-sm hover:text-blue-800 cursor-pointer">
                     전체 보기
                 </Link>
