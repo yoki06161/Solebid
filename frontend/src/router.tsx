@@ -9,7 +9,6 @@ import PolicyPage from './features/policy/pages/PolicyPage';
 import AuctionPage from './features/product/pages/AuctionPage';
 import BidPage from './features/product/pages/BidPage';
 import CategoryPage from './features/product/pages/CategoryPage';
-import RankingPage from './features/product/pages/RankingPage';
 import ProfilePage from './features/profile/pages/ProfilePage';
 import SearchPage from './features/search/pages/SearchPage';
 import SettingPage from './features/setting/pages/SettingPage';
@@ -39,7 +38,6 @@ const router = createBrowserRouter(
             <Route path="/auction" element={<AuctionPage />} />
             <Route path="/bid" element={<BidPage />} />
             <Route path="/category/:categoryName" element={<CategoryPage />} />
-            <Route path="/ranking" element={<RankingPage />} />
             <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
             <Route path="/order" element={<ProtectedRoute><OrderPage /></ProtectedRoute>} />
             <Route path="/order/:orderId" element={<ProtectedRoute><OrderDetailPage /></ProtectedRoute>} />
