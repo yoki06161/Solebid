@@ -14,14 +14,14 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
-@Setter
 @NoArgsConstructor
 @Entity
-@Table(name="auctionevent")
+@Table(name="auction_event")
 public class AuctionEvent  extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "auction_event_id")
     private Long  auctionEventId;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -30,8 +30,8 @@ public class AuctionEvent  extends BaseEntity {
 
     // 경매 상태
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private AuctionStatus state;
+    @Column(name = "state", nullable = false, length = 20)
+    private AuctionStatus status = AuctionStatus.READY; //기본값
 
     // 시작가/즉시구매가/호가단위
     @Column(name = "start_price", nullable = false, precision = 19, scale = 2)
@@ -41,7 +41,7 @@ public class AuctionEvent  extends BaseEntity {
     private BigDecimal buyoutPrice;
 
     @Column(name = "tick_size", nullable = false, precision = 19, scale = 2)
-    private BigDecimal tickSize;
+    private BigDecimal tickSize  = new BigDecimal("1.00"); //기본값
 
     // 일정
     @Column(name = "start_at", nullable = false)
@@ -64,6 +64,7 @@ public class AuctionEvent  extends BaseEntity {
 
     // 동시성 제어
     @Version
+    @Column(name = "version")
     private Long version;
 
     // 부가

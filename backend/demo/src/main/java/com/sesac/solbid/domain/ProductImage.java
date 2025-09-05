@@ -11,8 +11,10 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name="product_image")
 public class ProductImage extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "image_id")
     private Long imageId;
 
     //이 이미지가 등록된 상품
@@ -21,19 +23,19 @@ public class ProductImage extends BaseEntity {
     private Product product;
 
     //이미지 주소
-    @Column(nullable = false)
+    @Column(name = "file_path", nullable = false, length = 255)
     private String filePath;
 
     //이미지 이름
-    @Column(nullable = false)
+    @Column(name = "file_name", nullable = false, length = 255)
     private String fileName;
 
     //이미지 정렬 순번
-    @Column(nullable = false)
+    @Column(name = "sort_order", nullable = false)
     private int sortOrder;
 
-    //이 이미지가 썸네일로 사용되는가?
-    @Column(nullable = false)
+    //썸네일 유무
+    @Column(name = "is_thumbnail", nullable = false)
     private boolean isThumbnail;
 
     @Builder

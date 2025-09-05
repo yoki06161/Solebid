@@ -16,13 +16,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-@Setter
 @NoArgsConstructor
 @Entity
 @Table(name="product")
 public class Product extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "product_id")
     private Long productId;
 
     //판매자
@@ -39,45 +40,46 @@ public class Product extends BaseEntity {
 
     // 상품 메타
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "product_category", nullable = false)
     private ProductCategory productCategory;
 
     //상품 상태
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "product_status", nullable = false)
     private ProductStatus productStatus = ProductStatus.AVAILABLE;
 
     //상품 컨디션
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "product_condition", nullable = false)
     private ProductCondition productCondition;
 
     //상품 브랜드
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "product_brand", nullable = false)
     private ProductBrand productBrand;
 
     //사이즈
-    @Column(nullable = false)
+    @Column(name = "size", nullable = false)
     @Min(220)
     @Max(320)
     private int size; //mm 기준
 
     // 등록명
-    @Column(nullable = false, length = 100)
+    @Column(name = "name", nullable = false, length = 100)
     private String name;
 
     //상품 상세설명
-    @Column(nullable = false, length = 1000)
+    @Column(name = "description", nullable = false, length = 1000)
     private String description;
 
     // 크롤링 메타
-    @Column(length = 60)
+    @Column(name = "model_code", length = 60)
     private String modelCode;
 
-    @Column(length = 120)
+    @Column(name = "colorway", length = 120)
     private String colorway;
 
+    @Column(name = "release_date")
     private LocalDate releaseDate;
 
     @Builder
