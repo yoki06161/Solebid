@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { AuctionSearchProps } from "../types/AuctionSearchProps";
+import {Link} from "react-router-dom";
 
 const AuctionSearch = ({
     categories,
@@ -33,6 +34,13 @@ const AuctionSearch = ({
                     ))}
                 </div>
                 <div className="flex items-center space-x-4">
+                    <div className="bg-white border border-gray-300 rounded-lg">
+                        <Link
+                            to="/products/new"
+                            className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 cursor-pointer"
+                        >상품 등록
+                        </Link>
+                    </div>
                     <div className="relative">
                         <button
                             onClick={() => setIsDropdownOpen(!isDropdownOpen)}

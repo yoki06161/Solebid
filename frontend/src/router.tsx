@@ -26,6 +26,7 @@ import ProtectedRoute from './features/user/components/ProtectedRoute';
 import ChargePointsPage from './features/payment/pages/ChargePointsPage.tsx';
 import ChargeResultPage from './features/payment/pages/ChargeResultPage.tsx';
 import PaymentRecordsPage from './features/payment/pages/PaymentRecordsPage.tsx';
+import NewAuctionProductPage from "./features/product/pages/NewAuctionProductPage.tsx";
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -43,6 +44,7 @@ const router = createBrowserRouter(
             <Route path="/wish" element={<ProtectedRoute><WishPage /></ProtectedRoute>} />
             <Route path="/points/charge" element={<ProtectedRoute><ChargePointsPage /></ProtectedRoute>} />
             <Route path="/points/records" element={<ProtectedRoute><PaymentRecordsPage /></ProtectedRoute>} />
+            <Route path="/products/new" element={<ProtectedRoute><NewAuctionProductPage /></ProtectedRoute>} />
             <Route path="/result" element={<ChargeResultPage />} />
             <Route path="/cart" element={<CartPage />} />
             <Route path="/policy" element={<PolicyPage />} />
