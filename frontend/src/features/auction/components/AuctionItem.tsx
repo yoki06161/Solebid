@@ -1,6 +1,16 @@
+import { format } from "date-fns";
 import type { AuctionItemProps } from "../types/AuctionItemProps";
 
 const AuctionItem = ({ item, onBidClick }: AuctionItemProps) => {
+    const date = new Date(item.timeLeft);
+    const timeLeft = format(date, 'HH:mm:ss');
+
+    const formatter = new Intl.NumberFormat('ko-KR', {
+        style: 'currency',
+        currency: 'KRW'
+    });
+    const currentBid = formatter.format(item.currentBid);
+    
     return (
         <div className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
             <div className="relative h-64">
@@ -22,7 +32,7 @@ const AuctionItem = ({ item, onBidClick }: AuctionItemProps) => {
                         현재 입찰가
                     </span>
                     <span className="text-lg font-semibold text-blue-600">
-                        ₩{item.currentBid}
+                        {currentBid}
                     </span>
                 </div>
                 <div className="flex justify-between items-center mb-4">
@@ -30,7 +40,7 @@ const AuctionItem = ({ item, onBidClick }: AuctionItemProps) => {
                         남은 시간
                     </span>
                     <span className="text-sm font-medium text-red-500">
-                        {item.timeLeft}
+                        {timeLeft}
                     </span>
                 </div>
                 <div className="flex items-center justify-between">
