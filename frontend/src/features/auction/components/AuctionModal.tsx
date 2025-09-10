@@ -1,11 +1,12 @@
-import { useState } from "react";
-import type { AuctionModalProps } from "../types/AuctionModalProps";
+import React, {useState} from "react";
+import type {AuctionModalProps} from "../types/AuctionModalProps";
 
-const AuctionModal = ({ isOpen, onClose, currentBid, onSubmit }: AuctionModalProps) => {
+const AuctionModal = ({isOpen, onClose, currentBid, onSubmit}: AuctionModalProps) => {
     const [bidAmount, setBidAmount] = useState<string>('');
-    const currentBidNumber = parseInt(currentBid.replace(/,/g, ''), 10);
+
+    // const currentBidNumber = parseInt(currentBid.replace(/,/g, ''), 10);
     const minBidIncrement = 10000;
-    const minBidAmount = currentBidNumber + minBidIncrement;
+    const minBidAmount = currentBid + minBidIncrement;
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -19,6 +20,7 @@ const AuctionModal = ({ isOpen, onClose, currentBid, onSubmit }: AuctionModalPro
     };
 
     if (!isOpen) return null;
+
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
             <div className="bg-white rounded-lg p-6 w-full max-w-md">
@@ -52,6 +54,7 @@ const AuctionModal = ({ isOpen, onClose, currentBid, onSubmit }: AuctionModalPro
                     <div className="flex space-x-4">
                         <button
                             type="submit"
+                            onClick={() => {}}
                             className="flex-1 px-4 py-2 bg-blue-500 text-white !rounded-button hover:bg-blue-600 whitespace-nowrap"
                         >
                             입찰하기

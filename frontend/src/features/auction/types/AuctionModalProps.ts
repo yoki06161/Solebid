@@ -1,6 +1,6 @@
 export interface AuctionModalProps {
     isOpen: boolean;
     onClose: () => void;
-    currentBid: string;
+    currentBid: number;
     onSubmit: (bidAmount: number) => void;
 }
