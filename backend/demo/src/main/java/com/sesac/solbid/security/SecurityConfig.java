@@ -45,7 +45,9 @@ public class SecurityConfig {
                                 "/api/auth/oauth2/*/callback",
                                 "/api/auth/logout",
                                 "/api/auth/refresh",
-                                "/api/auth/status"
+                                "/api/auth/status",
+                                "/api/auth/password/forgot",
+                                "/api/auth/password/reset"
                         ).permitAll()
                         // 그 외 모든 요청은 인증 필요
                         .anyRequest().authenticated()

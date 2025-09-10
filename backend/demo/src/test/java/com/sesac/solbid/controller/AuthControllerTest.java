@@ -7,15 +7,17 @@ import com.sesac.solbid.dto.user.response.LoginResponse;
 import com.sesac.solbid.exception.ErrorCode;
 import com.sesac.solbid.exception.GlobalExceptionHandler;
 import com.sesac.solbid.exception.OAuth2Exception;
-import com.sesac.solbid.security.SecurityConfig;
 import com.sesac.solbid.service.OAuth2Service;
+import com.sesac.solbid.service.PasswordResetService;
 import com.sesac.solbid.dto.auth.response.AuthUrlResponse;
 import com.sesac.solbid.dto.auth.request.CallbackRequest;
 import com.sesac.solbid.util.CookieUtil;
 import com.sesac.solbid.util.JwtUtil;
+import com.sesac.solbid.security.CustomUserDetailsService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
@@ -40,7 +42,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @WebMvcTest(controllers = AuthController.class)
 @TestPropertySource(properties = "spring.main.web-application-type=servlet")
-@Import({WebConfig.class, GlobalExceptionHandler.class, SecurityConfig.class, CookieUtil.class})
+@AutoConfigureMockMvc(addFilters = false)
+@Import({WebConfig.class, GlobalExceptionHandler.class, CookieUtil.class})
 @DisplayName("AuthController 통합 테스트")
 class AuthControllerTest {
 
@@ -58,6 +61,12 @@ class AuthControllerTest {
 
     @MockitoBean
     private JwtUtil jwtUtil;
+
+    @MockitoBean
+    private PasswordResetService passwordResetService;
+
+    @MockitoBean
+    private CustomUserDetailsService customUserDetailsService;
 
     // === 성공 시나리오 테스트 ===
 

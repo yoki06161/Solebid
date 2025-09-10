@@ -102,6 +102,11 @@ public class User extends BaseEntity {
         }
     }
 
+    // 비밀번호 변경 메서드
+    public void updatePassword(String encodedPassword) {
+        this.password = encodedPassword;
+    }
+
     // 회원 탈퇴(소프트 삭제): 상태 전환 + 일시 기록
     public void withdraw() {
         if (this.userStatus != UserStatus.WITHDRAWN) {

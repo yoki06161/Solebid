@@ -6,6 +6,7 @@ import com.sesac.solbid.exception.OAuth2Exception;
 import com.sesac.solbid.exception.CustomException;
 import com.sesac.solbid.exception.ReactivationRequiredException;
 import com.sesac.solbid.service.OAuth2Service;
+import com.sesac.solbid.service.PasswordResetService;
 import com.sesac.solbid.util.JwtUtil;
 import com.sesac.solbid.util.CookieUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,6 +25,8 @@ import com.sesac.solbid.dto.auth.response.AuthUrlResponse;
 import com.sesac.solbid.dto.auth.request.CallbackRequest;
 import com.sesac.solbid.dto.auth.response.LoginSuccessResponse;
 import com.sesac.solbid.dto.user.response.LoginResponse;
+import com.sesac.solbid.dto.auth.request.PasswordResetRequest;
+import com.sesac.solbid.dto.auth.request.PasswordResetConfirmRequest;
 
 /**
  * 인증 컨트롤러
@@ -38,6 +41,7 @@ public class AuthController {
     private final OAuth2Service oAuth2Service;
     private final JwtUtil jwtUtil;
     private final CookieUtil cookieUtil;
+    private final PasswordResetService passwordResetService;
 
     /**
      * 로그아웃 처리
@@ -189,6 +193,42 @@ public class AuthController {
             return ResponseEntity.internalServerError().body(
                 ApiResponse.error("INTERNAL_SERVER_ERROR", "서버 내부 오류가 발생했습니다.")
             );
+        }
+    }
+
+    /**
+     * 비밀번호 재설정 요청
+     * POST /api/auth/password/forgot
+     */
+    @PostMapping("/password/forgot")
+    public ResponseEntity<ApiResponse<Object>> requestPasswordReset(@Valid @RequestBody PasswordResetRequest request) {
+        try {
+            passwordResetService.requestReset(request.getEmail());
+            return ResponseEntity.ok(ApiResponse.success(Collections.emptyMap(), "비밀번호 재설정 메일을 발송했습니다."));
+        } catch (CustomException e) {
+            return ResponseEntity.status(e.getErrorCode().getStatus())
+                    .body(ApiResponse.error(e.getErrorCode().name(), e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(ApiResponse.error("INTERNAL_SERVER_ERROR", "서버 내부 오류가 발생했습니다."));
+        }
+    }
+
+    /**
+     * 비밀번호 재설정 확인 및 변경
+     * POST /api/auth/password/reset
+     */
+    @PostMapping("/password/reset")
+    public ResponseEntity<ApiResponse<Object>> resetPassword(@Valid @RequestBody PasswordResetConfirmRequest request) {
+        try {
+            passwordResetService.resetPassword(request.getToken(), request.getNewPassword());
+            return ResponseEntity.ok(ApiResponse.success(Collections.emptyMap(), "비밀번호가 재설정되었습니다."));
+        } catch (CustomException e) {
+            return ResponseEntity.status(e.getErrorCode().getStatus())
+                    .body(ApiResponse.error(e.getErrorCode().name(), e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(ApiResponse.error("INTERNAL_SERVER_ERROR", "서버 내부 오류가 발생했습니다."));
         }
     }
 

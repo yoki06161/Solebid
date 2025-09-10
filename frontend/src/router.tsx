@@ -19,6 +19,8 @@ import Login from "./features/user/pages/Login.tsx";
 import NicknameSetup from "./features/user/pages/NicknameSetup.tsx";
 import OAuth2Callback from "./features/user/pages/OAuth2Callback.tsx";
 import Signup from "./features/user/pages/Signup.tsx";
+import FindPassword from './features/user/pages/FindPassword';
+import ResetPassword from './features/user/pages/ResetPassword';
 
 import AppLayout from "./components/AppLayout.tsx";
 import ProtectedRoute from './features/user/components/ProtectedRoute';
@@ -53,6 +55,8 @@ const router = createBrowserRouter(
             <Route path="/setting" element={<ProtectedRoute><SettingPage /></ProtectedRoute>} />
             <Route path="/transaction" element={<ProtectedRoute><TransactionPage /></ProtectedRoute>} />
             <Route path="/transaction/:orderId" element={<ProtectedRoute><TransactionDetailPage /></ProtectedRoute>} />
+            <Route path="/find-password" element={<FindPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
         </Route>
     )
 )

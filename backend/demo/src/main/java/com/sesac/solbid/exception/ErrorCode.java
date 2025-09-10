@@ -30,6 +30,15 @@ public enum ErrorCode {
     OAUTH2_USER_INFO_ERROR(400, "OAuth2 사용자 정보 획득에 실패했습니다."),
     SOCIAL_ACCOUNT_CONFLICT(409, "이미 다른 소셜 계정으로 연결된 이메일입니다."),
 
+    // 비밀번호 재설정
+    PASSWORD_RESET_TOKEN_INVALID(400, "비밀번호 재설정 토큰이 유효하지 않습니다."),
+    PASSWORD_RESET_TOKEN_EXPIRED(400, "비밀번호 재설정 토큰이 만료되었습니다."),
+    PASSWORD_RESET_SAME_AS_OLD(400, "이전에 사용한 비밀번호와 동일합니다."),
+    USER_NOT_FOUND(404, "사용자를 찾을 수 없습니다."),
+    EMAIL_SEND_FAILED(500, "이메일 발송에 실패했습니다."),
+    OAUTH_TOKEN_FAILED(500, "Google OAuth2 Access Token 발급에 실패했습니다."),
+    PASSWORD_RESET_NOT_ALLOWED(400, "해당 계정은 비밀번호 재설정을 지원하지 않습니다."),
+
     // 포인트 관련 에러 (HttpStatus 기반)
     POINT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 사용자의 포인트 정보가 존재하지 않습니다."),
     INSUFFICIENT_POINT(HttpStatus.BAD_REQUEST, "포인트가 부족합니다."),
