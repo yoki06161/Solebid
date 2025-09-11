@@ -1,4 +1,4 @@
-package com.sesac.solbid.service;
+package com.sesac.solbid.service.user;
 
 public interface PasswordResetTokenService {
     String createToken(String email);

@@ -1,4 +1,4 @@
-package com.sesac.solbid.service;
+package com.sesac.solbid.service.auth;
 
 import com.sesac.solbid.domain.SocialLogin;
 import com.sesac.solbid.domain.User;

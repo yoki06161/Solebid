@@ -6,7 +6,6 @@ import com.sesac.solbid.domain.enums.ProviderType;
 import com.sesac.solbid.domain.enums.UserType;
 import com.sesac.solbid.repository.SocialLoginRepository;
 import com.sesac.solbid.repository.UserRepository;
-import com.sesac.solbid.service.OAuth2StateService;
 import com.sesac.solbid.dto.auth.response.AuthUrlResponse;
 import com.sesac.solbid.dto.auth.request.CallbackRequest;
 import okhttp3.mockwebserver.MockResponse;

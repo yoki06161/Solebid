@@ -1,5 +1,6 @@
 package com.sesac.solbid.service;
 
+import com.sesac.solbid.service.auth.OAuth2Service;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

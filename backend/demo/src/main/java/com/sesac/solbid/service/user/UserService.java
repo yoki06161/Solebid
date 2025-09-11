@@ -1,12 +1,11 @@
 // src/main/java/com/sesac/solbid/service/UserService.java
 
-package com.sesac.solbid.service;
+package com.sesac.solbid.service.user;
 
 import com.sesac.solbid.domain.SocialLogin;
 import com.sesac.solbid.domain.User;
 import com.sesac.solbid.domain.enums.ProviderType;
 import com.sesac.solbid.domain.enums.UserStatus;
-import com.sesac.solbid.domain.enums.UserType;
 import com.sesac.solbid.dto.user.request.SignupRequest;
 import com.sesac.solbid.dto.user.request.LoginRequest;
 import com.sesac.solbid.dto.user.response.LoginResponse;

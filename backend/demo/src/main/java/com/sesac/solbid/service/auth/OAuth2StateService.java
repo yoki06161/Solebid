@@ -1,4 +1,4 @@
-package com.sesac.solbid.service;
+package com.sesac.solbid.service.auth;
 
 public interface OAuth2StateService {
     String generateState();

@@ -1,6 +1,7 @@
 package com.sesac.solbid.service;
 
 import com.sesac.solbid.exception.OAuth2StateException;
+import com.sesac.solbid.service.auth.InMemoryOAuth2StateService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,7 +12,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static org.assertj.core.api.Assertions.*;
 

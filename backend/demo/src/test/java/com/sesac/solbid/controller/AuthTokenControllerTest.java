@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sesac.solbid.config.WebConfig;
 import com.sesac.solbid.exception.GlobalExceptionHandler;
 import com.sesac.solbid.security.SecurityConfig;
-import com.sesac.solbid.service.UserService;
+import com.sesac.solbid.service.user.UserService;
 import com.sesac.solbid.util.JwtUtil;
 import com.sesac.solbid.util.CookieUtil;
 import org.junit.jupiter.api.DisplayName;

@@ -1,7 +1,7 @@
 package com.sesac.solbid.controller;
 
 import com.sesac.solbid.dto.ApiResponse;
-import com.sesac.solbid.service.UserService;
+import com.sesac.solbid.service.user.UserService;
 import com.sesac.solbid.util.JwtUtil;
 import com.sesac.solbid.util.CookieUtil;
 import jakarta.servlet.http.Cookie;

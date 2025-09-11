@@ -1,9 +1,10 @@
-package com.sesac.solbid.service;
+package com.sesac.solbid.service.auth;
 
 import com.sesac.solbid.domain.User;
 import com.sesac.solbid.exception.CustomException;
 import com.sesac.solbid.exception.ErrorCode;
 import com.sesac.solbid.exception.OAuth2Exception;
+import com.sesac.solbid.service.user.UserService;
 import com.sesac.solbid.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

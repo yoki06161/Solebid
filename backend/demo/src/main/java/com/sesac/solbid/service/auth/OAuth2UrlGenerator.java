@@ -1,4 +1,4 @@
-package com.sesac.solbid.service;
+package com.sesac.solbid.service.auth;
 
 import com.sesac.solbid.exception.OAuth2Exception;
 import com.sesac.solbid.exception.ErrorCode;

@@ -1,4 +1,4 @@
-package com.sesac.solbid.service;
+package com.sesac.solbid.service.auth;
 
 import com.sesac.solbid.exception.OAuth2StateException;
 import lombok.extern.slf4j.Slf4j;

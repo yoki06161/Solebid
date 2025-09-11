@@ -1,10 +1,13 @@
 package com.sesac.solbid.service;
 
 import com.sesac.solbid.domain.User;
-import com.sesac.solbid.domain.enums.UserType;
 import com.sesac.solbid.dto.user.response.LoginResponse;
 import com.sesac.solbid.exception.ErrorCode;
 import com.sesac.solbid.exception.OAuth2Exception;
+import com.sesac.solbid.service.auth.OAuth2Service;
+import com.sesac.solbid.service.auth.OAuth2StateService;
+import com.sesac.solbid.service.auth.OAuth2UrlGenerator;
+import com.sesac.solbid.service.user.UserService;
 import com.sesac.solbid.util.JwtUtil;
 import com.sesac.solbid.dto.auth.response.AuthUrlResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,10 +21,6 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
