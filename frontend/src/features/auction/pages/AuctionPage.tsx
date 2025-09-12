@@ -89,7 +89,7 @@ const AuctionPage = () => {
                         setIsModalOpen(false);
                         setSelectedItem(null);
                     }}
-                    currentBid={selectedItem.currentBid}
+                    currentBid={selectedItem.currentBid ?? 0}
                     onSubmit={() => { }}
                 />
             )}

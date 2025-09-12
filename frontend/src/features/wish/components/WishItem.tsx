@@ -4,7 +4,7 @@ const WishItem = ({ item, onRemove, onAddToCart }: WishItemProps) => (
     <div className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
         <div className="relative">
             <img
-                src={item.image}
+                src={item.image || 'https://via.placeholder.com/300'}
                 alt={item.name}
                 className="w-full h-64 object-cover object-top cursor-pointer"
             />
@@ -20,10 +20,7 @@ const WishItem = ({ item, onRemove, onAddToCart }: WishItemProps) => (
                 {item.name}
             </h3>
             <p className="text-blue-600 font-semibold text-lg mb-1">
-                {item.price.toLocaleString()}원
-            </p>
-            <p className="text-gray-500 text-xs mb-4">
-                {item.dateAdded} 등록
+                {(item.currentBid ?? 0).toLocaleString()}원
             </p>
             <button
                 onClick={() => onAddToCart(item.id)}

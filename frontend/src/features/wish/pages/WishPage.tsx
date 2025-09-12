@@ -3,27 +3,27 @@ import Pagination from '../../../components/Pagination';
 import { useToast } from '../../../contexts/toast/toast';
 import { usePagination } from '../../../hooks/usePagination';
 import { WishList, WishSearch } from '../components';
-import { categories, wishes } from '../components/mockData';
+import { categories } from '../components/mockData';
 import type { Wish } from '../types/Wish';
+import { useWishes } from "../hooks/useWishes.ts";
 
 const WishPage = () => {
     const [selectedCategory, setSelectedCategory] = useState("전체");
-    const [sortBy, setSortBy] = useState("latest");
-    const [wishItem, setWishItem] = useState(wishes);
-    const { showToast } = useToast();
+    const [sortBy, setSortBy] = useState("priceHigh");
 
-    const filteredWishes = wishItem.filter(
+    const { showToast } = useToast();
+    const { wishes, isLoading, error, removeWish } = useWishes();
+
+    const filteredWishes = wishes?.filter(
         (item) => selectedCategory === "전체" || item.category === selectedCategory,
-    );
+    ) || [];
 
     const sortedByCategory: { [key: string]: (a: Wish, b: Wish) => number; } = {
-        priceHigh: (a, b) => b.price - a.price,
-        priceLow: (a, b) => a.price - b.price,
-        oldest: (a, b) => new Date(a.dateAdded).getTime() - new Date(b.dateAdded).getTime(),
-        latest: (a, b) => new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime(),
+        priceHigh: (a, b) => (b.currentBid ?? 0) - (a.currentBid ?? 0),
+        priceLow: (a, b) => (a.currentBid ?? 0) - (b.currentBid ?? 0),
     };
 
-    const sortedItem = [...filteredWishes].sort(sortedByCategory[sortBy] || sortedByCategory.latest);
+    const sortedItem = [...filteredWishes].sort(sortedByCategory[sortBy]);
 
     const {
         paginatedData: paginatedWishes,
@@ -33,12 +33,20 @@ const WishPage = () => {
     } = usePagination({ data: sortedItem, itemsPerPage: 8 });
 
     const handleRemoveFromWishList = (id: number) => {
-        setWishItem((prev) => prev.filter((item) => item.id !== id));
+        removeWish(id);
     };
 
     const handleAddToCart = () => {
         showToast('장바구니에 추가되었습니다');
     };
+
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
+
+    if (error) {
+        return <div>Error loading wishes.</div>;
+    }
 
     return (
         <main className="min-h-screen bg-gray-50 relative">

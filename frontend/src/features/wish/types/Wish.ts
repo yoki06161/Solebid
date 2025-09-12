@@ -1,8 +1,10 @@
 export interface Wish {
     id: number;
+    brand: string;
     name: string;
-    price: number;
+    image: string | null;
     category: string;
-    dateAdded: string;
-    image: string;
+    currentBid: number | null;
+    timeLeft: string;
+    bidders: number;
 }

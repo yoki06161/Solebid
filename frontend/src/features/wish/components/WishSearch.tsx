@@ -11,9 +11,7 @@ const WishSearch = ({
 }: WishSearchProps) => {
     const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
     const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
-
     const selectedSortOption = sortOptions.find(option => option.value === sortBy);
-
     return (
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
             <div className="flex justify-between items-center">
@@ -47,7 +45,7 @@ const WishSearch = ({
                 <div className="relative">
                     <button
                         onClick={() => setIsSortDropdownOpen(!isSortDropdownOpen)}
-                        className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer flex justify-between items-center w-32"
+                        className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer flex justify-between items-center w-36"
                     >
                         <span>
                             {selectedSortOption ? selectedSortOption.label : ''}
@@ -55,7 +53,7 @@ const WishSearch = ({
                         <i className="fas fa-chevron-down text-xs text-gray-400" />
                     </button>
                     {isSortDropdownOpen && (
-                        <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-lg shadow-lg z-20">
+                        <div className="absolute right-0 mt-2 w-36 bg-white border border-gray-200 rounded-lg shadow-lg z-20">
                             {sortOptions.map((option) => (
                                 <button
                                     key={option.value}
