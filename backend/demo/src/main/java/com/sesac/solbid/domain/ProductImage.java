@@ -2,16 +2,14 @@ package com.sesac.solbid.domain;
 
 import com.sesac.solbid.domain.baseentity.BaseEntity;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Getter
 @NoArgsConstructor
 @Entity
 @Table(name="product_image" ,
         uniqueConstraints = {
-                // 정렬 충돌 방지 (선택): 같은 상품에서 같은 sort_order 금지
+                // 정렬 충돌 방지: 같은 상품에서 같은 sort_order 금지
                 @UniqueConstraint(name="uk_product_sort", columnNames = {"product_id", "sort_order"})
         }
 )
@@ -23,6 +21,7 @@ public class ProductImage extends BaseEntity {
     private Long imageId;
 
     //이 이미지가 등록된 상품
+    @Setter(AccessLevel.PACKAGE) // 패키지 제한 세터
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="product_id", nullable = false)
     private Product product;
@@ -48,15 +47,13 @@ public class ProductImage extends BaseEntity {
         this.product = product;
         this.filePath = filePath;
         this.fileName = fileName;
-        this.sortOrder = sortOrder;
+        this.sortOrder = sortOrder; // Integer -> int 자동 언박싱
         this.isThumbnail = isThumbnail;
     }
 
-    // 런타임 URL 조합 (직접 S3 or CloudFront)
-    @Transient
-    public String getPublicUrl(String baseUrl) {
-        // baseUrl 예: https://cdn.yourapp.com/  또는  https://{bucket}.s3.ap-northeast-2.amazonaws.com/
-        if (baseUrl.endsWith("/")) return baseUrl + filePath;
-        return baseUrl + "/" + filePath;
+
+    public void updateFilePath(String newKey) {
+        this.filePath = newKey;
     }
 }
+

@@ -36,8 +36,11 @@ public class Product extends BaseEntity {
     private List<AuctionEvent> auctionEvents = new ArrayList<>();
 
     //이미지
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProductImage> productImages = new ArrayList<>();
+    @OneToMany(mappedBy = "product",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    @OrderBy("sortOrder ASC") // 오름차순 정렬
+    private final List<ProductImage> productImages = new ArrayList<>();
 
     @OneToMany(mappedBy = "product")
     List<WishList> wishLists = new ArrayList<>();
@@ -111,5 +114,11 @@ public class Product extends BaseEntity {
         this.modelCode = modelCode;
         this.colorway = colorway;
         this.releaseDate = releaseDate;
+    }
+
+    // 연관관계 편의 메서드
+    public void addImage(ProductImage image) {
+        image.setProduct(this);
+        this.productImages.add(image);
     }
 }

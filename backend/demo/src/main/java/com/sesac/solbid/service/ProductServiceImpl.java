@@ -7,6 +7,8 @@ import com.sesac.solbid.dto.product.request.ProductCreateRequest;
 import com.sesac.solbid.dto.product.response.ProductResponse;
 import com.sesac.solbid.exception.CustomException;
 import com.sesac.solbid.exception.ErrorCode;
+import com.sesac.solbid.infra.S3ObjectMover;
+import com.sesac.solbid.infra.S3ObjectVerifier;
 import com.sesac.solbid.mapper.ProductImageMapper;
 import com.sesac.solbid.mapper.ProductMapper;
 import com.sesac.solbid.repository.ProductRepository;
@@ -26,22 +28,27 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ProductServiceImpl implements ProductService {
 
-    private static final String S3_KEY_PREFIX = "products/";
+    private static final String TMP_PREFIX = "products/tmp/"; // tmp: 보안 강화
 
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final ProductMapper productMapper;           // MapStruct
     private final ProductImageMapper productImageMapper; // MapStruct
 
+    // S3 검증/이동 컴포넌트
+    private final S3ObjectVerifier s3ObjectVerifier;     // S3 HEAD 존재 확인
+    private final S3ObjectMover s3ObjectMover;           // tmp → 최종 경로 이동(Copy+Delete)
+
     /**
      * 상품 등록
-     * - 검증: 썸네일 ≤ 1, sortOrder 중복 금지, S3 key prefix
+     * - 검증: 썸네일 ≤ 1, sortOrder 중복 금지, S3 key prefix + S3 존재 확인
      * - 처리: DTO → 엔티티 매핑(MapStruct) 후 저장
      * @throws CustomException 인증/검증 실패 시
      */
     @Override
     @Transactional
     public Long create(Long sellerId, ProductCreateRequest req) {
+
         // 판매자 조회
         User seller = userRepository.findById(sellerId)
                 .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED));
@@ -62,6 +69,11 @@ public class ProductServiceImpl implements ProductService {
         Long id = productRepository.save(product).getProductId();
         log.info("Product created: id={} sellerId={} name={}", id, sellerId, req.name());
         return id;
+    }
+
+    @Override
+    public void finalizeImages(Long id, Long userId) {
+
     }
 
     //디버깅 로그
@@ -87,10 +99,14 @@ public class ProductServiceImpl implements ProductService {
                 log.warn("sortOrder duplicated: {}", img.sortOrder());
                 throw new CustomException(ErrorCode.SORT_ORDER_DUPLICATED);
             }
-            if (img.filePath() == null || !img.filePath().startsWith(S3_KEY_PREFIX)) {
-                log.warn("invalid image key: {}", img.filePath());
+            if (img.filePath() == null || !img.filePath().startsWith(TMP_PREFIX)) {
+                log.warn("only tmp keys allowed: {}", img.filePath());
                 throw new CustomException(ErrorCode.INVALID_IMAGE_KEY);
             }
+
+
+            // S3에 객체가 존재하는지 확인 (PUT 실패/위조 키 차단)
+            s3ObjectVerifier.requireExists(img.filePath());
         }
     }
 

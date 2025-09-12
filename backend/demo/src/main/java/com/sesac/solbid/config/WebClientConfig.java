@@ -17,6 +17,8 @@ public class WebClientConfig implements WebMvcConfigurer {
     @Value("${portone.base-url}")
     private String portoneBaseUrl;
 
+    /*
+    * portOne 설정*/
     @Bean
     public WebClient portOneWebClient() {
         return WebClient.builder()

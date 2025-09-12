@@ -49,7 +49,13 @@ public enum ErrorCode {
     THUMBNAIL_DUPLICATED(HttpStatus.BAD_REQUEST, "중복된 썸네일입니다."),
     SORT_ORDER_DUPLICATED(HttpStatus.BAD_REQUEST, "정렬 순서가 중복되었습니다."),
     INVALID_IMAGE_KEY(HttpStatus.BAD_REQUEST, "잘못된 이미지 키입니다."),
-    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증되지 않은 사용자입니다.");
+    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증되지 않은 사용자입니다."),
+
+    // S3 관련 에러
+    S3_IO_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S3 입출력 처리 중 오류가 발생했습니다."),
+    UNSUPPORTED_CONTENT_TYPE(HttpStatus.BAD_REQUEST, "지원하지 않는 Content-Type 입니다. (image/jpeg, image/png만 허용)"),
+    NOT_FOUND(HttpStatus.NOT_FOUND, "대상을 찾을 수 없습니다.");
+
 
     private final HttpStatus status;
     private final String message;
