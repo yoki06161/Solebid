@@ -35,7 +35,7 @@ public class Product extends BaseEntity {
     @OneToMany(mappedBy = "product")
     private List<AuctionEvent> auctionEvents = new ArrayList<>();
 
-    //이미지
+    // 이미지
     @OneToMany(mappedBy = "product",
             cascade = CascadeType.ALL,
             orphanRemoval = true)
@@ -43,29 +43,29 @@ public class Product extends BaseEntity {
     private final List<ProductImage> productImages = new ArrayList<>();
 
     @OneToMany(mappedBy = "product")
-    List<WishList> wishLists = new ArrayList<>();
+    List<Wish> wish = new ArrayList<>();
 
     // 상품 메타
     @Enumerated(EnumType.STRING)
     @Column(name = "product_category", nullable = false)
     private ProductCategory productCategory;
 
-    //상품 상태
+    // 상품 상태
     @Enumerated(EnumType.STRING)
     @Column(name = "product_status", nullable = false)
     private ProductStatus productStatus = ProductStatus.AVAILABLE;
 
-    //상품 컨디션
+    // 상품 컨디션
     @Enumerated(EnumType.STRING)
     @Column(name = "product_condition", nullable = false)
     private ProductCondition productCondition;
 
-    //상품 브랜드
+    // 상품 브랜드
     @Enumerated(EnumType.STRING)
     @Column(name = "product_brand", nullable = false)
     private ProductBrand productBrand;
 
-    //사이즈
+    // 사이즈
     @Column(name = "size", nullable = false)
     @Min(220)
     @Max(320)
@@ -75,7 +75,7 @@ public class Product extends BaseEntity {
     @Column(name = "name", nullable = false, length = 100)
     private String name;
 
-    //상품 상세설명
+    // 상품 상세설명
     @Column(name = "description", nullable = false, length = 1000)
     private String description;
 

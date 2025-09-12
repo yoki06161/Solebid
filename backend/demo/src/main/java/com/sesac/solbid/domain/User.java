@@ -9,17 +9,21 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "user")
-public class User extends BaseEntity {
+public class User extends BaseEntity implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -75,7 +79,7 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "seller")
     private List<OrderInfo> sellerOrders = new ArrayList<>();
     @OneToMany(mappedBy = "user")
-    private List<WishList> wishlists = new ArrayList<>();
+    private List<Wish> wishes = new ArrayList<>();
     @OneToMany(mappedBy = "user")
     private List<Notification> notifications = new ArrayList<>();
     @OneToMany(mappedBy = "user")
@@ -123,5 +127,26 @@ public class User extends BaseEntity {
             this.userStatus = UserStatus.ACTIVE;
             this.withdrawnAt = null;
         }
+    }
+
+    // UserDetails Impl
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_" + this.userType.name()));
+    }
+
+    @Override
+    public String getUsername() {
+        return this.email;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return this.userStatus != UserStatus.BLOCKED;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return this.userStatus == UserStatus.ACTIVE;
     }
 }

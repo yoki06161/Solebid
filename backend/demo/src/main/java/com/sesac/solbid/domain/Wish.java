@@ -1,27 +1,28 @@
 package com.sesac.solbid.domain;
 
-import com.sesac.solbid.domain.baseentity.BaseEntity;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
+@Entity
 @Getter
 @NoArgsConstructor
-@Entity
-@Table(name="wishlist")
-public class WishList extends BaseEntity {
+@AllArgsConstructor
+@Builder
+@Table(name = "wish", uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "product_id"})})
+public class Wish {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long wishListId;
+    private Long id;
 
-    private LocalDateTime createdAt;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="product_id", nullable = false)
+    @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 }
