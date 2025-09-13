@@ -1,17 +1,15 @@
 import { useState } from 'react';
 import Pagination from '../../../components/Pagination';
-import { useToast } from '../../../contexts/toast/toast';
 import { usePagination } from '../../../hooks/usePagination';
 import { WishList, WishSearch } from '../components';
 import { categories } from '../components/mockData';
-import type { Wish } from '../types/Wish';
 import { useWishes } from "../hooks/useWishes.ts";
+import type { Wish } from '../types/Wish';
 
 const WishPage = () => {
     const [selectedCategory, setSelectedCategory] = useState("전체");
     const [sortBy, setSortBy] = useState("priceHigh");
 
-    const { showToast } = useToast();
     const { wishes, isLoading, error, removeWish } = useWishes();
 
     const filteredWishes = wishes?.filter(
@@ -36,16 +34,16 @@ const WishPage = () => {
         removeWish(id);
     };
 
-    const handleAddToCart = () => {
-        showToast('장바구니에 추가되었습니다');
-    };
-
     if (isLoading) {
-        return <div>Loading...</div>;
+        return (
+            <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center">
+                <i className="fas fa-spinner fa-spin fa-3x"></i>
+            </div>
+        );
     }
 
     if (error) {
-        return <div>Error loading wishes.</div>;
+        return <div>Error: {error.message}</div>;
     }
 
     return (
@@ -61,7 +59,7 @@ const WishPage = () => {
                 <WishList
                     items={paginatedWishes}
                     onRemove={handleRemoveFromWishList}
-                    onAddToCart={handleAddToCart}
+                    onNavigateToBid={() => { }}
                 />
                 {filteredWishes.length > 0 && (
                     <Pagination

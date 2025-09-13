@@ -2,7 +2,7 @@ import type { WishListProps } from "../types/WishListProps";
 import WishEmptyList from "./WishEmptyList";
 import WishItem from "./WishItem";
 
-const WishList = ({ items, onRemove, onAddToCart }: WishListProps) => {
+const WishList = ({ items, onRemove, onNavigateToBid }: WishListProps) => {
     if (items.length === 0) {
         return <WishEmptyList />;
     }
@@ -13,7 +13,7 @@ const WishList = ({ items, onRemove, onAddToCart }: WishListProps) => {
                     key={item.id}
                     item={item}
                     onRemove={onRemove}
-                    onAddToCart={onAddToCart}
+                    onNavigateToBid={onNavigateToBid}
                 />
             ))}
         </div>

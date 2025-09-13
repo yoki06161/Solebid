@@ -1,6 +1,7 @@
 import {format} from "date-fns";
 import React from "react";
 import type {AuctionItemProps} from "../types/AuctionItemProps";
+import {S3_BASE_URL} from '../../../constants/config';
 
 const AuctionItem = ({item, addWish, removeWish, isAdding, isRemoving, onBidClick}: AuctionItemProps) => {
     const date = new Date(item.timeLeft);
@@ -33,7 +34,7 @@ const AuctionItem = ({item, addWish, removeWish, isAdding, isRemoving, onBidClic
         <div className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
             <div className="relative h-64">
                 <img
-                    src={item.image || 'https://via.placeholder.com/300'}
+                    src={`${S3_BASE_URL}/${item.image}`}
                     alt={item.name}
                     className="w-full h-full object-cover"
                 />

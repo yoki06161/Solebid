@@ -1,4 +1,4 @@
-export const categories = ["전체", "패션", "전자기기", "뷰티", "식품", "가구"];
+export const categories = ["전체", "운동화", "구두", "샌들", "슬리퍼", "부츠"];
 
 export const sortOptions = [
     { value: "priceHigh", label: "가격 높은순" },
