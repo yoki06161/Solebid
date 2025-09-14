@@ -9,7 +9,7 @@ import type { AuctionItem } from "../types/AuctionItem";
 const AuctionPage = () => {
     const { data: products, isLoading, isError, error } = useQuery({
         queryKey: ['products'],
-        queryFn: getProducts,
+        queryFn: () => getProducts(),
         select: (response) => response.data,
     });
 
@@ -71,7 +71,9 @@ const AuctionPage = () => {
     }
 
     if (isError) {
-        return <div>Error: {error.message}</div>;
+        return (
+            <div>Error: {error.message}</div>
+        );
     }
 
     return (
