@@ -170,7 +170,6 @@ public class EmailService {
                         <div style="font-size: 32px; font-weight: bold; color: #28a745; letter-spacing: 8px; font-family: 'Courier New', monospace;">%s</div>
                     </div>
                     <p style="margin-bottom: 10px; color: #666; font-size: 14px;">⚠️ 이 인증번호는 5분 후에 만료됩니다.</p>
-                    <p style="margin-bottom: 10px; color: #666; font-size: 14px;">📧 이메일이 스팸 폴더에 있을 수 있으니 확인해주세요.</p>
                     <p style="margin-bottom: 20px; color: #666; font-size: 14px;">🔒 보안을 위해 인증번호를 타인과 공유하지 마세요.</p>
                 </div>
                 <div style="background-color: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #dee2e6; font-size: 12px; color: #666;">
