@@ -1,5 +1,3 @@
-// src/main/java/com/sesac/solbid/security/SecurityConfig.java
-
 package com.sesac.solbid.security;
 
 import lombok.RequiredArgsConstructor;
@@ -8,8 +6,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -39,6 +35,14 @@ public class SecurityConfig {
                                 "/api/users/signup",
                                 "/api/users/login"
                         ).permitAll()
+                        // 이메일 인증 관련 API는 인증 없이 접근 허용
+                        .requestMatchers(
+                                "/api/auth/verify-email",
+                                "/api/auth/verify-code",
+                                "/api/auth/verify-signup-code",
+                                "/api/auth/send-verification",
+                                "/api/auth/resend-verification"
+                        ).permitAll()
                         // OAuth2 소셜로그인 및 로그아웃/리프레시/상태 API는 인증 없이 접근 허용
                         .requestMatchers(
                                 "/api/auth/oauth2/*/url",
@@ -56,11 +60,6 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 
     @Bean
