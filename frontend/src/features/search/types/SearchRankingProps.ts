@@ -1,8 +1,9 @@
 export interface SearchRanking {
+    id: number;
     rank: number;
     image: string;
     name: string;
-    currentBid: string;
+    currentBid: number;
     bidders: number;
 }
 

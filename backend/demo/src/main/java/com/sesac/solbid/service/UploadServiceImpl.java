@@ -1,14 +1,19 @@
 package com.sesac.solbid.service;
 
-import com.sesac.solbid.util.UploadPolicy;
-import lombok.RequiredArgsConstructor;
+import java.time.YearMonth;
+import java.time.ZoneId;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.time.YearMonth;
-import java.time.ZoneId;
-import java.util.Map;
-import java.util.UUID;
+import com.sesac.solbid.util.UploadPolicy;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -41,8 +46,15 @@ public class UploadServiceImpl implements UploadService {
         return Map.of(
                 "key", key,
                 "putUrl", putUrl,
-                "publicUrl", publicUrl
-        );
+                "publicUrl", publicUrl);
+    }
+
+    @Override
+    public Map<String, String> getDownloadUrls(List<String> imageKeys) {
+        return imageKeys
+                .stream()
+                .distinct()
+                .collect(Collectors.toMap(Function.identity(), s3Service::presignGetUrl));
     }
 
     private String buildPublicUrl(String key) {

@@ -1,14 +1,18 @@
 package com.sesac.solbid.controller;
 
-import com.sesac.solbid.dto.upload.request.PresignRequest;
-import com.sesac.solbid.dto.upload.response.PresignResponse;
-import com.sesac.solbid.service.UploadService;
-import lombok.RequiredArgsConstructor;
+import java.util.Map;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sesac.solbid.dto.upload.request.DownloadUrlRequest;
+import com.sesac.solbid.dto.upload.request.PresignRequest;
+import com.sesac.solbid.dto.upload.response.PresignResponse;
+import com.sesac.solbid.service.UploadService;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,5 +34,10 @@ public class UploadController {
                 ? "image/jpeg" : req.contentType();
         var map = uploadService.presign(req.fileName(), ct);
         return new PresignResponse(map.get("key"), map.get("putUrl"), map.get("publicUrl"));
+    }
+
+    @PostMapping("/download-urls")
+    public Map<String, String> getDownloadUrls(@RequestBody DownloadUrlRequest req) {
+        return uploadService.getDownloadUrls(req.imageKeys());
     }
 }

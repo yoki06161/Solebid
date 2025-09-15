@@ -1,5 +1,6 @@
-import { Link } from "react-router-dom";
-import type { SearchRanking } from "../types/SearchRankingProps";
+import { Link } from 'react-router-dom';
+import type { SearchRanking } from '../types/SearchRankingProps';
+import { getFormatPrice } from '../../../utils/get-format-price';
 
 const SearchRankingItem = ({ rank, image, name, currentBid, bidders }: SearchRanking) => (
     <Link
@@ -25,7 +26,7 @@ const SearchRankingItem = ({ rank, image, name, currentBid, bidders }: SearchRan
                             현재 입찰가
                         </p>
                         <p className="text-base font-semibold text-blue-600">
-                            ₩{currentBid}
+                            {getFormatPrice(currentBid)}
                         </p>
                     </div>
                     <div className="text-right">

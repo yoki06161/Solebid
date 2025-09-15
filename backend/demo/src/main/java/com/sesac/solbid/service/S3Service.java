@@ -5,4 +5,6 @@ public interface S3Service {
     default String presignPutUrl(String key, String contentType, long expireMinutes) {
         return presignPutUrl(key, contentType);
     }
+    
+    String presignGetUrl(String key);
 }

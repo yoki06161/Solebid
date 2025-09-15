@@ -3,8 +3,11 @@ package com.sesac.solbid.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 
@@ -47,6 +50,25 @@ public class S3PresignServiceImpl implements S3Service {
 
         // 응답: PresignedPutObjectRequest
         PresignedPutObjectRequest presigned = presigner.presignPutObject(req);
+        return presigned.url().toString();
+    }
+
+    @Override
+    public String presignGetUrl(String key) {
+        Objects.requireNonNull(key, "key must not be null");
+
+        GetObjectRequest get = GetObjectRequest.builder()
+                .bucket(bucket)
+                .key(key)
+                .build();
+
+        GetObjectPresignRequest req = GetObjectPresignRequest.builder()
+                .getObjectRequest(get)
+                .signatureDuration(Duration.ofMinutes(defaultExpireMinutes))
+                .build();
+
+        PresignedGetObjectRequest presigned = presigner.presignGetObject(req);
+
         return presigned.url().toString();
     }
 }
