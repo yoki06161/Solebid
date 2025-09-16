@@ -3,4 +3,5 @@ export interface SearchHeaderProps {
     setSearchQuery: (query: string) => void;
     handleClearSearch: () => void;
     handleCloseModal: () => void;
+    handleSearch: () => void;
 }
