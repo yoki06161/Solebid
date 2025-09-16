@@ -1,17 +1,30 @@
 import {Fragment, useMemo, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import {SearchHeader, SearchHistory, SearchProduct, SearchRankingList,} from '../components';
-import {products, searches} from '../components/mockData';
+import {searches} from '../components/mockData';
 import {useSearchRanking} from '../hooks/useSearchRanking';
+import {useSearchProducts} from '../hooks/useSearchProducts';
 import type {SearchRanking} from '../types/SearchRankingProps';
+import type {SearchProduct as SearchProductType} from '../types/SearchProductProps';
+import {getFormatPrice} from '../../../utils/get-format-price';
 
 const SearchPage = () => {
+    const navigate = useNavigate();
+
     const [searchQuery, setSearchQuery] = useState('');
     const [recentSearches, setRecentSearches] = useState(searches);
 
-    const navigate = useNavigate();
+    const {
+        data: filteredProducts,
+        isLoading: isSearchLoading,
+        isError: isSearchError,
+    } = useSearchProducts(searchQuery);
 
-    const {data: rankingProducts, isLoading, isError} = useSearchRanking();
+    const {
+        data: rankingProducts,
+        isLoading: isRankingLoading,
+        isError: isRankingError,
+    } = useSearchRanking();
 
     const rankings = useMemo(() => {
         return (rankingProducts ?? []).map(
@@ -26,11 +39,16 @@ const SearchPage = () => {
         );
     }, [rankingProducts]);
 
-    const filteredProducts = products.filter(
-        (product) =>
-            product.brand.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            product.name.toLowerCase().includes(searchQuery.toLowerCase()),
-    );
+    const searchResultProducts = useMemo((): SearchProductType[] => {
+        if (!filteredProducts) return [];
+        return filteredProducts.map((product) => ({
+            id: product.id,
+            name: product.name,
+            brand: product.brand,
+            image: product.imageUrl || product.image || '',
+            price: getFormatPrice(product.currentBid ?? 0),
+        }));
+    }, [filteredProducts]);
 
     const handleGoBack = () => {
         navigate(-1);
@@ -54,15 +72,40 @@ const SearchPage = () => {
         setRecentSearches([]);
     };
 
-    if (isLoading) {
-        return (
-            <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center">
-                <i className="fas fa-spinner fa-spin fa-3x"></i>
-            </div>
-        );
-    }
+    const renderContent = () => {
+        if (searchQuery) {
+            if (isSearchLoading) {
+                return (
+                    <div className="flex justify-center items-center pt-10">
+                        <i className="fas fa-spinner fa-spin fa-3x"></i>
+                    </div>
+                );
+            }
+            return <SearchProduct products={searchResultProducts}/>;
+        }
 
-    if (isError) {
+        if (isRankingLoading) {
+            return (
+                <div className="flex justify-center items-center pt-10">
+                    <i className="fas fa-spinner fa-spin fa-3x"></i>
+                </div>
+            );
+        }
+
+        return (
+            <Fragment>
+                <SearchHistory
+                    recentSearches={recentSearches}
+                    handleRecentSearchClick={handleRecentSearchClick}
+                    handleRemoveRecentSearch={handleRemoveRecentSearch}
+                    handleClearAllRecentSearches={handleClearAllRecentSearches}
+                />
+                <SearchRankingList items={rankings}/>
+            </Fragment>
+        );
+    };
+
+    if (isRankingError || isSearchError) {
         return <div>Error: 데이터를 불러오는 중 오류가 발생했습니다.</div>;
     }
 
@@ -75,25 +118,10 @@ const SearchPage = () => {
                 handleCloseModal={handleGoBack}
             />
             <div className="h-full overflow-y-auto pb-20">
-                {searchQuery ? (
-                    <SearchProduct products={filteredProducts}/>
-                ) : (
-                    <Fragment>
-                        <SearchHistory
-                            recentSearches={recentSearches}
-                            handleRecentSearchClick={handleRecentSearchClick}
-                            handleRemoveRecentSearch={handleRemoveRecentSearch}
-                            handleClearAllRecentSearches={handleClearAllRecentSearches}
-                        />
-                        <SearchRankingList
-                            items={rankings}
-                        />
-                    </Fragment>
-                )}
+                {renderContent()}
             </div>
         </div>
     );
 };
 
 export default SearchPage;
-
