@@ -64,4 +64,12 @@ public class ProductController {
         List<ProductResponse> products = productService.getProducts(sortBy, limit);
         return ResponseEntity.ok(ApiResponse.success(products));
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<List<ProductResponse>>> searchProducts(
+            @RequestParam("keyword") String keyword
+    ) {
+        List<ProductResponse> products = productService.searchProducts(keyword);
+        return ResponseEntity.ok(ApiResponse.success(products));
+    }
 }

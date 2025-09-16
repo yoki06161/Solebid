@@ -12,4 +12,6 @@ public interface ProductService {
     void finalizeImages(Long id, Long userId);
 
     List<ProductResponse> getProducts(String sortBy, Integer limit);
+
+    List<ProductResponse> searchProducts(String keyword);
 }

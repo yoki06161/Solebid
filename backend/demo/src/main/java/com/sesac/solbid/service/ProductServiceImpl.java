@@ -46,6 +46,7 @@ public class ProductServiceImpl implements ProductService {
      * 상품 등록
      * - 검증: 썸네일 ≤ 1, sortOrder 중복 금지, S3 key prefix + S3 존재 확인
      * - 처리: DTO → 엔티티 매핑(MapStruct) 후 저장
+     *
      * @throws CustomException 인증/검증 실패 시
      */
     @Override
@@ -134,5 +135,15 @@ public class ProductServiceImpl implements ProductService {
         }
 
         return productResponses;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductResponse> searchProducts(String keyword) {
+        return productRepository
+                .findByNameContainingIgnoreCase(keyword)
+                .stream()
+                .map(ProductResponse::fromEntity)
+                .toList();
     }
 }
