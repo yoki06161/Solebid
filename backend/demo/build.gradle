@@ -38,11 +38,14 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'org.springframework.retry:spring-retry'
     implementation 'org.springframework:spring-aspects'
-    implementation 'org.mapstruct:mapstruct:1.5.5.Final' //MapStruct 설정
 
-    // AWS SDK for S3
-    implementation platform('software.amazon.awssdk:bom:2.31.54')
-    implementation 'software.amazon.awssdk:s3'
+    //  AWS SDK v2: BOM으로 버전 통일
+    implementation platform("software.amazon.awssdk:bom:2.31.54")
+    implementation "software.amazon.awssdk:s3"
+    implementation "software.amazon.awssdk:auth"
+
+    //MapStruct 설정
+    implementation 'org.mapstruct:mapstruct:1.5.5.Final'
 
     // Google API & Gmail API
     implementation 'com.google.api-client:google-api-client:2.2.0'

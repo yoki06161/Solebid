@@ -1,86 +1,54 @@
-import React, { useState } from "react";
+import React from "react";
 
 type Props = {
-    onFilesChange?: (files: File[]) => void;
+    previews: string[];
+    onAdd: (files: File[]) => Promise<unknown> | unknown;
+    onRemove: (index: number) => void;
     max?: number;
 };
 
-const ImageGridUploader: React.FC<Props> = ({ onFilesChange, max = 5 }) => {
-    const [files, setFiles] = useState<File[]>([]);
-    const [previews, setPreviews] = useState<string[]>([]);
-
-    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const add = Array.from(e.target.files ?? []);
-        if (add.length + files.length > max) {
-            alert(`최대 ${max}장까지만 업로드 가능합니다.`);
-            return;
-        }
-        setFiles((prev) => {
-            const next = [...prev, ...add];
-            onFilesChange?.(next);
-            return next;
-        });
-        const urls = add.map((f) => URL.createObjectURL(f));
-        setPreviews((prev) => [...prev, ...urls]);
-    };
-
-    const removeImage = (index: number) => {
-        setFiles((prev) => {
-            const next = [...prev];
-            next.splice(index, 1);
-            onFilesChange?.(next);
-            return next;
-        });
-        setPreviews((prev) => {
-            const toRevoke = prev[index];
-            if (toRevoke) URL.revokeObjectURL(toRevoke);
-            const next = [...prev];
-            next.splice(index, 1);
-            return next;
-        });
+const ImageGridUploader: React.FC<Props> = ({ previews, onAdd, onRemove, max = 5 }) => {
+    const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(e.target.files || []);
+        if (files.length === 0) return;
+        await onAdd(files);
+        e.currentTarget.value = "";
     };
 
     return (
         <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">상품 이미지 (최대 {max}장)</label>
+
             <div className="grid grid-cols-5 gap-4">
-                {[...Array(max)].map((_, index) => (
-                    <div key={index} className="relative aspect-square">
-                        {index < previews.length ? (
+                {Array.from({ length: max }).map((_, idx) => (
+                    <div key={idx} className="relative aspect-square">
+                        {idx < previews.length ? (
                             <div className="relative h-full">
-                                <img
-                                    src={previews[index]}
-                                    alt={`Preview ${index + 1}`}
-                                    className="w-full h-full object-cover rounded-lg"
-                                />
+                                <img src={previews[idx]} alt={`preview-${idx}`} className="w-full h-full object-cover rounded-lg" />
                                 <button
                                     type="button"
-                                    onClick={() => removeImage(index)}
+                                    onClick={() => onRemove(idx)}
                                     className="absolute top-2 right-2 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center text-gray-600 hover:text-gray-900"
+                                    aria-label="remove"
                                 >
-                                    <i className="fas fa-times"></i>
+                                    ✕
                                 </button>
+                                {idx === 0 && (
+                                    <span className="absolute left-2 bottom-2 text-xs px-2 py-1 bg-black/60 text-white rounded">대표</span>
+                                )}
                             </div>
                         ) : (
                             <label className="h-full flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 cursor-pointer">
-                                <i className="fas fa-plus text-gray-400 mb-2"></i>
-                                <span className="text-sm text-gray-500">
-                  {index === 0 ? "대표 이미지" : "추가 이미지"}
-                </span>
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    className="hidden"
-                                    onChange={handleImageUpload}
-                                    id={`image-upload-${index}`}
-                                />
+                                <span className="text-gray-400 text-2xl mb-1">＋</span>
+                                <span className="text-sm text-gray-500">{idx === 0 ? "대표 이미지" : "추가 이미지"}</span>
+                                <input type="file" accept="image/jpeg,image/png,image/jpg" className="hidden" onChange={handleChange} />
                             </label>
                         )}
                     </div>
                 ))}
             </div>
-            <p className="mt-2 text-sm text-gray-500">
-                최대 {max}장까지 업로드 가능 (드래그 앤 드롭 지원)
-            </p>
+
+            <p className="mt-2 text-sm text-gray-500">JPG/PNG만 업로드 가능</p>
         </div>
     );
 };

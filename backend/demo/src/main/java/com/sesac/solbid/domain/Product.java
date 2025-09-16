@@ -28,9 +28,10 @@ public class Product extends BaseEntity {
     private Long productId;
 
     // 판매자
-    // @ManyToOne(fetch = FetchType.LAZY)
-    // @JoinColumn(name = "seller_id", nullable = false)
-    // private User seller;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "seller_id", nullable = false)
+    private User seller;
+
 
     @OneToMany(mappedBy = "product")
     private List<AuctionEvent> auctionEvents = new ArrayList<>();
@@ -91,7 +92,8 @@ public class Product extends BaseEntity {
 
     @Builder
     public Product(
-            List<AuctionEvent> auctionEvents,
+            User seller,
+           // List<AuctionEvent> auctionEvents,
             ProductCategory productCategory,
             ProductStatus productStatus,
             ProductCondition productCondition,
@@ -103,7 +105,8 @@ public class Product extends BaseEntity {
             String colorway,
             LocalDate releaseDate
     ) {
-        this.auctionEvents = auctionEvents;
+        this.seller = seller;
+       // this.auctionEvents = auctionEvents;
         this.productCategory = productCategory;
         this.productStatus = (productStatus == null ? ProductStatus.AVAILABLE : productStatus);
         this.productCondition = productCondition;
@@ -120,5 +123,20 @@ public class Product extends BaseEntity {
     public void addImage(ProductImage image) {
         image.setProduct(this);
         this.productImages.add(image);
+    }
+
+    // 서비스 계층에서만 쓰이게 패키지 제한 setter (같은 패키지 com.sesac.solbid.domain 또는 service에서 사용)
+    void setSeller(User seller) {
+        this.seller = seller;
+    }
+
+    /** 판매자 변경(도메인 규칙 적용) */
+    public void changeSeller(User newSeller) {
+        if (newSeller == null) throw new IllegalArgumentException("newSeller is null");
+        if (!this.auctionEvents.isEmpty()) {
+            // 도메인 규칙: 경매가 하나라도 있으면 변경 금지
+            throw new IllegalStateException("이미 경매가 있는 상품은 판매자를 변경할 수 없습니다.");
+        }
+        this.seller = newSeller;
     }
 }

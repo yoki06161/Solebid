@@ -1,5 +1,13 @@
 package com.sesac.solbid.controller;
 
+import com.sesac.solbid.dto.upload.request.PresignRequest;
+import com.sesac.solbid.dto.upload.response.PresignResponse;
+import com.sesac.solbid.exception.CustomException;
+import com.sesac.solbid.exception.ErrorCode;
+import com.sesac.solbid.service.UploadService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.Map;
 
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 @RequestMapping("/api/uploads")
 public class UploadController {
 
@@ -30,10 +39,15 @@ public class UploadController {
      * */
     @PostMapping("/presign")
     public PresignResponse presign(@RequestBody PresignRequest req){
-        String ct = (req.contentType() == null || req.contentType().isBlank())
-                ? "image/jpeg" : req.contentType();
+        log.info("POST /api/uploads/presign fileName={}, contentType={}", req.fileName(), req.contentType());
+        String ct = (req.contentType() == null || req.contentType().isBlank()) ? "image/jpeg" : req.contentType();
         var map = uploadService.presign(req.fileName(), ct);
-        return new PresignResponse(map.get("key"), map.get("putUrl"), map.get("publicUrl"));
+        String key = map.get("key"), putUrl = map.get("putUrl"), publicUrl = map.get("publicUrl");
+        if (key == null || putUrl == null || publicUrl == null) {
+            log.error("presign result malformed: {}", map);
+            throw new CustomException(ErrorCode.S3_IO_ERROR);
+        }
+        return new PresignResponse(key, putUrl, publicUrl);
     }
 
     @PostMapping("/download-urls")

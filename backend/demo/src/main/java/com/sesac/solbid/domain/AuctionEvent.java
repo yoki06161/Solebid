@@ -113,4 +113,19 @@ public class AuctionEvent  extends BaseEntity {
         this.status = AuctionStatus.CANCELED;
     }
 
+    // AuctionEvent.java
+    public void setProduct(Product product) {
+        this.product = product;
+        if (product != null) {
+            this.seller = product.getSeller(); // 항상 상품의 seller로 맞춤
+        }
+    }
+
+    @PrePersist @PreUpdate
+    private void syncSeller() {
+        if (this.product != null) {
+            this.seller = this.product.getSeller();
+        }
+    }
+
 }

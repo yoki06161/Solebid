@@ -77,7 +77,6 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void finalizeImages(Long id, Long userId) {
-
     }
 
     //디버깅 로그
@@ -112,6 +111,23 @@ public class ProductServiceImpl implements ProductService {
             // S3에 객체가 존재하는지 확인 (PUT 실패/위조 키 차단)
             s3ObjectVerifier.requireExists(img.filePath());
         }
+    }
+
+    @Override
+    @Transactional
+    public void changeSeller(Long productId, Long newSellerId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        User newSeller = userRepository.findById(newSellerId)
+                .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED));
+
+        try {
+            product.changeSeller(newSeller); // 공개 도메인 메서드
+        } catch (IllegalStateException e) {
+            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, e.getMessage());
+        }
+        // 영속 상태라 별도 save() 불필요
     }
 
     @Override
