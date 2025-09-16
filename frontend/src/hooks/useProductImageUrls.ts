@@ -1,11 +1,15 @@
-
-import { useEffect, useState } from 'react';
-import type { AuctionItem } from "../features/auction/types/AuctionItem.ts";
-import { getPresignedUrls } from '../features/product/services/ProductService.ts';
+import {useEffect, useState} from 'react';
+import type {AuctionItem} from "../features/auction/types/AuctionItem.ts";
+import {getPresignedUrls} from '../features/product/services/ProductService.ts';
 
 export const useProductImageUrls = (products: AuctionItem[]) => {
     const [productsWithImages, setProductsWithImages] = useState<AuctionItem[]>([]);
     const [isLoadingImages, setIsLoadingImages] = useState(false);
+
+    const imageKeysString = products
+        .map(p => p.image)
+        .filter(Boolean)
+        .join(',');
 
     useEffect(() => {
         const fetchImageUrls = async () => {
@@ -16,7 +20,15 @@ export const useProductImageUrls = (products: AuctionItem[]) => {
 
             setIsLoadingImages(true);
             try {
-                const imageKeys = products.map((p) => p.image).filter(Boolean) as string[];
+                const imageKeys = imageKeysString
+                    ? imageKeysString.split(',')
+                    : [];
+
+                if (imageKeys.length === 0) {
+                    setProductsWithImages(products);
+                    return;
+                }
+
                 const presignedUrls = await getPresignedUrls(imageKeys);
 
                 const productsWithUrls = products.map((product) => ({
@@ -31,9 +43,8 @@ export const useProductImageUrls = (products: AuctionItem[]) => {
                 setIsLoadingImages(false);
             }
         };
+        fetchImageUrls().then(r => console.log(r));
+    }, [imageKeysString]);
 
-        fetchImageUrls();
-    }, [products]);
-
-    return { productsWithImages, isLoadingImages };
+    return {productsWithImages, isLoadingImages};
 };

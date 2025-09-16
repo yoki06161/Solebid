@@ -18,7 +18,7 @@ const SearchPage = () => {
             (p, index): SearchRanking => ({
                 id: p.id,
                 rank: index + 1,
-                image: p.image || '',
+                image: p.imageUrl || p.image || '',
                 name: p.name || '',
                 currentBid: p.currentBid ?? 0,
                 bidders: p.bidders,
