@@ -52,6 +52,24 @@ function mapServerPayment(p: ServerPayment): Payment {
     };
 }
 
+export async function finalizePortoneCharge(payload: {
+    impUid: string;
+    merchantUid: string;
+    amount: number;
+}) {
+    const res = await fetch("/api/payments/portone/complete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        credentials: "include",
+    });
+    if (!res.ok) {
+        const msg = await res.text().catch(() => "");
+        throw new Error(msg || "결제 검증/적립에 실패했습니다.");
+    }
+    return res.json(); // { addedPoint: number, currentPoint: number, ... } 등
+}
+
 export async function fetchPayments(params: FetchPaymentsParams) {
     const search = new URLSearchParams();
 

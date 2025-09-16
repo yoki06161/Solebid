@@ -36,7 +36,7 @@ async function loadSDK(): Promise<PortOneIMP> {
 export async function startPortoneCharge(params: {
     amount: number;                       // UI 금액
     payMethod?: PortOnePayMethod;         // "card" | "trans" | "vbank"
-    redirectUrl?: string;                 // 비우면 서버가 준 redirectUrl 사용
+    redirectUrl?: string;                 // (사용 안 함) 서버 리다이렉트 방지 목적
     buyer?: { email?: string; name?: string; tel?: string };
     pg?: string;                          // default "html5_inicis"
     title?: string;                       // default "포인트 충전"
@@ -44,7 +44,7 @@ export async function startPortoneCharge(params: {
     const {
         amount,
         payMethod = "card",
-        redirectUrl,
+        // redirectUrl 는 더 이상 사용하지 않음 (리다이렉트 방지)
         buyer = {},
         pg = "html5_inicis",
         title = "포인트 충전",
@@ -52,20 +52,20 @@ export async function startPortoneCharge(params: {
 
     if (!PORTONE_MERCHANT_ID) throw new Error("가맹점 식별코드가 설정되지 않았습니다.");
 
-    // 1) 서버 준비 호출
+    // 1) 서버 준비 호출 (⚠️ redirectUrl 전달 제거)
     const prepareRes = await fetch("/api/payments/charge/prepare", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
             amount,
             paymentMethod: payMethod === "trans" ? "TRANS" : payMethod === "vbank" ? "VBANK" : "CARD",
-            redirectUrl: redirectUrl ?? `${window.location.origin}/points/result`,
+            // redirectUrl: 제거 → 서버가 PG 리다이렉트를 설정하지 않도록
         }),
     });
     if (!prepareRes.ok) throw new Error(`prepare 실패: ${await prepareRes.text()}`);
-    const prep = (await prepareRes.json()) as { orderId: string; redirectUrl: string };
+    const prep = (await prepareRes.json()) as { orderId: string; redirectUrl?: string };
     const orderId = prep.orderId;
-    const mRedirect = prep.redirectUrl;
+    // const mRedirect = prep.redirectUrl; // 사용 안 함
 
     // 2) PortOne 결제창 (카드/계좌이체만)
     if (payMethod === "card" || payMethod === "trans") {
@@ -73,15 +73,15 @@ export async function startPortoneCharge(params: {
         IMP.init(PORTONE_MERCHANT_ID);
 
         const payParams: PortOnePayRequest = {
-            pg,
-            pay_method: payMethod,
-            merchant_uid: orderId,   //서버 생성 orderId 사용
+            pg,                               // 반드시 "html5_inicis"
+            pay_method: payMethod,            // "card" | "trans"
+            merchant_uid: orderId,            // 서버 생성 orderId 사용
             name: title,
-            amount,                  // UI 금액 사용
+            amount,
             ...(buyer.email ? { buyer_email: buyer.email } : {}),
             ...(buyer.name ? { buyer_name: buyer.name } : {}),
             ...(buyer.tel ? { buyer_tel: buyer.tel } : {}),
-            m_redirect_url: mRedirect, // 모바일 리다이렉트
+            // m_redirect_url: mRedirect,     // ❌ 절대 넣지 않음 (외부 리다이렉트 방지)
         };
 
         const rsp = await new Promise<PortOnePayResponse>((resolve, reject) => {

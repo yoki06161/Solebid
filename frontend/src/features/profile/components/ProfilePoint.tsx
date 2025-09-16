@@ -1,17 +1,14 @@
-import { Fragment, useEffect, useState } from "react";
-import { useModal } from "../../../contexts/modal/modal";
+import { useEffect, useState } from "react";
 import { fetchUserPoint } from "../api/point";
 import type { PointSummaryResponse } from "../types/ProfilePointProps";
 import { useAuth } from "../../user/hooks/useAuth";
 
 const ProfilePoint = () => {
-    const { openModal, closeModal } = useModal();
     const { user } = useAuth();
     const [point, setPoint] = useState<number | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    // userId를 useAuth에서 가져옴
     const userId = user?.userId;
 
     useEffect(() => {
@@ -19,11 +16,9 @@ const ProfilePoint = () => {
             setError("로그인 후 이용 가능합니다.");
             setLoading(false);
             return;
-
         }
         let alive = true;
         setLoading(true);
-
 
         fetchUserPoint(userId)
             .then((res: PointSummaryResponse) => {
@@ -38,20 +33,22 @@ const ProfilePoint = () => {
             .finally(() => {
                 if (alive) setLoading(false);
             });
+
         return () => {
             alive = false;
         };
     }, [userId]);
 
-    const handleOpenModal = () => {
-        openModal(<PointConvertFormat onClose={closeModal} />);
+    const handleGoToCharge = () => {
+        // 리액트 라우터 방식 이동 원하면:
+        // navigate("/points/charge");
+        // 강제 페이지 이동 원하면:
+        window.location.href = "http://localhost:5173/points/charge";
     };
 
     return (
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                SolePay
-            </h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">SolePay</h3>
             <div className="space-y-4">
                 <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
                     <div>
@@ -68,8 +65,9 @@ const ProfilePoint = () => {
                     </div>
                     <i className="fas fa-coins text-blue-600 text-xl" />
                 </div>
+
                 <button
-                    onClick={handleOpenModal}
+                    onClick={handleGoToCharge}
                     className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 !rounded-button whitespace-nowrap"
                 >
                     <i className="fas fa-exchange-alt mr-2" />
@@ -77,52 +75,6 @@ const ProfilePoint = () => {
                 </button>
             </div>
         </div>
-    );
-};
-
-const PointConvertFormat = ({ onClose }: { onClose: () => void }) => {
-    const handleConvert = () => {
-        alert("포인트 전환이 완료되었습니다.");
-        onClose();
-    };
-    return (
-        <Fragment>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                현금을 포인트로 전환
-            </h3>
-            <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                    전환할 금액
-                </label>
-                <div className="relative">
-                    <input
-                        type="number"
-                        placeholder="금액을 입력하세요"
-                        min="1000"
-                        step="1000"
-                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                    <span className="absolute right-10 top-2 text-gray-500">원</span>
-                </div>
-                <p className="text-sm text-gray-500 mt-1">
-                    최소 1,000원부터 전환 가능
-                </p>
-            </div>
-            <div className="flex justify-end space-x-3">
-                <button
-                    onClick={onClose}
-                    className="px-4 py-2 text-gray-600 hover:text-gray-900 !rounded-button whitespace-nowrap"
-                >
-                    취소
-                </button>
-                <button
-                    onClick={handleConvert}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 !rounded-button whitespace-nowrap"
-                >
-                    전환하기
-                </button>
-            </div>
-        </Fragment>
     );
 };
 

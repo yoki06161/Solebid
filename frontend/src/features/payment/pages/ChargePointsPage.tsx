@@ -8,7 +8,7 @@ import SummaryCard from "../components/SummaryCard";
 import SecurityInfo from "../components/SecurityInfo";
 import AdditionalInfo from "../components/AdditionalInfo";
 
-import { PRESET_AMOUNTS, CURRENT_POINTS, formatNumber } from "../constants/presets";
+import { PRESET_AMOUNTS } from "../constants/presets";
 import type { PaymentId, RegisteredPayments } from "../types";
 import { startPortoneCharge } from "../services/portoneService";
 
@@ -51,10 +51,6 @@ const ChargePointsPage: React.FC = () => {
         return "card";
     };
 
-    // 결과 페이지 경로
-    const RESULT_PATH = "/points/result";
-    const resultUrl = `${window.location.origin}${RESULT_PATH}`;
-
     return (
         <div className="min-h-screen bg-gray-50">
             {/* Header */}
@@ -62,13 +58,7 @@ const ChargePointsPage: React.FC = () => {
                 <div className="max-w-4xl mx-auto px-6 py-4">
                     <div className="flex items-center justify-between">
                         <h1 className="text-2xl font-bold text-gray-900">포인트 충전</h1>
-                        <div className="flex items-center space-x-2">
-                            <i className="fas fa-coins text-yellow-500" />
-                            <span className="text-sm text-gray-600">현재 보유 포인트</span>
-                            <span className="text-lg font-semibold text-blue-600">
-                {formatNumber(CURRENT_POINTS)}P
-              </span>
-                        </div>
+                        <div className="flex items-center space-x-2"></div>
                     </div>
                 </div>
             </div>
@@ -108,18 +98,8 @@ const ChargePointsPage: React.FC = () => {
                             selectedAmount={selectedAmount}
                             selectedPayment={selectedPayment}
                             onSubmit={async () => {
-                                try { //테스트용 임시 100원 설정
-
-                                    /*
-                                    if (selectedAmount < 1000 || selectedAmount > 1_000_000) {
-                                        alert("충전 금액은 1,000원 ~ 1,000,000원 사이여야 합니다.");
-                                        return;
-                                    }
-                                    if (!selectedPayment) {
-                                        alert("결제 수단을 선택해 주세요.");
-                                        return;
-                                    }*/
-
+                                try {
+                                    // 테스트용 100원 허용
                                     const isTestAmount = selectedAmount === 100;
 
                                     if ((!isTestAmount && selectedAmount < 1000) || selectedAmount > 1_000_000) {
@@ -132,31 +112,37 @@ const ChargePointsPage: React.FC = () => {
                                         return;
                                     }
 
-
-
-
+                                    // PortOne 결제창 바로 호출 (redirectUrl 사용 안 함 → INICIS 페이지로 안 튐)
                                     const result = await startPortoneCharge({
                                         amount: selectedAmount,
                                         payMethod: toPayMethod(selectedPayment),
-                                        redirectUrl: resultUrl, // 모바일 결제창 리디렉션 / 서버에도 전달
+                                        // redirectUrl: 사용하지 않음
                                         buyer: {
-                                            // 로그인 사용자 정보가 있다면 매핑
-                                            // email: currentUser?.email,
-                                            // name: currentUser?.name,
-                                            // tel: currentUser?.phone,
+                                            // email/name/tel 필요 시 주입
                                         },
                                     });
 
-                                    navigate(
-                                        `${RESULT_PATH}?success=1` +
-                                        `&imp_uid=${encodeURIComponent(result.impUid ?? "")}` +
-                                        `&merchant_uid=${encodeURIComponent(result.merchantUid ?? "")}` +
-                                        `&orderId=${encodeURIComponent(result.orderId)}`
-                                    );
+                                    // startPortoneCharge가 camelCase로 가공해 준다고 가정 (impUid/merchantUid/orderId)
+                                    if (!result.impUid) {
+                                        alert("결제가 취소되었거나 실패했습니다.");
+                                        return;
+                                    }
+
+                                    // 서버 검증/포인트 적립이 있다면 여기서 처리
+                                    // await finalizePortoneCharge({
+                                    //   impUid: result.impUid,
+                                    //   merchantUid: result.merchantUid,
+                                    //   amount: selectedAmount,
+                                    // });
+
+                                    // 프로필로 이동 + 안내 배너용 state 전달
+                                    navigate("/profile", {
+                                        state: { charged: true, chargedAmount: selectedAmount },
+                                        replace: true,
+                                    });
                                 } catch (e) {
                                     console.error(e);
                                     alert("결제에 실패했습니다. 다시 시도해 주세요.");
-                                    navigate(`${RESULT_PATH}?success=0`);
                                 }
                             }}
                         />
