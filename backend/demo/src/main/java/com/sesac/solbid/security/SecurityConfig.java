@@ -49,9 +49,14 @@ public class SecurityConfig {
                                 "/api/auth/oauth2/*/callback",
                                 "/api/auth/logout",
                                 "/api/auth/refresh",
-                                "/api/auth/status",
-                                "/api/auth/password/forgot",
-                                "/api/auth/password/reset"
+                                "/api/auth/status"
+                        ).permitAll()
+                        // 비밀번호 재설정 OTP 관련 API는 인증 없이 접근 허용
+                        .requestMatchers(
+                                "/api/auth/password/request-reset",
+                                "/api/auth/password/verify-otp",
+                                "/api/auth/password/verify-and-reset",
+                                "/api/auth/password/resend-otp"
                         ).permitAll()
                         // 그 외 모든 요청은 인증 필요
                         .anyRequest().authenticated()

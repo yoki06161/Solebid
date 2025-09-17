@@ -117,6 +117,39 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(code.name(), code.getMessage()));
     }
 
+    // 비밀번호 재설정 관련 예외
+    @ExceptionHandler(PasswordResetException.class)
+    public ResponseEntity<ApiResponse<Object>> handlePasswordResetException(PasswordResetException e) {
+        ErrorCode code = e.getErrorCode();
+        
+        // 비밀번호 재설정 관련 예외는 추가 로깅
+        String maskedEmail = e.getMaskedEmail();
+        String additionalInfo = e.getAdditionalInfo();
+        
+        if (additionalInfo != null) {
+            log.warn("비밀번호 재설정 예외 발생: {} - {} ({})", code.name(), maskedEmail, additionalInfo);
+        } else {
+            log.warn("비밀번호 재설정 예외 발생: {} - {}", code.name(), maskedEmail);
+        }
+        
+        // 재전송 제한 관련 예외의 경우 추가 정보 제공
+        if (code == ErrorCode.PASSWORD_RESET_RESEND_TOO_FREQUENT || 
+            code == ErrorCode.PASSWORD_RESET_RESEND_LIMIT_EXCEEDED) {
+            
+            Object data = null;
+            if (additionalInfo != null) {
+                // 추가 정보가 있는 경우 (예: 남은 시간, 재시도 가능 시간 등)
+                data = java.util.Map.of("additionalInfo", additionalInfo);
+            }
+            
+            return ResponseEntity.status(code.getStatus())
+                    .body(ApiResponse.error(data, code.name(), code.getMessage()));
+        }
+        
+        return ResponseEntity.status(code.getStatus())
+                .body(ApiResponse.error(code.name(), code.getMessage()));
+    }
+
     // 커스텀 예외
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<ApiResponse<Void>> handleCustomException(CustomException e) {

@@ -53,4 +53,25 @@ public interface EmailVerificationTokenService {
      * @return 마지막 재전송 시간 (초 단위), 없으면 -1
      */
     long getLastResendTime(String email);
+    
+    /**
+     * 유효한 토큰이 존재하는지 확인합니다.
+     * @param email 확인할 이메일 주소
+     * @return 유효한 토큰 존재 여부
+     */
+    boolean hasValidToken(String email);
+    
+    /**
+     * 토큰의 남은 유효 시간을 초 단위로 반환합니다.
+     * @param email 확인할 이메일 주소
+     * @return 남은 시간 (초), 토큰이 없거나 만료된 경우 0
+     */
+    long getRemainingTimeSeconds(String email);
+    
+    /**
+     * 토큰의 남은 시도 횟수를 반환합니다.
+     * @param email 확인할 이메일 주소
+     * @return 남은 시도 횟수, 토큰이 없는 경우 0
+     */
+    int getRemainingAttempts(String email);
 }

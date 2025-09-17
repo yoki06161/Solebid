@@ -63,17 +63,7 @@ class EmailServiceTest {
 
 
 
-    @Test
-    void testCreatePasswordResetEmailTemplate() {
-        String link = "http://localhost:5173/reset-password?token=test-token";
-        String template = invokePrivateMethod("createPasswordResetEmailTemplate", link);
-        
-        assertNotNull(template);
-        assertTrue(template.contains("비밀번호 재설정 안내"));
-        assertTrue(template.contains(link));
-        assertTrue(template.contains("15분 후에 만료"));
-        assertTrue(template.contains("비밀번호 재설정"));
-    }
+
 
     // Note: Integration tests for actual email sending would require Gmail API credentials
     // and should be run separately with proper test configuration

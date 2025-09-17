@@ -20,7 +20,8 @@ import NicknameSetup from "./features/user/pages/NicknameSetup.tsx";
 import OAuth2Callback from "./features/user/pages/OAuth2Callback.tsx";
 import Signup from "./features/user/pages/Signup.tsx";
 import FindPassword from './features/user/pages/FindPassword';
-import ResetPassword from './features/user/pages/ResetPassword';
+import PasswordResetOtp from './features/user/pages/PasswordResetOtp';
+import PasswordResetSuccess from './features/user/pages/PasswordResetSuccess';
 import EmailVerificationPage from './features/user/pages/EmailVerificationPage';
 import EmailVerificationSuccess from './features/user/pages/EmailVerificationSuccess';
 
@@ -58,7 +59,8 @@ const router = createBrowserRouter(
             <Route path="/transaction" element={<ProtectedRoute><TransactionPage /></ProtectedRoute>} />
             <Route path="/transaction/:orderId" element={<ProtectedRoute><TransactionDetailPage /></ProtectedRoute>} />
             <Route path="/find-password" element={<FindPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/password-reset-otp" element={<PasswordResetOtp />} />
+            <Route path="/password-reset-success" element={<PasswordResetSuccess />} />
             <Route path="/email-verification" element={<EmailVerificationPage />} />
             <Route path="/email-verification-success" element={<EmailVerificationSuccess />} />
         </Route>

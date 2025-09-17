@@ -11,6 +11,11 @@ import com.sesac.solbid.service.auth.OAuth2Service;
 import com.sesac.solbid.service.user.PasswordResetService;
 import com.sesac.solbid.dto.auth.response.AuthUrlResponse;
 import com.sesac.solbid.dto.auth.request.CallbackRequest;
+import com.sesac.solbid.dto.auth.request.PasswordResetRequest;
+import com.sesac.solbid.dto.auth.request.PasswordResetVerifyRequest;
+import com.sesac.solbid.dto.auth.request.ResendOtpRequest;
+import com.sesac.solbid.exception.PasswordResetException;
+import com.sesac.solbid.exception.CustomException;
 import com.sesac.solbid.util.CookieUtil;
 import com.sesac.solbid.util.JwtUtil;
 import com.sesac.solbid.security.CustomUserDetailsService;
@@ -653,5 +658,487 @@ class AuthControllerTest {
                         .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true));
+    }
+
+    // === 비밀번호 재설정 테스트 ===
+
+    @Test
+    @DisplayName("비밀번호 재설정 OTP 요청 - 성공")
+    void requestPasswordReset_Success() throws Exception {
+        // Given
+        String email = "test@example.com";
+        PasswordResetRequest request = new PasswordResetRequest();
+        // request.setEmail(email); // Lombok @Getter만 있으므로 JSON으로 직접 전송
+
+        doNothing().when(passwordResetService).requestResetWithOtp(email);
+
+        // When & Then
+        mockMvc.perform(post("/api/auth/password/request-reset")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"" + email + "\"}")
+                        .header("X-Forwarded-For", "192.168.1.100"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.message").value("비밀번호 재설정 인증번호를 이메일로 발송했습니다."))
+                .andExpect(jsonPath("$.data").isEmpty());
+
+        verify(passwordResetService).requestResetWithOtp(email);
+    }
+
+    @Test
+    @DisplayName("비밀번호 재설정 OTP 요청 - 잘못된 이메일 형식")
+    void requestPasswordReset_InvalidEmailFormat() throws Exception {
+        // Given
+        String invalidEmail = "invalid-email";
+
+        // When & Then
+        mockMvc.perform(post("/api/auth/password/request-reset")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"" + invalidEmail + "\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false))
+                .andExpect(jsonPath("$.errorCode").value("INVALID_INPUT_VALUE"));
+
+        verify(passwordResetService, never()).requestResetWithOtp(anyString());
+    }
+
+    @Test
+    @DisplayName("비밀번호 재설정 OTP 요청 - 빈 이메일")
+    void requestPasswordReset_EmptyEmail() throws Exception {
+        // When & Then
+        mockMvc.perform(post("/api/auth/password/request-reset")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false))
+                .andExpect(jsonPath("$.errorCode").value("INVALID_INPUT_VALUE"));
+
+        verify(passwordResetService, never()).requestResetWithOtp(anyString());
+    }
+
+    @Test
+    @DisplayName("비밀번호 재설정 OTP 요청 - 소셜 로그인 사용자")
+    void requestPasswordReset_SocialUser() throws Exception {
+        // Given
+        String email = "social@example.com";
+        doThrow(new PasswordResetException(ErrorCode.PASSWORD_RESET_NOT_ALLOWED, email))
+                .when(passwordResetService).requestResetWithOtp(email);
+
+        // When & Then
+        mockMvc.perform(post("/api/auth/password/request-reset")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"" + email + "\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false))
+                .andExpect(jsonPath("$.errorCode").value("PASSWORD_RESET_NOT_ALLOWED"));
+
+        verify(passwordResetService).requestResetWithOtp(email);
+    }
+
+    @Test
+    @DisplayName("비밀번호 재설정 OTP 요청 - 서버 내부 오류")
+    void requestPasswordReset_InternalServerError() throws Exception {
+        // Given
+        String email = "test@example.com";
+        doThrow(new RuntimeException("Database connection failed"))
+                .when(passwordResetService).requestResetWithOtp(email);
+
+        // When & Then
+        mockMvc.perform(post("/api/auth/password/request-reset")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"" + email + "\"}"))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.success").value(false))
+                .andExpect(jsonPath("$.errorCode").value("INTERNAL_SERVER_ERROR"))
+                .andExpect(jsonPath("$.message").value("서버 내부 오류가 발생했습니다."));
+
+        verify(passwordResetService).requestResetWithOtp(email);
+    }
+
+    @Test
+    @DisplayName("비밀번호 재설정 OTP 검증 및 변경 - 성공")
+    void verifyOtpAndResetPassword_Success() throws Exception {
+        // Given
+        String email = "test@example.com";
+        String otp = "123456";
+        String newPassword = "newPassword123!";
+        
+        PasswordResetVerifyRequest request = new PasswordResetVerifyRequest();
+        request.setEmail(email);
+        request.setOtp(otp);
+        request.setNewPassword(newPassword);
+
+        doNothing().when(passwordResetService).verifyOtpAndReset(email, otp, newPassword);
+
+        // When & Then
+        mockMvc.perform(post("/api/auth/password/verify-and-reset")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+                        .header("X-Forwarded-For", "192.168.1.100"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.message").value("비밀번호가 성공적으로 재설정되었습니다."))
+                .andExpect(jsonPath("$.data").isEmpty());
+
+        verify(passwordResetService).verifyOtpAndReset(email, otp, newPassword);
+    }
+
+    @Test
+    @DisplayName("비밀번호 재설정 OTP 검증 및 변경 - 유효하지 않은 OTP")
+    void verifyOtpAndResetPassword_InvalidOtp() throws Exception {
+        // Given
+        String email = "test@example.com";
+        String invalidOtp = "999999";
+        String newPassword = "newPassword123!";
+        
+        PasswordResetVerifyRequest request = new PasswordResetVerifyRequest();
+        request.setEmail(email);
+        request.setOtp(invalidOtp);
+        request.setNewPassword(newPassword);
+
+        doThrow(new PasswordResetException(ErrorCode.PASSWORD_RESET_OTP_INVALID, email))
+                .when(passwordResetService).verifyOtpAndReset(email, invalidOtp, newPassword);
+
+        // When & Then
+        mockMvc.perform(post("/api/auth/password/verify-and-reset")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false))
+                .andExpect(jsonPath("$.errorCode").value("PASSWORD_RESET_OTP_INVALID"));
+
+        verify(passwordResetService).verifyOtpAndReset(email, invalidOtp, newPassword);
+    }
+
+    @Test
+    @DisplayName("비밀번호 재설정 OTP 검증 및 변경 - 만료된 OTP")
+    void verifyOtpAndResetPassword_ExpiredOtp() throws Exception {
+        // Given
+        String email = "test@example.com";
+        String expiredOtp = "123456";
+        String newPassword = "newPassword123!";
+        
+        PasswordResetVerifyRequest request = new PasswordResetVerifyRequest();
+        request.setEmail(email);
+        request.setOtp(expiredOtp);
+        request.setNewPassword(newPassword);
+
+        doThrow(new PasswordResetException(ErrorCode.PASSWORD_RESET_OTP_EXPIRED, email))
+                .when(passwordResetService).verifyOtpAndReset(email, expiredOtp, newPassword);
+
+        // When & Then
+        mockMvc.perform(post("/api/auth/password/verify-and-reset")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false))
+                .andExpect(jsonPath("$.errorCode").value("PASSWORD_RESET_OTP_EXPIRED"));
+
+        verify(passwordResetService).verifyOtpAndReset(email, expiredOtp, newPassword);
+    }
+
+    @Test
+    @DisplayName("비밀번호 재설정 OTP 검증 및 변경 - 사용자 없음")
+    void verifyOtpAndResetPassword_UserNotFound() throws Exception {
+        // Given
+        String email = "nonexistent@example.com";
+        String otp = "123456";
+        String newPassword = "newPassword123!";
+        
+        PasswordResetVerifyRequest request = new PasswordResetVerifyRequest();
+        request.setEmail(email);
+        request.setOtp(otp);
+        request.setNewPassword(newPassword);
+
+        doThrow(new PasswordResetException(ErrorCode.USER_NOT_FOUND, email))
+                .when(passwordResetService).verifyOtpAndReset(email, otp, newPassword);
+
+        // When & Then
+        mockMvc.perform(post("/api/auth/password/verify-and-reset")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.success").value(false))
+                .andExpect(jsonPath("$.errorCode").value("USER_NOT_FOUND"));
+
+        verify(passwordResetService).verifyOtpAndReset(email, otp, newPassword);
+    }
+
+    @Test
+    @DisplayName("비밀번호 재설정 OTP 검증 및 변경 - 기존 비밀번호와 동일")
+    void verifyOtpAndResetPassword_SameAsOldPassword() throws Exception {
+        // Given
+        String email = "test@example.com";
+        String otp = "123456";
+        String samePassword = "oldPassword123!";
+        
+        PasswordResetVerifyRequest request = new PasswordResetVerifyRequest();
+        request.setEmail(email);
+        request.setOtp(otp);
+        request.setNewPassword(samePassword);
+
+        doThrow(new PasswordResetException(ErrorCode.PASSWORD_RESET_SAME_AS_OLD, email))
+                .when(passwordResetService).verifyOtpAndReset(email, otp, samePassword);
+
+        // When & Then
+        mockMvc.perform(post("/api/auth/password/verify-and-reset")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false))
+                .andExpect(jsonPath("$.errorCode").value("PASSWORD_RESET_SAME_AS_OLD"));
+
+        verify(passwordResetService).verifyOtpAndReset(email, otp, samePassword);
+    }
+
+    @Test
+    @DisplayName("비밀번호 재설정 OTP 검증 및 변경 - 잘못된 OTP 형식")
+    void verifyOtpAndResetPassword_InvalidOtpFormat() throws Exception {
+        // Given
+        String email = "test@example.com";
+        String invalidOtp = "12345"; // 5자리
+        String newPassword = "newPassword123!";
+        
+        PasswordResetVerifyRequest request = new PasswordResetVerifyRequest();
+        request.setEmail(email);
+        request.setOtp(invalidOtp);
+        request.setNewPassword(newPassword);
+
+        // When & Then
+        mockMvc.perform(post("/api/auth/password/verify-and-reset")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false))
+                .andExpect(jsonPath("$.errorCode").value("INVALID_INPUT_VALUE"));
+
+        verify(passwordResetService, never()).verifyOtpAndReset(anyString(), anyString(), anyString());
+    }
+
+    @Test
+    @DisplayName("비밀번호 재설정 OTP 검증 및 변경 - 짧은 비밀번호")
+    void verifyOtpAndResetPassword_ShortPassword() throws Exception {
+        // Given
+        String email = "test@example.com";
+        String otp = "123456";
+        String shortPassword = "123"; // 3자리
+        
+        PasswordResetVerifyRequest request = new PasswordResetVerifyRequest();
+        request.setEmail(email);
+        request.setOtp(otp);
+        request.setNewPassword(shortPassword);
+
+        // When & Then
+        mockMvc.perform(post("/api/auth/password/verify-and-reset")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false))
+                .andExpect(jsonPath("$.errorCode").value("INVALID_INPUT_VALUE"));
+
+        verify(passwordResetService, never()).verifyOtpAndReset(anyString(), anyString(), anyString());
+    }
+
+    @Test
+    @DisplayName("비밀번호 재설정 OTP 재전송 - 성공")
+    void resendPasswordResetOtp_Success() throws Exception {
+        // Given
+        String email = "test@example.com";
+        ResendOtpRequest request = new ResendOtpRequest();
+        request.setEmail(email);
+
+        doNothing().when(passwordResetService).resendResetOtp(email);
+
+        // When & Then
+        mockMvc.perform(post("/api/auth/password/resend-otp")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+                        .header("X-Forwarded-For", "192.168.1.100"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.message").value("인증번호를 다시 발송했습니다."))
+                .andExpect(jsonPath("$.data").isEmpty());
+
+        verify(passwordResetService).resendResetOtp(email);
+    }
+
+    @Test
+    @DisplayName("비밀번호 재설정 OTP 재전송 - 사용자 없음")
+    void resendPasswordResetOtp_UserNotFound() throws Exception {
+        // Given
+        String email = "nonexistent@example.com";
+        ResendOtpRequest request = new ResendOtpRequest();
+        request.setEmail(email);
+
+        doThrow(new PasswordResetException(ErrorCode.USER_NOT_FOUND, email))
+                .when(passwordResetService).resendResetOtp(email);
+
+        // When & Then
+        mockMvc.perform(post("/api/auth/password/resend-otp")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.success").value(false))
+                .andExpect(jsonPath("$.errorCode").value("USER_NOT_FOUND"));
+
+        verify(passwordResetService).resendResetOtp(email);
+    }
+
+    @Test
+    @DisplayName("비밀번호 재설정 OTP 재전송 - 재전송 횟수 초과")
+    void resendPasswordResetOtp_LimitExceeded() throws Exception {
+        // Given
+        String email = "test@example.com";
+        ResendOtpRequest request = new ResendOtpRequest();
+        request.setEmail(email);
+
+        doThrow(new PasswordResetException(ErrorCode.PASSWORD_RESET_RESEND_LIMIT_EXCEEDED, email))
+                .when(passwordResetService).resendResetOtp(email);
+
+        // When & Then
+        mockMvc.perform(post("/api/auth/password/resend-otp")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isTooManyRequests())
+                .andExpect(jsonPath("$.success").value(false))
+                .andExpect(jsonPath("$.errorCode").value("PASSWORD_RESET_RESEND_LIMIT_EXCEEDED"));
+
+        verify(passwordResetService).resendResetOtp(email);
+    }
+
+    @Test
+    @DisplayName("비밀번호 재설정 OTP 재전송 - 재전송 간격 제한")
+    void resendPasswordResetOtp_TooFrequent() throws Exception {
+        // Given
+        String email = "test@example.com";
+        ResendOtpRequest request = new ResendOtpRequest();
+        request.setEmail(email);
+
+        doThrow(new PasswordResetException(ErrorCode.PASSWORD_RESET_RESEND_TOO_FREQUENT, email))
+                .when(passwordResetService).resendResetOtp(email);
+
+        // When & Then
+        mockMvc.perform(post("/api/auth/password/resend-otp")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isTooManyRequests())
+                .andExpect(jsonPath("$.success").value(false))
+                .andExpect(jsonPath("$.errorCode").value("PASSWORD_RESET_RESEND_TOO_FREQUENT"));
+
+        verify(passwordResetService).resendResetOtp(email);
+    }
+
+    @Test
+    @DisplayName("비밀번호 재설정 OTP 재전송 - 소셜 로그인 사용자")
+    void resendPasswordResetOtp_SocialUser() throws Exception {
+        // Given
+        String email = "social@example.com";
+        ResendOtpRequest request = new ResendOtpRequest();
+        request.setEmail(email);
+
+        doThrow(new PasswordResetException(ErrorCode.PASSWORD_RESET_NOT_ALLOWED, email))
+                .when(passwordResetService).resendResetOtp(email);
+
+        // When & Then
+        mockMvc.perform(post("/api/auth/password/resend-otp")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false))
+                .andExpect(jsonPath("$.errorCode").value("PASSWORD_RESET_NOT_ALLOWED"));
+
+        verify(passwordResetService).resendResetOtp(email);
+    }
+
+    @Test
+    @DisplayName("비밀번호 재설정 OTP 재전송 - 잘못된 이메일 형식")
+    void resendPasswordResetOtp_InvalidEmailFormat() throws Exception {
+        // Given
+        String invalidEmail = "invalid-email";
+        ResendOtpRequest request = new ResendOtpRequest();
+        request.setEmail(invalidEmail);
+
+        // When & Then
+        mockMvc.perform(post("/api/auth/password/resend-otp")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false))
+                .andExpect(jsonPath("$.errorCode").value("INVALID_INPUT_VALUE"));
+
+        verify(passwordResetService, never()).resendResetOtp(anyString());
+    }
+
+    @Test
+    @DisplayName("비밀번호 재설정 OTP 재전송 - 빈 이메일")
+    void resendPasswordResetOtp_EmptyEmail() throws Exception {
+        // Given
+        ResendOtpRequest request = new ResendOtpRequest();
+        request.setEmail("");
+
+        // When & Then
+        mockMvc.perform(post("/api/auth/password/resend-otp")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false))
+                .andExpect(jsonPath("$.errorCode").value("INVALID_INPUT_VALUE"));
+
+        verify(passwordResetService, never()).resendResetOtp(anyString());
+    }
+
+    @Test
+    @DisplayName("비밀번호 재설정 - 다양한 클라이언트 IP 헤더 처리")
+    void passwordReset_VariousClientIpHeaders() throws Exception {
+        // Given
+        String email = "test@example.com";
+        doNothing().when(passwordResetService).requestResetWithOtp(email);
+
+        // When & Then - X-Forwarded-For 헤더
+        mockMvc.perform(post("/api/auth/password/request-reset")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"" + email + "\"}")
+                        .header("X-Forwarded-For", "203.0.113.1, 198.51.100.1"))
+                .andExpect(status().isOk());
+
+        // When & Then - X-Real-IP 헤더
+        mockMvc.perform(post("/api/auth/password/request-reset")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"" + email + "\"}")
+                        .header("X-Real-IP", "203.0.113.2"))
+                .andExpect(status().isOk());
+
+        // When & Then - 헤더 없음 (RemoteAddr 사용)
+        mockMvc.perform(post("/api/auth/password/request-reset")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"" + email + "\"}"))
+                .andExpect(status().isOk());
+
+        verify(passwordResetService, times(3)).requestResetWithOtp(email);
     }
 }
