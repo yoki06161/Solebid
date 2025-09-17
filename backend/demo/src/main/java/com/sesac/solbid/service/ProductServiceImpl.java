@@ -75,6 +75,7 @@ public class ProductServiceImpl implements ProductService {
         return id;
     }
 
+    /**상품 이미지 최종 확정*/
     @Override
     public void finalizeImages(Long id, Long userId) {
     }
@@ -113,6 +114,7 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
+    /**상품의 판매자를 다른 사용자로 변경*/
     @Override
     @Transactional
     public void changeSeller(Long productId, Long newSellerId) {

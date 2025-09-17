@@ -30,6 +30,7 @@ public class UploadServiceImpl implements UploadService {
     @Value("${app.cdn.base-url:}")
     private String cdnBase;
 
+    /**업로드용 Presigned URL 발급*/
     @Override
     public Map<String, String> presign(String fileName, String contentType) {
         UploadPolicy.requireAllowed(contentType);
@@ -57,6 +58,7 @@ public class UploadServiceImpl implements UploadService {
                 .collect(Collectors.toMap(Function.identity(), s3Service::presignGetUrl));
     }
 
+    /**key에 대한 public URL을 생성*/
     private String buildPublicUrl(String key) {
         if (cdnBase != null && !cdnBase.isBlank()) {
             return cdnBase.endsWith("/") ? cdnBase + key : cdnBase + "/" + key;

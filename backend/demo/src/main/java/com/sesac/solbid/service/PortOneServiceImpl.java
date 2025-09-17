@@ -23,7 +23,7 @@ public class PortOneServiceImpl implements PortOneService {
     @Value("${portone.api-secret}")
     private String apiSecret;
 
-    /* 결제 승인 토큰 요청*/
+    /** 결제 승인 토큰 요청*/
     @Override
     public String getAccessToken() {
         log.info("[PortOne] 액세스 토큰 요청 시작");
@@ -53,7 +53,7 @@ public class PortOneServiceImpl implements PortOneService {
     }
 
 
-    /* 결제 승인 테스트 1 : 토큰 기반
+    /** 결제 승인 테스트 1 : 토큰 기반
     @Override
     public String approvePayment(String impUid, String accessToken) {
         log.info("[PortOne] 결제 승인 조회 요청 시작, imp_uid={}", impUid);
@@ -75,10 +75,9 @@ public class PortOneServiceImpl implements PortOneService {
 
         return data.getStatus(); // 필요시 DB 업데이트도 함께 수행 가능
     }
-
     */
 
-    // 결제 승인 테스트 2 :imp_uid 기반
+    /**결제 승인 테스트 2 :imp_uid 기반 */
     @Override
     public PortOnePaymentResponse.PaymentData approvePayment(String impUid, String accessToken) {
         log.info("[PortOne] 결제 상태 조회 요청: impUid={}", impUid);
@@ -114,9 +113,4 @@ public class PortOneServiceImpl implements PortOneService {
 
         return data;
     }
-
-
-
-
-
 }

@@ -11,7 +11,9 @@ import java.time.LocalDate;
 @Getter
 @Setter
 public class PaymentRecordSearchRequest {
+    /*
     @NotNull(message = "userId는 필수입니다.")
+    private Long userId;*/
     private Long userId;
 
     private PaymentStatus status; // SUCCESS/FAIL/...

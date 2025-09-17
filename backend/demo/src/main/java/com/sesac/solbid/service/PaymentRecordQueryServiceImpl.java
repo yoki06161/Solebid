@@ -29,6 +29,7 @@ class PaymentRecordQueryServiceImpl implements PaymentRecordQueryService {
     // 허용 정렬 필드 (화이트리스트)
     private static final Set<String> ALLOWED_SORT = Set.of("requestedAt", "amount", "paymentStatus");
 
+    /**사용자 결제 내역 조회*/
     @Override
     public PageResponse<PaymentRecordItemResponse> getRecords(PaymentRecordSearchRequest req, Pageable pageable) {
         Assert.notNull(req.getUserId(), "userId is required");

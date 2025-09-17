@@ -16,6 +16,7 @@ public class PointServiceImpl implements PointService {
 
     private final UserRepository userRepository;
 
+    /**유저 포인트 단건 조회*/
     @Override
     @Transactional(readOnly = true)
     public PointSummaryResponse getCurrentPoint(Long userId) {

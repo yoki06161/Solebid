@@ -1,4 +1,5 @@
-// 공용 HTTP 유틸 + 임시 인증 (X-User-Id) -> 나중에 JWT로 교체
+// src/utils/http.ts
+// 공용 HTTP 유틸 — JWT 쿠키 기반으로 통일
 
 export type ErrorResponse = {
     errorCode?: string;
@@ -33,49 +34,41 @@ export function throwHttpError(body: ErrorResponse | null, fallback: string): ne
     throw new Error(msg);
 }
 
-/** 인증 상태: 지금은 X-User-Id, 추후 JWT로 전환 예정 */
+/** 선택용: 필요 시만 Authorization 헤더를 쓰고, 기본은 쿠키로 인증 */
 let AUTH_TOKEN: string | null = null;
-let TEST_USER_ID: number | null = 1;
-
 export function setAuthToken(token: string | null) {
     AUTH_TOKEN = token;
-}
-export function setTestUserId(userId: number | null) {
-    TEST_USER_ID = userId;
-}
-
-function buildAuthHeaders(overrides?: { token?: string; userId?: number }): Record<string, string> {
-    const token = overrides?.token ?? AUTH_TOKEN;
-    if (token) {
-        return { Authorization: `Bearer ${token}` };
-    }
-    const userId = overrides?.userId ?? TEST_USER_ID;
-    return userId ? { "X-User-Id": String(userId) } : {};
 }
 
 type ApiOptions = {
     method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
     headers?: HeadersInit;
+    /** 명시적으로 토큰을 넘길 때만 Authorization 헤더를 추가합니다. */
     token?: string | null;
-    userId?: number | null;
     body?: unknown;
     signal?: AbortSignal;
 };
 
 export async function apiFetch<T>(url: string, opts: ApiOptions = {}): Promise<T> {
-    const { method = "GET", body, headers: extra, token, userId, signal } = opts;
+    const { method = "GET", body, headers: extra, token, signal } = opts;
 
-    // ⚠️ TS2322 방지: object를 먼저 만든 뒤 조건부로 key 설정
-    const baseHeaders: Record<string, string> = {};
+    const baseHeaders: Record<string, string> = {
+        Accept: "application/json",
+    };
     if (typeof body === "object" && body !== null && !(body instanceof FormData)) {
         baseHeaders["Content-Type"] = "application/json";
     }
-    const auth = buildAuthHeaders({ token: token ?? undefined, userId: userId ?? undefined });
-    const headers: HeadersInit = { ...baseHeaders, ...auth, ...(extra ?? {}) };
+    //기본은 쿠키 인증. 토큰이 명시되면 Authorization도 추가.
+    if (token ?? AUTH_TOKEN) {
+        baseHeaders["Authorization"] = `Bearer ${token ?? AUTH_TOKEN}`;
+    }
+
+    const headers: HeadersInit = { ...baseHeaders, ...(extra ?? {}) };
 
     const init: RequestInit = {
         method,
         headers,
+        credentials: "include",
         body:
             typeof body === "string"
                 ? body

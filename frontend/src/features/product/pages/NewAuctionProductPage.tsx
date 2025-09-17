@@ -1,10 +1,11 @@
+// src/features/product/pages/NewAuctionProductPage.tsx
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { presign, uploadToS3 } from "../../upload/services/uploads";
 import { makeSafeFileName } from "../../upload/utils/naming";
 import { createProduct, finalizeImages } from "../services/products";
-import { createAuctionEvent } from "../../auction/services/auctions";
+import { createAuction } from "../../auction/services/auctions";
 
 import type { Brand, Category, Condition, ProductCreatePayload } from "../types/product";
 
@@ -30,8 +31,7 @@ const CATEGORY_OPTIONS: { value: Category; label: string }[] = [
 const BRAND_ALLOW: Brand[] = BRAND_OPTIONS.map((b) => b.value);
 const CATEGORY_ALLOW: Category[] = CATEGORY_OPTIONS.map((c) => c.value);
 
-const TEST_USER_ID = 1 as const;            // 임시 헤더. 추후 JWT 교체 예정
-const DEFAULT_STATUS = "AVAILABLE" as const; // 서버 기본값
+const DEFAULT_STATUS = "AVAILABLE" as const;
 
 /** ---- datetime-local 유틸(로컬 기준 & 10분 스냅) ---- */
 const TEN_MIN_MS = 10 * 60 * 1000;
@@ -98,7 +98,9 @@ const NewAuctionProductPage: React.FC = () => {
             e.currentTarget.value = "";
             return;
         }
-        const valid = picked.every((f) => ["image/jpeg", "image/png", "image/jpg"].includes(f.type || ""));
+        const valid = picked.every((f) =>
+            ["image/jpeg", "image/png", "image/jpg"].includes(f.type || "")
+        );
         if (!valid) {
             alert("JPG/PNG만 업로드 가능합니다.");
             e.currentTarget.value = "";
@@ -113,7 +115,7 @@ const NewAuctionProductPage: React.FC = () => {
             for (const f of picked) {
                 const ct = f.type === "image/png" ? "image/png" : "image/jpeg";
                 const safeName = makeSafeFileName(f.name, ct);
-                const { key, putUrl } = await presign(safeName, ct, { userId: TEST_USER_ID });
+                const { key, putUrl } = await presign(safeName, ct); // 쿠키 인증
                 await uploadToS3(putUrl, f, ct);
                 newFiles.push(f);
                 newPreviews.push(URL.createObjectURL(f));
@@ -181,22 +183,19 @@ const NewAuctionProductPage: React.FC = () => {
                 images,
             };
 
-            const { productId } = await createProduct(payload, { userId: TEST_USER_ID });
+            const { productId } = await createProduct(payload); // 쿠키 인증
 
             // 3) 이미지 finalize
-            await finalizeImages(productId, { userId: TEST_USER_ID });
+            await finalizeImages(productId); // 쿠키 인증
 
             // 4) 경매 자동 생성(시작가 & 종료일 있을 때만)
             try {
                 if (startPrice !== "" && auctionEndAt) {
-                    await createAuctionEvent(
-                        {
-                            productId,
-                            startPrice: Number(startPrice),
-                            endAt: new Date(auctionEndAt).toISOString(), // 로컬 → ISO
-                        },
-                        { userId: TEST_USER_ID }
-                    );
+                    await createAuction({
+                        productId,
+                        startPrice: Number(startPrice),
+                        endAt: new Date(auctionEndAt).toISOString(), // 로컬 → ISO
+                    }); // 쿠키 인증
                 }
             } catch (e) {
                 console.error(e);
@@ -207,7 +206,7 @@ const NewAuctionProductPage: React.FC = () => {
             alert("상품이 등록되었습니다. 경매가 시작됩니다.");
             navigate("/auction", { replace: true });
 
-            //정리
+            // 정리
             previewUrls.forEach((u) => URL.revokeObjectURL(u));
             setSelectedImages([]);
             setPreviewUrls([]);
@@ -262,11 +261,15 @@ const NewAuctionProductPage: React.FC = () => {
                                         ) : (
                                             <label
                                                 className={`h-full flex flex-col items-center justify-center border-2 border-dashed rounded-lg cursor-pointer ${
-                                                    isImageLimitReached ? "border-gray-200 cursor-not-allowed opacity-50" : "border-gray-300 hover:border-blue-500"
+                                                    isImageLimitReached
+                                                        ? "border-gray-200 cursor-not-allowed opacity-50"
+                                                        : "border-gray-300 hover:border-blue-500"
                                                 }`}
                                             >
                                                 <i className="fas fa-plus text-gray-400 mb-2" />
-                                                <span className="text-sm text-gray-500">{index === 0 ? "대표 이미지" : "추가 이미지"}</span>
+                                                <span className="text-sm text-gray-500">
+                          {index === 0 ? "대표 이미지" : "추가 이미지"}
+                        </span>
                                                 <input
                                                     type="file"
                                                     accept="image/jpeg,image/png,image/jpg"
@@ -368,7 +371,7 @@ const NewAuctionProductPage: React.FC = () => {
 
                             {/* 색상 */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">색상</label>
+                                <label className="block text.sm font-medium text-gray-700 mb-1">색상</label>
                                 <div className="relative">
                                     <select
                                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none cursor-pointer"
@@ -428,6 +431,7 @@ const NewAuctionProductPage: React.FC = () => {
                                     </label>
                                 </div>
                             </div>
+
                             {/* 출시일 */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">출시일(권장)</label>
@@ -436,15 +440,14 @@ const NewAuctionProductPage: React.FC = () => {
                                         type="date"
                                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                         min="1980-01-01"
-                                        max={new Date().toISOString().split("T")[0]}  // 오늘 이전만 선택
+                                        max={new Date().toISOString().split("T")[0]}
                                         value={releaseDate}
-                                        onChange={(e) => setReleaseDate(e.target.value)} // "YYYY-MM-DD"
+                                        onChange={(e) => setReleaseDate(e.target.value)}
                                     />
                                     <i className="fas absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                                 </div>
                             </div>
                         </div>
-
 
                         {/* 경매 표시용 */}
                         <div className="grid grid-cols-2 gap-6">
@@ -465,7 +468,7 @@ const NewAuctionProductPage: React.FC = () => {
 
                             {/* 경매 종료일 */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">경매 종료일</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">경매 종료일(종료 시간은 10분 단위로 조정합니다.)</label>
                                 <div className="relative">
                                     <input
                                         type="datetime-local"

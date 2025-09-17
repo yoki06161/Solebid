@@ -1,5 +1,6 @@
 // src/features/auction/types/auction.ts 임시 파일
 
+/*
 export type AuctionCreateRequest = {
     productId: number;
     startPrice: number | string; // 서버 BigDecimal 호환
@@ -13,3 +14,14 @@ export type AuctionCreateRequest = {
 export type AuctionCreateResponse = {
     auctionEventId: number;
 };
+*/
+
+// src/features/auction/types/auction.ts
+export interface AuctionCreateRequest {
+    productId: number;
+    startPrice: number;
+    endAt: string;
+}
+export interface AuctionCreateResponse {
+    id: number;
+}

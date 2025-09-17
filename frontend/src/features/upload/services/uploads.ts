@@ -1,3 +1,4 @@
+/*
 import { http } from "../../../utils/http";
 
 export type PresignResponse = {
@@ -33,3 +34,26 @@ export async function uploadToS3(
         throw new Error(msg);
     }
 }
+*/
+
+// src/features/upload/services/uploads.ts
+import { apiFetch } from '../../../utils/apiFetch';
+import type { PresignResponse } from '../types/upload';
+
+export async function presign(fileName: string, contentType?: string | null) {
+    return apiFetch<PresignResponse>('/api/uploads/presign', {
+        method: 'POST',
+        json: { fileName, contentType: contentType ?? null },
+    });
+}
+
+export async function uploadToS3(putUrl: string, file: File | Blob, contentType: string) {
+    const res = await fetch(putUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': contentType },
+        body: file,
+    });
+    if (!res.ok) throw new Error(`S3 업로드 실패: ${res.status}`);
+}
+
+

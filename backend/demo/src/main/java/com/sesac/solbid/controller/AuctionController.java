@@ -1,5 +1,6 @@
 package com.sesac.solbid.controller;
 
+import com.sesac.solbid.domain.User;
 import com.sesac.solbid.dto.auction.request.AuctionCreateRequest;
 import com.sesac.solbid.dto.auction.response.AuctionCreateResponse;
 import com.sesac.solbid.service.auction.AuctionService;
@@ -7,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -24,7 +26,7 @@ public class AuctionController {
      * 경매 생성
      * POST /api/auctions
      *
-     * @header X-User-Id  인증된 사용자 ID (Long) -> 후애 JWT 변경
+     * @header JWT
      * @requestBody       AuctionCreateRequest (검증 대상)
      *                    - productId: 경매할 상품 ID
      *                    - startPrice: 시작가
@@ -43,9 +45,11 @@ public class AuctionController {
      */
     @PostMapping(consumes = "application/json", produces = "application/json")
     public ResponseEntity<AuctionCreateResponse> create(
-            @RequestHeader("X-User-Id") Long userId,
+            @AuthenticationPrincipal User authUser,
             @Valid @RequestBody AuctionCreateRequest req
     ) {
+        Long userId = authUser.getUserId();
+
         log.info("POST /api/auctions by userId={} productId={} startPrice={} endAt={}",
                 userId, req.productId(), req.startPrice(), req.endAt());
 

@@ -35,15 +35,11 @@ const PaymentRecordsPage: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [paymentStatus, setPaymentStatus] = useState<PaymentTableFilter>('all');
 
-    // TODO: 실제 로그인 유저의 ID로 교체
-    const userId = 1; //하드코딩 -> 후에 추가
-
     const { from, to } = rangeFor(dateFilter);
 
     const {
         items, loading, error, page, totalPages, setPage, setParams,
     } = useServerPayments({
-        userId,
         page: 0,
         size: 10,
         status: 'ALL',
@@ -56,19 +52,18 @@ const PaymentRecordsPage: React.FC = () => {
     useEffect(() => {
         setParams((p) => ({
             ...p,
-            userId,
             status: toServerStatus(paymentStatus),
             from,
             to,
             sort: 'requestedAt,desc',
         }));
         setPage(0);
-    }, [userId, paymentStatus, from, to, setParams, setPage]);
+    }, [paymentStatus, from, to, setParams, setPage]);
 
     // 검색어는 클라이언트에서 결제수단(method)에만 적용
     const visible = useMemo(
         () =>
-            items.filter((p) =>
+            (items ?? []).filter((p) =>
                 searchTerm.trim()
                     ? p.method.toLowerCase().includes(searchTerm.trim().toLowerCase())
                     : true

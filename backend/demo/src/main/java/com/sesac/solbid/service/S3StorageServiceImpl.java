@@ -37,6 +37,7 @@ public class S3StorageServiceImpl implements S3StorageService {
     private final S3Client s3Client;
     private final KeyFactory keyFactory;
 
+    /**MultipartFile을 S3에 업로드 후 생성된 Key 반환 (임시 경로에 저장됨)*/
     @Override
     public String uploadAndReturnKey(MultipartFile file) {
         try {
@@ -68,12 +69,14 @@ public class S3StorageServiceImpl implements S3StorageService {
         }
     }
 
+    /**MultipartFile을 S3에 업로드 후 Public URL 반환.*/
     @Override
     public String uploadAndReturnPublicUrl(MultipartFile file) {
         String key = uploadAndReturnKey(file);
         return buildPublicUrl(key);
     }
 
+    /**S3에서 key 기반으로 객체 다운로드 후 MultipartFile로 반환.*/
     @Override
     public MultipartFile download(String key) {
         try {
@@ -89,6 +92,8 @@ public class S3StorageServiceImpl implements S3StorageService {
         }
     }
 
+    /**주어진 S3 key에 대한 Public URL 생성.
+     * CDN이 설정되어 있으면 CDN base URL을, 없으면 기본 S3 URL을 반환.*/
     @Override
     public String buildPublicUrl(String key) {
         if (cdnBase != null && !cdnBase.isBlank()) {

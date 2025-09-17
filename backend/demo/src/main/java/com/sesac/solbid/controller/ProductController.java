@@ -1,5 +1,6 @@
 package com.sesac.solbid.controller;
 
+import com.sesac.solbid.domain.User;
 import com.sesac.solbid.dto.ApiResponse;
 import com.sesac.solbid.dto.product.request.ProductCreateRequest;
 import com.sesac.solbid.dto.product.response.ProductCreateResponse;
@@ -8,6 +9,7 @@ import com.sesac.solbid.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,38 +23,30 @@ public class ProductController {
 
     private final ProductService productService;
 
-    /*
+    /**
      * 상품 등록
-     * POST /api/products
+     * * POST /api/products
      *
-     * @param userId 인증된 사용자 ID (JWT 필터에서 추출됨)
-     * @param req    상품 등록 요청 DTO
-     * @return 201 Created + { productId }
+     * @param authUser 인증된 사용자 정보 (로그인된 회원)
+     * @param req      상품 등록 요청 본문 (상품명, 이미지 목록 등)
+     * @return 생성된 상품의 ID를 담은 응답 (201 Created)
      *
-     * 검증 규칙:
-     * - size 220~320
-     * - images ≤ 5, 썸네일 ≤ 1
-     * - sortOrder 중복 불가
-     * - filePath는 "products/" prefix
+     * 사용자가 전달한 상품 정보(ProductCreateRequest)를 기반으로
+     * 새로운 상품을 생성한다.
+     * 생성 과정에서 인증 사용자 ID를 함께 기록하며,
+     * 등록된 상품의 고유 ID를 반환한다.
      * */
+    @PostMapping public ResponseEntity<?> create(
+            @AuthenticationPrincipal User authUser,
+            @Validated @RequestBody ProductCreateRequest req
+    ) {
+        Long userId = authUser.getUserId();
+        log.info("POST /api/products by userId={} name={} images={}", userId, req.name(),
+                req.images() != null ? req.images().size() : 0);
 
-    /* 테스트 코드
-    @PostMapping
-    public ResponseEntity<?> create(@RequestAttribute("userId") Long userId,  // or @AuthUser 커스텀 리졸버
-                                    @Validated @RequestBody ProductCreateRequest req) {
-        Long id = productService.create(userId, req);
-        return ResponseEntity.status(201).body(new ProductCreateResponse(id));
-    }
-
-    private record ProductCreateResponse(Long productId) {}
-    */
-
-    // JWT 필터 붙이고 다시 @RequestAttribute("userId")로 원복
-    @PostMapping
-    public ResponseEntity<?> create(@RequestHeader("X-User-Id") Long userId, @Validated @RequestBody ProductCreateRequest req) {
-        log.info("POST /api/products by userId={} name={} images={}", userId, req.name(), req.images() != null ? req.images().size() : 0);
         Long id = productService.create(userId, req);
         log.info("Product created: id={} by userId={}", id, userId);
+
         return ResponseEntity.status(201).body(new ProductCreateResponse(id));
     }
 

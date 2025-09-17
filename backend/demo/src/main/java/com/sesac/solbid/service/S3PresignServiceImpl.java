@@ -33,6 +33,7 @@ public class S3PresignServiceImpl implements S3Service {
     @Value("${app.s3.presign.expire-minutes:15}")
     private long defaultExpireMinutes;
 
+    /**Presigned S3 업로드 Key 발급*/
     @Override
     public String presignPutUrl(String key, String contentType) {
         try {

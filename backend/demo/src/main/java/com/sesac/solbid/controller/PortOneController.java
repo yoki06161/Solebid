@@ -19,6 +19,7 @@ public class PortOneController {
     private final PaymentService paymentService;
 
     // 액세스 토큰 테스트용 API
+
     @GetMapping("/token")
     public ResponseEntity<String> getToken() {
         String token = portOneService.getAccessToken();
@@ -45,8 +46,13 @@ public class PortOneController {
 */
 
 
-    // imp_uid 기반 결제 승인 및 처리
-    @GetMapping("/approve")
+    /**
+     * imp_uid 기반 결제 승인 및 처리
+     * GET /approve?impUid={imp_uid}
+     *
+     * @param impUid PortOne 결제 고유 ID
+     * @return 처리 결과 문자열
+     **/    @GetMapping("/approve")
     public ResponseEntity<String> approve(@RequestParam String impUid) {
         String token = portOneService.getAccessToken();
         String result = paymentService.handlePaymentSuccess(impUid, token);

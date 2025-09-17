@@ -16,14 +16,16 @@ public class PaymentController {
 
     private final PaymentService paymentService;
 
-    /*
-    * 포트원 결제 요청 준비 */
+    /**
+     * 포트원 결제 요청 준비
+     * POST /charge/prepare
+     *
+     * @param request 결제 준비 요청 DTO
+     * @return 결제 준비 응답 DTO(orderId, redirectUrl 포함)
+     **/
     @PostMapping("/charge/prepare")
     public ResponseEntity<PaymentPrepareResponse> preparePayment(@RequestBody PaymentPrepareRequest request) {
         return ResponseEntity.ok(paymentService.preparePayment(request));
-        /*
-        * 서버에서 고유 orderId 생성
-        * redirectUrl 반환*/
     }
 
     @GetMapping("/ping")

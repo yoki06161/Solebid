@@ -30,9 +30,13 @@ public class UploadController {
 
     private final UploadService uploadService;
 
-    /*
+    /**
      * 파일 업로드용 Presigned URL 발급
-     * POST /presign
+     * POST /api/uploads/presign
+     *
+     * @param req 파일 이름 및 Content-Type을 담은 요청 DTO
+     * @return key, putUrl, publicUrl을 담은 {@link PresignResponse}
+     *
      * URL 생성 후 저장
      * 서버 { key, putUrl, publicUrl } 응답
      * 업로드 URL만 발급

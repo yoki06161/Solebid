@@ -4,7 +4,6 @@ export type ServerPaymentStatus = PaymentStatus;
 
 // 서버 호출 파라미터
 export interface FetchPaymentsParams {
-    userId: number;  // 필수
     page?: number;   // 0-based
     size?: number;
     status?: PaymentStatus | 'ALL';
@@ -56,6 +55,6 @@ export interface Payment {
     confirmedAt?: string | null;
 }
 
-// 필터 타입
+// UI 필터 타입
 export type DateFilter = 'today' | '1week' | '1month' | '3months';
 export type PaymentTableFilter = 'all' | 'completed' | 'cancelled';

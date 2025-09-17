@@ -1,5 +1,6 @@
-import { http } from "../../../utils/http";
+//import { http } from "../../../utils/http";
 
+/*
 export interface AuctionCreatePayload {
     productId: number;
     startPrice: number;           // 원화 정수(예: 10000)
@@ -21,4 +22,14 @@ export async function createAuctionEvent(
         userId: opts?.userId ?? null,
         token: opts?.token ?? null,
     });
+}
+*/
+
+// src/features/auction/services/auctions.ts
+import { http } from '../../../utils/http';
+import type { AuctionCreateRequest, AuctionCreateResponse } from '../types/auction';
+
+export async function createAuction(payload: AuctionCreateRequest) {
+    // 쿠키로 인증
+    return http.post<AuctionCreateResponse>('/api/auctions', payload);
 }
