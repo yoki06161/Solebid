@@ -1,4 +1,4 @@
-package com.sesac.solbid.service;
+package com.sesac.solbid.service.point;
 
 import com.sesac.solbid.domain.User;
 import com.sesac.solbid.dto.payment.response.PointSummaryResponse;

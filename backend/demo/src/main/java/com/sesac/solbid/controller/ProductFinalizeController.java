@@ -2,13 +2,11 @@ package com.sesac.solbid.controller;
 
 import com.sesac.solbid.domain.User;
 import com.sesac.solbid.dto.upload.response.FinalizeImagesResponse;
-import com.sesac.solbid.service.ProductService;
+import com.sesac.solbid.service.product.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor

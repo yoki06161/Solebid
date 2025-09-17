@@ -1,7 +1,8 @@
-package com.sesac.solbid.service;
+package com.sesac.solbid.service.product;
 
 import com.sesac.solbid.domain.ProductImage;
 import com.sesac.solbid.repository.ProductImageRepository;
+import com.sesac.solbid.service.s3.S3StorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;

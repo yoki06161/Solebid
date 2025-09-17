@@ -4,7 +4,7 @@ import com.sesac.solbid.dto.upload.request.PresignRequest;
 import com.sesac.solbid.dto.upload.response.PresignResponse;
 import com.sesac.solbid.exception.CustomException;
 import com.sesac.solbid.exception.ErrorCode;
-import com.sesac.solbid.service.UploadService;
+import com.sesac.solbid.upload.UploadService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -16,11 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sesac.solbid.dto.upload.request.DownloadUrlRequest;
-import com.sesac.solbid.dto.upload.request.PresignRequest;
-import com.sesac.solbid.dto.upload.response.PresignResponse;
-import com.sesac.solbid.service.UploadService;
-
-import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor

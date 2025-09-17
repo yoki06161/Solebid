@@ -1,4 +1,4 @@
-package com.sesac.solbid.service;
+package com.sesac.solbid.service.payment;
 
 import com.sesac.solbid.dto.payment.request.PaymentPrepareRequest;
 import com.sesac.solbid.dto.payment.response.PaymentPrepareResponse;

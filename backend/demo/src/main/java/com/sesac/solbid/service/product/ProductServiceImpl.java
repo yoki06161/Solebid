@@ -1,4 +1,4 @@
-package com.sesac.solbid.service;
+package com.sesac.solbid.service.product;
 
 import com.sesac.solbid.domain.Product;
 import com.sesac.solbid.domain.ProductImage;

@@ -1,4 +1,4 @@
-package com.sesac.solbid.service;
+package com.sesac.solbid.upload;
 
 import java.time.YearMonth;
 import java.time.ZoneId;
@@ -8,6 +8,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.sesac.solbid.service.s3.S3Service;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 

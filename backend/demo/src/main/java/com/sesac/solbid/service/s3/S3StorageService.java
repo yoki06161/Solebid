@@ -1,4 +1,4 @@
-package com.sesac.solbid.service;
+package com.sesac.solbid.service.s3;
 
 import org.springframework.web.multipart.MultipartFile;
 

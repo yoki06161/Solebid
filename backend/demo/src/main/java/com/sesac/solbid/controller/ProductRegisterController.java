@@ -1,6 +1,6 @@
 package com.sesac.solbid.controller;
 
-import com.sesac.solbid.service.ProductService;
+import com.sesac.solbid.service.product.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RestController;
 

@@ -1,4 +1,4 @@
-package com.sesac.solbid.service;
+package com.sesac.solbid.service.product;
 
 import com.sesac.solbid.dto.product.request.ProductCreateRequest;
 import com.sesac.solbid.dto.product.response.ProductResponse;

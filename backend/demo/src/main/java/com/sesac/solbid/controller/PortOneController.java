@@ -1,7 +1,7 @@
 package com.sesac.solbid.controller;
 
-import com.sesac.solbid.service.PaymentService;
-import com.sesac.solbid.service.PortOneService;
+import com.sesac.solbid.service.payment.PaymentService;
+import com.sesac.solbid.service.payment.PortOneService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

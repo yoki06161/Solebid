@@ -5,7 +5,7 @@ import com.sesac.solbid.dto.ApiResponse;
 import com.sesac.solbid.dto.product.request.ProductCreateRequest;
 import com.sesac.solbid.dto.product.response.ProductCreateResponse;
 import com.sesac.solbid.dto.product.response.ProductResponse;
-import com.sesac.solbid.service.ProductService;
+import com.sesac.solbid.service.product.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

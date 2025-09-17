@@ -4,7 +4,7 @@ import com.sesac.solbid.domain.User;
 import com.sesac.solbid.dto.payment.request.PaymentRecordSearchRequest;
 import com.sesac.solbid.dto.payment.response.PageResponse;
 import com.sesac.solbid.dto.payment.response.PaymentRecordItemResponse;
-import com.sesac.solbid.service.PaymentRecordQueryService;
+import com.sesac.solbid.service.payment.PaymentRecordQueryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,4 +1,4 @@
-package com.sesac.solbid.service;
+package com.sesac.solbid.upload;
 
 import java.util.List;
 import java.util.Map;
