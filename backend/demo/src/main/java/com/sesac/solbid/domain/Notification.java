@@ -37,4 +37,7 @@ public class Notification {
 
     private LocalDateTime createAt;
 
+    //기본값/시간 자동화
+    @PrePersist void prePersist(){ if(isRead==null) isRead=false; if(createAt==null) createAt=LocalDateTime.now(); }
+
 }

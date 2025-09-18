@@ -1,6 +1,7 @@
 import { createBrowserRouter, createRoutesFromElements, Route } from 'react-router-dom';
 
 import AuctionPage from './features/auction/pages/AuctionPage';
+import AuctionDetailPage from './features/auction/pages/AuctionDetailPage';
 import CartPage from './features/cart/pages/CartPage';
 import CategoryPage from './features/category/pages/CategoryPage';
 import MainPage from './features/main/pages/MainPage';
@@ -42,6 +43,7 @@ const router = createBrowserRouter(
             <Route path="/auth/callback/:provider" element={<OAuth2Callback />} />
             <Route path="/nickname-setup" element={<NicknameSetup />} />
             <Route path="/auction" element={<AuctionPage />} />
+            <Route path="/auction/:auctionId" element={<AuctionDetailPage />} />
             <Route path="/category/:categoryName" element={<CategoryPage />} />
             <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
             <Route path="/order" element={<ProtectedRoute><OrderPage /></ProtectedRoute>} />
