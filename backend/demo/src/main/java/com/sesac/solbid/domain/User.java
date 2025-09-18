@@ -1,6 +1,5 @@
 package com.sesac.solbid.domain;
 
-import com.sesac.solbid.domain.baseentity.BaseEntity;
 import com.sesac.solbid.domain.enums.UserStatus;
 import com.sesac.solbid.domain.enums.UserType;
 import jakarta.persistence.*;

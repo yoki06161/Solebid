@@ -1,10 +1,8 @@
-package com.sesac.solbid.domain.baseentity;
+package com.sesac.solbid.domain;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
-import lombok.Data;
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -19,6 +17,7 @@ public abstract class BaseEntity {
     @CreatedDate
     @Column(updatable = false, nullable = false)
     private LocalDateTime createdAt;
+
     @LastModifiedDate
     @Column(nullable = false)
     private LocalDateTime updatedAt;

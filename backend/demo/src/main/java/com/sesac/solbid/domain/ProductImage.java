@@ -1,6 +1,5 @@
 package com.sesac.solbid.domain;
 
-import com.sesac.solbid.domain.baseentity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 

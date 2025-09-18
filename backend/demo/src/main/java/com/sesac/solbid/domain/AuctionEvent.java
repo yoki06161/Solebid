@@ -1,8 +1,6 @@
 package com.sesac.solbid.domain;
 
-import com.sesac.solbid.domain.baseentity.BaseEntity;
 import com.sesac.solbid.domain.enums.AuctionStatus;
-import com.sesac.solbid.domain.enums.EventEnum;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;

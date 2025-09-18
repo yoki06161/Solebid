@@ -1,6 +1,5 @@
 package com.sesac.solbid.domain;
 
-import com.sesac.solbid.domain.baseentity.BaseEntity;
 import com.sesac.solbid.domain.enums.ProductBrand;
 import com.sesac.solbid.domain.enums.ProductCategory;
 import com.sesac.solbid.domain.enums.ProductCondition;
