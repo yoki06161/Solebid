@@ -3,12 +3,18 @@ package com.sesac.solbid.domain;
 import com.sesac.solbid.domain.enums.DeliveryStatus;
 import com.sesac.solbid.domain.enums.PaymentStatus;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "order_info")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OrderInfo {
 
     @Id
@@ -53,4 +59,41 @@ public class OrderInfo {
 
     @Column(name = "delivery_date")
     private LocalDateTime deliveryDate;
+
+    @Builder
+    public OrderInfo(AuctionEvent auctionEvent, User winner, User seller, BigDecimal finalPrice,
+            String deliveryAddress) {
+        this.auctionEvent = auctionEvent;
+        this.winner = winner;
+        this.seller = seller;
+        this.finalPrice = finalPrice;
+        this.paymentStatus = PaymentStatus.WAITING;
+        this.deliveryStatus = DeliveryStatus.PREPARING;
+        this.deliveryAddress = deliveryAddress;
+        this.orderDate = LocalDateTime.now();
+    }
+
+    public void markAsPaid() {
+        if (this.paymentStatus == PaymentStatus.WAITING) {
+            this.paymentStatus = PaymentStatus.SUCCESS;
+            this.paymentDate = LocalDateTime.now();
+        }
+    }
+
+    public void startShipping(String trackingNumber) {
+        if (this.paymentStatus != PaymentStatus.SUCCESS) {
+            throw new IllegalStateException("결제가 완료되지 않은 주문은 배송을 시작할 수 없습니다.");
+        }
+        this.trackingNumber = trackingNumber;
+        this.deliveryStatus = DeliveryStatus.SHIPPED;
+        this.deliveryDate = LocalDateTime.now();
+    }
+
+    public void cancel() {
+        if (this.deliveryStatus == DeliveryStatus.SHIPPED || this.deliveryStatus == DeliveryStatus.DELIVERED) {
+            throw new IllegalStateException("이미 배송이 시작된 주문은 취소할 수 없습니다.");
+        }
+        this.paymentStatus = PaymentStatus.FAIL;
+        this.deliveryStatus = DeliveryStatus.CANCELED;
+    }
 }
