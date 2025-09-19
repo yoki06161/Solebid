@@ -5,3 +5,4 @@ export { default as ProfilePoint } from './ProfilePoint';
 export { default as ProfileStats } from './ProfileStats';
 export { default as ProfileTransaction } from './ProfileTransaction';
 export { default as ProfileAccount } from './ProfileAccount';
+export { default as TemperatureCard } from './TemperatureCard';

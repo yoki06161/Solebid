@@ -14,6 +14,16 @@ export interface AuthUser {
   userType?: string;
   provider?: string;
   requiresNickname?: boolean;
+  temperature?: number; // 사용자 온도 정보
+}
+
+// 완전한 사용자 프로필 정보 (온도 포함)
+export interface UserProfile {
+  userId: number;
+  email: string;
+  nickname: string;
+  userType: string;
+  temperature: number; // 사용자 온도 정보
 }
 
 export interface LoginForm {

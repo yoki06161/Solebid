@@ -169,6 +169,7 @@ public class UserController {
             data.put("email", user.getEmail());
             data.put("nickname", user.getNickname());
             data.put("userType", user.getUserType() != null ? user.getUserType().name() : null);
+            data.put("temperature", user.getTemperature());
             // 연결된 소셜 제공자 정보 포함 (있을 경우)
             socialLoginRepository.findByUser(user).ifPresent(sl -> data.put("socialProvider", sl.getProvider().name()));
             return ResponseEntity.ok(ApiResponse.success(data));
@@ -270,6 +271,7 @@ public class UserController {
             data.put("email", user.getEmail());
             data.put("nickname", user.getNickname());
             data.put("userType", user.getUserType() != null ? user.getUserType().name() : null);
+            data.put("temperature", user.getTemperature());
             return ResponseEntity.ok(ApiResponse.success(data, "계정이 재활성화되었습니다."));
         } catch (Exception e) {
             log.error("계정 재활성화 처리 중 예외", e);

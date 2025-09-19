@@ -250,7 +250,8 @@ class ApiContractVerificationTest {
                 .andExpect(jsonPath("$.data.userId").exists())
                 .andExpect(jsonPath("$.data.email").value("test@example.com"))
                 .andExpect(jsonPath("$.data.nickname").value("testuser"))
-                .andExpect(jsonPath("$.data.userType").value("USER"));
+                .andExpect(jsonPath("$.data.userType").value("USER"))
+                .andExpect(jsonPath("$.data.temperature").exists());
     }
 
     @Test
