@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { parseTimeToMinutes } from "../../../utils/parse-time-to-minute";
+import { parseTimeToMinutes } from "../../../utils/time-utils";
 import { NotificationList, NotificationNav, NotificationPush, NotificationSearch } from "../components";
 import { notices, tabs } from "../components/mockData";
 import type { Notification } from "../types/Notification";
