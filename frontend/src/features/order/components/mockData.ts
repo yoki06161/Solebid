@@ -10,7 +10,7 @@ export const periods = [
 
 export const statuses = [
     "전체",
-    "결제완료",
+    "결제대기",
     "배송준비중",
     "배송중",
     "배송완료",
@@ -30,7 +30,7 @@ export const orders: Order[] = [
                 options: "블랙, 노이즈캔슬링",
             },
         ],
-        totalAmount: 89000,
+        finalPrice: 89000,
         status: "배송완료",
         statusColor: "green",
         trackingNumber: "CJ1234567890",
@@ -73,7 +73,7 @@ export const orders: Order[] = [
                 price: 25000,
             },
         ],
-        totalAmount: 25000,
+        finalPrice: 25000,
         status: "배송중",
         statusColor: "blue",
         trackingNumber: "CJ0987654321",

@@ -1,39 +1,58 @@
 import { useMemo, useState } from "react";
 import Pagination from "../../../components/Pagination";
 import { usePagination } from "../../../hooks/usePagination";
-import { getFromDate } from "../../../utils/get-from-date";
+import { getFromDate, isDateInRange, parseOrderDate, type Period } from "../../../utils/date-utils";
 import { OrderList, OrderSearch } from "../components";
-import { orders, periods, statuses } from "../components/mockData";
+import { periods, statuses } from "../components/mockData";
+import { useWinningOrders } from "../hooks/useOrders";
 import type { Order } from "../types/Order";
 
 const OrderPage = () => {
+    const { data: ordersData, isLoading, isError } = useWinningOrders();
+
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedPeriod, setSelectedPeriod] = useState("전체");
     const [selectedStatus, setSelectedStatus] = useState("전체");
 
     const filteredOrders = useMemo(() => {
-        const fromDate = getFromDate(selectedPeriod);
+        if (!ordersData || !Array.isArray(ordersData)) {
+            return [];
+        }
+
+        const fromDate = getFromDate(selectedPeriod as Period);
         const today = new Date();
 
         const matchesSearch = (order: Order): boolean =>
-            order.id.includes(searchQuery) ||
-            order.items.some((item) => item.name.includes(searchQuery));
+            String(order.id).includes(searchQuery) ||
+            (order.items || []).some((item) => item.name?.includes(searchQuery));
 
         const matchesStatus = (order: Order): boolean =>
             selectedStatus === "전체" || order.status === selectedStatus;
 
         const matchesPeriod = (order: Order): boolean => {
-            if (!fromDate) {
+            // "전체" 선택 시 모든 주문 표시
+            if (selectedPeriod === "전체" || !fromDate) {
                 return true;
             }
-            const orderDate = new Date(order.date.replace(/\./g, "-"));
-            return orderDate >= fromDate && orderDate <= today;
+
+            // 주문 날짜가 없으면 제외
+            if (!order.date) {
+                return false;
+            }
+
+            // 날짜 파싱
+            const orderDate = parseOrderDate(order.date);
+            if (!orderDate) {
+                return false;
+            }
+
+            return isDateInRange(orderDate, fromDate, today);
         };
 
-        return orders.filter(
-            (order) => matchesSearch(order) && matchesStatus(order) && matchesPeriod(order)
+        return ordersData.filter(
+            (order: Order) => matchesSearch(order) && matchesStatus(order) && matchesPeriod(order)
         );
-    }, [searchQuery, selectedPeriod, selectedStatus]);
+    }, [searchQuery, selectedPeriod, selectedStatus, ordersData]);
 
     const {
         paginatedData: paginatedOrders,
@@ -47,6 +66,22 @@ const OrderPage = () => {
             setCurrentPage(page);
         }
     };
+
+    if (isLoading) {
+        return (
+            <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center">
+                <i className="fas fa-spinner fa-spin fa-3x"></i>
+            </div>
+        );
+    }
+
+    if (isError) {
+        return (
+            <div className="text-center py-10">
+                데이터를 불러오는 중 오류가 발생했습니다.
+            </div>
+        );
+    }
 
     return (
         <main className="min-h-screen bg-gray-50">
