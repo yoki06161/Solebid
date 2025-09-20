@@ -2,19 +2,38 @@ import { useState } from "react";
 import CartEmptyList from "../components/CartEmptyList";
 import CartList from "../components/CartList";
 import CartSummary from "../components/CartSummary";
-import { cartData } from "../components/mockData";
-import type { Cart } from "../types/Cart";
+import { useCart } from "../hooks/useCart";
 
 const CartPage = () => {
-    const [cartItems, setCartItems] = useState<Cart[]>(cartData);
+    const { cartItems, loading, error, removeItem } = useCart();
     const [isEditing, setIsEditing] = useState(false);
 
-    const removeItem = (id: number) => {
-        setCartItems((items) => items.filter((item) => item.id !== id));
-    };
+    if (loading) {
+        return (
+            <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center">
+                <i className="fas fa-spinner fa-spin fa-3x"></i>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="text-center">
+                    <p className="text-red-600 mb-4">{error}</p>
+                    <button
+                        onClick={() => window.location.reload()}
+                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                    >
+                        다시 시도
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     const totalAmount = cartItems.reduce(
-        (sum, item) => sum + item.price,
+        (sum, item) => sum + item.productPrice,
         0,
     );
     const shippingFee = totalAmount >= 50000 ? 0 : 3000;
@@ -23,7 +42,7 @@ const CartPage = () => {
     const formatPrice = (price: number) => price.toLocaleString("ko-KR") + "원";
 
     if (cartItems.length === 0) {
-        <CartEmptyList />
+        return <CartEmptyList />;
     }
     return (
         <div className="min-h-screen bg-gray-50">

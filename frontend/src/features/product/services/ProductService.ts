@@ -11,9 +11,6 @@ export const getPresignedUrls = async (imageKeys: string[]): Promise<PresignedUr
 
     return await apiFetch<PresignedUrlResponse>('/api/uploads/download-urls', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ imageKeys }),
+        json: { imageKeys },
     });
 };

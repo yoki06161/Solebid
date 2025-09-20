@@ -12,7 +12,7 @@ const CartList = ({ items, isEditing, onToggleEdit, onRemoveItem }: CartListProp
             </button>
             {items.map((item) => (
                 <CartItem
-                    key={item.id}
+                    key={item.cartId}
                     item={item}
                     isEditing={isEditing}
                     onRemoveItem={onRemoveItem}

@@ -69,7 +69,7 @@ export const useImageUrls = <T extends ImageableItem>(
             }
         };
         fetchImageUrls();
-    }, [imageKeyExtractor, imageKeysString, items]); // imageKeysString만 의존성으로 사용
+    }, [imageKeysString]); // imageKeyExtractor 제거, imageKeysString만 의존성으로 사용
 
     return { itemsWithImages, isLoadingImages };
 };

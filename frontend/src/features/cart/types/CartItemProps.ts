@@ -1,7 +1,7 @@
-import type { Cart } from "./Cart";
+import type { CartItem } from "./CartItem";
 
 export interface CartItemProps {
-    item: Cart;
+    item: CartItem;
     isEditing: boolean;
     onRemoveItem: (id: number) => void;
 }

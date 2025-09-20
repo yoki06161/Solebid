@@ -53,7 +53,7 @@ const router = createBrowserRouter(
             <Route path="/points/records" element={<ProtectedRoute><PaymentRecordsPage /></ProtectedRoute>} />
             <Route path="/products/new" element={<ProtectedRoute><NewAuctionProductPage /></ProtectedRoute>} />
             <Route path="/result" element={<ChargeResultPage />} />
-            <Route path="/cart" element={<CartPage />} />
+            <Route path="/cart" element={<ProtectedRoute><CartPage /></ProtectedRoute>} />
             <Route path="/policy" element={<PolicyPage />} />
             <Route path="/search" element={<SearchPage />} />
             <Route path="/notification" element={<ProtectedRoute><NotificationPage /></ProtectedRoute>} />
