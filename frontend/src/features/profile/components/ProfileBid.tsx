@@ -1,53 +1,46 @@
-import { Link } from "react-router-dom";
-import type { ProfileBidProps } from "../types/ProfileBidProps";
-import { bidData } from "./mockData";
+import { convertToBidItemProps } from "../../../utils/bid-utils";
+import { useBidWinning } from "../hooks/useBidWinning";
+import { useImageUrls } from "../../../hooks/useProductImageUrls";
+import ProfileBidItem from "./ProfileBidItem";
+import { ProfileBidEmpty, ProfileBidError, ProfileBidLoading } from "./ProfileBidStates";
+import ProfileBidSection from "./ProfileBidSection";
 
-const BidItem = ({ name, date, price, imageUrl }: ProfileBidProps) => {
-    return (
-        <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-            <div className="flex items-center">
-                <img
-                    src={imageUrl}
-                    alt={name}
-                    className="w-12 h-12 rounded-lg object-cover mr-4" />
-                <div>
-                    <h4 className="font-medium text-gray-900">
-                        {name}
-                    </h4>
-                    <p className="text-gray-600 text-sm">
-                        {date}
-                    </p>
-                </div>
-            </div>
-            <div className="text-right">
-                <div className="font-semibold text-gray-900">
-                    {price}
-                </div>
-            </div>
-        </div>
-    );
-}
+const TITLE = "최근 낙찰 내역";
+const MAX_DISPLAY_COUNT = 3;
 
 const ProfileBid = () => {
+    const { winningBids, loading, error } = useBidWinning();
+    
+    // 기본 추출 함수 사용 (productImageUrl 필드를 자동으로 찾음)
+    const { itemsWithImages: bidsWithImages, isLoadingImages } = useImageUrls(winningBids);
+
+    if (loading || isLoadingImages) {
+        return <ProfileBidLoading title={TITLE} />;
+    }
+
+    if (error) {
+        return <ProfileBidError title={TITLE} error={error} />;
+    }
+
     return (
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-            <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">
-                    최근 낙찰 내역
-                </h3>
-                <Link
-                    to="/cart"
-                    className="text-blue-600 text-sm hover:text-blue-800 cursor-pointer">
-                    전체 보기
-                </Link>
-            </div>
+        <ProfileBidSection
+            title={TITLE}
+            linkTo="/cart"
+            linkText="전체 보기"
+        >
             <div className="space-y-4">
-                {bidData.map(order =>
-                    <BidItem key={order.id}
-                        {...order} />
+                {bidsWithImages.length === 0 ? (
+                    <ProfileBidEmpty />
+                ) : (
+                    bidsWithImages.slice(0, MAX_DISPLAY_COUNT).map(bid => (
+                        <ProfileBidItem
+                            key={bid.bidId}
+                            {...convertToBidItemProps(bid)}
+                        />
+                    ))
                 )}
             </div>
-        </div>
+        </ProfileBidSection>
     );
 };
 
