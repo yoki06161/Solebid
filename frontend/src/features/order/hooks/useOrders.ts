@@ -4,7 +4,6 @@ import { getPresignedUrls } from '../../product/services/ProductService.ts';
 import { enrichOrderData } from '../components/mockData.ts';
 import { fetchCreateOrder, fetchOrderDetails, fetchWinningOrders, type OrderCreatePayload } from '../services/OrderService.ts';
 import type { Order } from '../types/Order.ts';
-import { enrichOrderData } from '../utils/orderDataTransform.ts';
 
 // Query key factory with better type safety
 const orderKeys = {
