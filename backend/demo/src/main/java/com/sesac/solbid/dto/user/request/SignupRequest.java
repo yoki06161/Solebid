@@ -38,7 +38,8 @@ public record SignupRequest(
     String name,
 
     @NotBlank(message = "전화번호는 필수 입력 값입니다.")
-    @Pattern(regexp = "^01(?:0|1|[6-9])[0-9]{7,8}$", message = "전화번호 형식이 올바르지 않습니다.")
+    @Pattern(regexp = "^(010\\d{8}|02\\d{7,8}|0[3-6]\\d{8,9}|1[5-8]\\d{6})$", 
+             message = "올바른 전화번호 형식이 아닙니다")
     String phone
 ) {
     /**

@@ -13,6 +13,8 @@ import com.sesac.solbid.domain.enums.UserType;
  * @param userId 사용자 고유 ID
  * @param email 사용자 이메일 주소
  * @param nickname 사용자 닉네임
+ * @param name 사용자 이름
+ * @param phone 사용자 전화번호
  * @param userType 사용자 타입 (USER, ADMIN 등)
  * @param accessToken JWT 액세스 토큰
  * @param refreshToken JWT 리프레시 토큰
@@ -21,6 +23,8 @@ public record LoginResponse(
     Long userId,
     String email,
     String nickname,
+    String name,
+    String phone,
     UserType userType,
     String accessToken,
     String refreshToken
@@ -38,6 +42,8 @@ public record LoginResponse(
                 user.getUserId(),
                 user.getEmail(),
                 user.getNickname(),
+                user.getName(),
+                user.getPhone(),
                 user.getUserType(),
                 accessToken,
                 refreshToken

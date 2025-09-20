@@ -11,6 +11,8 @@ export interface AuthUser {
   userId?: number;
   email?: string;
   nickname?: string;
+  name?: string;
+  phone?: string;
   userType?: string;
   provider?: string;
   requiresNickname?: boolean;

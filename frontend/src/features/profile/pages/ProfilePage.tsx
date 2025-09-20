@@ -1,24 +1,29 @@
-import { ProfileAccount, ProfileBid, ProfileMenu, ProfileStats, ProfileTransaction, ProfileUser } from "../components";
-import ProfilePoint from "../components/ProfilePoint";
+import { 
+    ProfileAccount, 
+    ProfileBid, 
+    ProfileMenu, 
+    ProfilePoint, 
+    ProfileStats, 
+    ProfileTransaction 
+} from "../components";
 
 const ProfilePage = () => {
     return (
         <div className="min-h-screen bg-gray-50">
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className="grid grid-cols-12 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
                     {/* Left Sidebar */}
-                    <aside className="col-span-3">
-                        <ProfileUser />
+                    <aside className="lg:col-span-3">
                         <ProfileMenu />
                     </aside>
                     {/* Main Content */}
-                    <section className="col-span-6">
+                    <section className="lg:col-span-6">
                         <ProfileStats />
                         <ProfileBid />
                         <ProfileTransaction />
                     </section>
                     {/* Right Sidebar */}
-                    <aside className="col-span-3">
+                    <aside className="lg:col-span-3">
                         <ProfilePoint />
                         <ProfileAccount />
                     </aside>

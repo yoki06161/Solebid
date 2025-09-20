@@ -136,6 +136,53 @@ public class User extends BaseEntity implements UserDetails {
     }
 
     /**
+     * 기본 프로필 정보를 업데이트합니다 (닉네임, 이름).
+     * 
+     * @param newNickname 새로운 닉네임 (null이 아닌 경우에만 업데이트)
+     * @param newName 새로운 이름 (null이 아닌 경우에만 업데이트)
+     */
+    public void updateBasicProfile(String newNickname, String newName) {
+        if (newNickname != null && !newNickname.isBlank() && !newNickname.equals(this.nickname)) {
+            this.nickname = newNickname;
+        }
+        if (newName != null && !newName.isBlank() && !newName.equals(this.name)) {
+            this.name = newName;
+        }
+    }
+
+    /**
+     * 민감한 프로필 정보를 업데이트합니다 (이메일, 전화번호).
+     * 
+     * @param newEmail 새로운 이메일 (null이 아닌 경우에만 업데이트)
+     * @param newPhone 새로운 전화번호 (null이 아닌 경우에만 업데이트)
+     */
+    public void updateSensitiveProfile(String newEmail, String newPhone) {
+        if (newEmail != null && !newEmail.isBlank() && !newEmail.equals(this.email)) {
+            this.email = newEmail;
+            // 이메일 변경 시 재인증 필요
+            this.emailVerified = false;
+            this.emailVerifiedAt = null;
+        }
+        if (newPhone != null && !newPhone.isBlank() && !newPhone.equals(this.phone)) {
+            this.phone = newPhone;
+        }
+    }
+
+    /**
+     * 사용자 프로필 정보를 업데이트합니다 (하위 호환성을 위해 유지).
+     * 
+     * @param newNickname 새로운 닉네임 (null이 아닌 경우에만 업데이트)
+     * @param newName 새로운 이름 (null이 아닌 경우에만 업데이트)
+     * @param newPhone 새로운 전화번호 (null이 아닌 경우에만 업데이트)
+     */
+    public void updateProfile(String newNickname, String newName, String newPhone) {
+        updateBasicProfile(newNickname, newName);
+        if (newPhone != null && !newPhone.isBlank() && !newPhone.equals(this.phone)) {
+            this.phone = newPhone;
+        }
+    }
+
+    /**
      * 사용자 비밀번호를 변경합니다.
      * 
      * @param encodedPassword 암호화된 새 비밀번호
@@ -173,6 +220,21 @@ public class User extends BaseEntity implements UserDetails {
     public void verifyEmail() {
         this.emailVerified = true;
         this.emailVerifiedAt = LocalDateTime.now();
+    }
+
+    /**
+     * 이메일 주소 변경
+     * 새로운 이메일 주소로 변경하고 인증 상태를 유지합니다.
+     * 
+     * @param newEmail 새로운 이메일 주소
+     */
+    public void updateEmail(String newEmail) {
+        if (newEmail != null && !newEmail.trim().isEmpty()) {
+            this.email = newEmail.trim();
+            // 이메일 변경 시에도 인증 상태는 유지 (이미 인증 과정을 거쳤으므로)
+            this.emailVerified = true;
+            this.emailVerifiedAt = LocalDateTime.now();
+        }
     }
 
     // UserDetails Impl

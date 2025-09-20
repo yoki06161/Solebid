@@ -168,12 +168,21 @@ const Signup: React.FC = () => {
                                     <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
                                         전화번호 <span className="text-red-500">*</span>
                                     </label>
-                                    <input
-                                        type="tel" id="phone" name="phone"
-                                        value={formData.phone} onChange={handleInputChange}
-                                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:border-blue-500 text-sm ${errors.phone ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'}`}
-                                        placeholder="'-' 없이 숫자만 입력"
-                                    />
+                                    <div className="relative">
+                                        <input
+                                            type="tel" id="phone" name="phone"
+                                            value={formData.phone} onChange={handleInputChange}
+                                            className={`w-full px-4 py-3 pr-12 border rounded-lg focus:ring-2 focus:border-blue-500 text-sm ${errors.phone ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'}`}
+                                            placeholder="전화번호를 입력하세요 (자동으로 하이픈 추가됩니다)"
+                                            maxLength={13}
+                                        />
+                                        {/* 전화번호 아이콘 */}
+                                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                            </svg>
+                                        </div>
+                                    </div>
                                     {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
                                 </div>
                             </>

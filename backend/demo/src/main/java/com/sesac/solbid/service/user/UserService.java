@@ -129,6 +129,83 @@ public class UserService {
         return user;
     }
 
+    // 이메일 기준으로 일반 프로필 업데이트 (닉네임, 이름만)
+    @Transactional
+    public User updateProfileForEmail(String email, String newNickname, String newName) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.LOGIN_FAILED));
+
+        // 닉네임이 변경되는 경우 중복 확인
+        if (newNickname != null && !newNickname.equals(user.getNickname())) {
+            if (!isNicknameAvailable(newNickname)) {
+                throw new CustomException(ErrorCode.DUPLICATE_NICKNAME);
+            }
+        }
+
+        user.updateBasicProfile(newNickname, newName);
+        return user;
+    }
+
+    // 이메일 기준으로 민감한 프로필 업데이트 (스텝업 인증 필요)
+    @Transactional
+    public User updateSensitiveProfileForEmail(String email, String currentPassword, String newEmail, String newPhone) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.LOGIN_FAILED));
+
+        // 현재 비밀번호 검증 (스텝업 인증)
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new CustomException(ErrorCode.LOGIN_FAILED);
+        }
+
+        // 이메일이 변경되는 경우 중복 확인
+        if (newEmail != null && !newEmail.equals(user.getEmail())) {
+            if (userRepository.findByEmail(newEmail).isPresent()) {
+                throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
+            }
+        }
+
+        // 전화번호가 변경되는 경우 중복 확인
+        if (newPhone != null && !newPhone.equals(user.getPhone())) {
+            if (userRepository.findByPhone(newPhone).isPresent()) {
+                throw new CustomException(ErrorCode.DUPLICATE_PHONE);
+            }
+        }
+
+        user.updateSensitiveProfile(newEmail, newPhone);
+        return user;
+    }
+
+    // 비밀번호 변경
+    @Transactional
+    public User changePasswordForEmail(String email, String currentPassword, String newPassword) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.LOGIN_FAILED));
+
+        // 현재 비밀번호 검증
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new CustomException(ErrorCode.LOGIN_FAILED);
+        }
+
+        // 새 비밀번호가 현재 비밀번호와 동일한지 확인
+        if (passwordEncoder.matches(newPassword, user.getPassword())) {
+            throw new CustomException(ErrorCode.PASSWORD_RESET_SAME_AS_OLD);
+        }
+
+        // 새 비밀번호 암호화 및 업데이트
+        String encodedNewPassword = passwordEncoder.encode(newPassword);
+        user.updatePassword(encodedNewPassword);
+
+        return user;
+    }
+
+    // 현재 비밀번호 검증 (스텝업 인증용)
+    public boolean validateCurrentPassword(String email, String currentPassword) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.LOGIN_FAILED));
+
+        return passwordEncoder.matches(currentPassword, user.getPassword());
+    }
+
     @Transactional
     public User saveOrUpdate(String providerName, Map<String, Object> userAttributes) {
         // Provider 이름을 적절한 형태로 변환 (첫 글자만 대문자)
@@ -403,5 +480,100 @@ public class UserService {
             f.setAccessible(true);
             f.set(user, UserStatus.ACTIVE);
         } catch (Exception ignored) { }
+    }
+
+    /**
+     * 이메일 변경 요청 (1단계: 인증 코드 발송)
+     * <p>
+     * 현재 비밀번호를 확인하고 새로운 이메일로 인증 코드를 발송합니다.
+     * </p>
+     * 
+     * @param currentEmail 현재 사용자 이메일
+     * @param currentPassword 현재 비밀번호
+     * @param newEmail 새로운 이메일 주소
+     */
+    @Transactional
+    public void requestEmailChange(String currentEmail, String currentPassword, String newEmail) {
+        // 현재 사용자 조회
+        User user = userRepository.findByEmail(currentEmail)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        
+        // 현재 비밀번호 확인
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new CustomException(ErrorCode.PASSWORD_MISMATCH);
+        }
+        
+        // 새 이메일이 현재 이메일과 동일한지 확인
+        if (newEmail.equals(currentEmail)) {
+            throw new CustomException(ErrorCode.EMAIL_SAME_AS_CURRENT);
+        }
+        
+        // 새 이메일이 이미 사용 중인지 확인
+        if (userRepository.findByEmail(newEmail).isPresent()) {
+            throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
+        }
+        
+        // 새 이메일로 인증 코드 발송 (회원가입 전 인증과 동일한 방식 사용)
+        emailVerificationService.sendVerificationForSignup(newEmail);
+        
+        log.info("이메일 변경 요청 처리 완료: {} -> {}", maskEmail(currentEmail), maskEmail(newEmail));
+    }
+
+    /**
+     * 이메일 변경 완료 (2단계: 인증 코드 검증 및 이메일 업데이트)
+     * <p>
+     * 인증 코드를 검증하고 사용자의 이메일을 변경합니다.
+     * </p>
+     * 
+     * @param currentEmail 현재 사용자 이메일
+     * @param newEmail 새로운 이메일 주소
+     * @param verificationCode 인증 코드
+     * @return 업데이트된 사용자 정보
+     */
+    @Transactional
+    public User confirmEmailChange(String currentEmail, String newEmail, String verificationCode) {
+        // 현재 사용자 조회
+        User user = userRepository.findByEmail(currentEmail)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        
+        // 새 이메일이 이미 사용 중인지 다시 확인 (동시성 문제 방지)
+        if (userRepository.findByEmail(newEmail).isPresent()) {
+            throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
+        }
+        
+        // 인증 코드 검증 (회원가입 전 인증과 동일한 방식 사용)
+        try {
+            String verifiedEmail = emailVerificationService.verifyEmailForSignup(newEmail, verificationCode);
+            if (!verifiedEmail.equals(newEmail)) {
+                throw new CustomException(ErrorCode.EMAIL_VERIFICATION_TOKEN_INVALID);
+            }
+        } catch (Exception e) {
+            if (e instanceof CustomException) {
+                throw e;
+            }
+            throw new CustomException(ErrorCode.EMAIL_VERIFICATION_TOKEN_INVALID);
+        }
+        
+        // 이메일 변경
+        user.updateEmail(newEmail);
+        
+        log.info("이메일 변경 완료: {} -> {}", maskEmail(currentEmail), maskEmail(newEmail));
+        return user;
+    }
+
+    /**
+     * 이메일 주소를 마스킹합니다.
+     * @param email 마스킹할 이메일 주소
+     * @return 마스킹된 이메일 주소
+     */
+    private String maskEmail(String email) {
+        if (email == null || !email.contains("@")) {
+            return "****";
+        }
+        String[] parts = email.split("@");
+        if (parts[0].length() <= 2) {
+            return "**@" + parts[1];
+        }
+        return parts[0].substring(0, 2) + "****@" + parts[1];
     }
 }

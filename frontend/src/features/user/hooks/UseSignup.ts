@@ -4,6 +4,7 @@ import type { Agreements, SignupErrors, SignupFormData } from '../types/SignupTy
 import { signupUser } from '../services/UserService';
 import { getOAuth2AuthUrl } from '../services/AuthService';
 import { sendVerificationEmail, verifySignupEmailCode } from '../services/EmailVerificationService';
+import { formatPhoneNumber } from '../../profile/services/ProfileUpdateService';
 
 export function useSignup() {
   const navigate = useNavigate();
@@ -42,27 +43,75 @@ export function useSignup() {
     return '';
   };
   const validatePhone = (phone: string) => {
-    const regex = /^01(?:0|1|[6-9])[0-9]{7,8}$/;
-    if (!phone) return '휴대폰 번호를 입력해주세요.';
-    if (!regex.test(phone)) return '올바른 휴대폰 번호 형식이 아닙니다.';
-    return '';
+    if (!phone) return '전화번호를 입력해주세요.';
+    
+    // 숫자만 추출
+    const numbers = phone.replace(/[^\d]/g, '');
+    
+    // 최소 길이 확인
+    if (numbers.length < 8) {
+      return '전화번호가 너무 짧습니다.';
+    }
+    
+    // 최대 길이 확인
+    if (numbers.length > 11) {
+      return '전화번호가 너무 깁니다.';
+    }
+    
+    // 휴대폰 번호 (010-xxxx-xxxx)
+    if (numbers.startsWith('010')) {
+      if (numbers.length !== 11) {
+        return '휴대폰 번호는 11자리여야 합니다. (예: 010-1234-5678)';
+      }
+      return '';
+    }
+    
+    // 서울 지역번호 (02-xxx-xxxx 또는 02-xxxx-xxxx)
+    if (numbers.startsWith('02')) {
+      if (numbers.length < 9 || numbers.length > 10) {
+        return '서울 지역번호는 9-10자리여야 합니다. (예: 02-1234-5678)';
+      }
+      return '';
+    }
+    
+    // 기타 지역번호 (031, 032, 033, 041, 042, 043, 051, 052, 053, 054, 055, 061, 062, 063, 064)
+    if (numbers.match(/^(0[3-6]\d)/)) {
+      if (numbers.length < 9 || numbers.length > 11) {
+        return '지역번호는 9-11자리여야 합니다. (예: 031-123-4567)';
+      }
+      return '';
+    }
+    
+    // 특수번호 (1588, 1577, 1544 등)
+    if (numbers.match(/^(15\d\d|16\d\d|18\d\d)/)) {
+      if (numbers.length < 8 || numbers.length > 9) {
+        return '특수번호는 8-9자리여야 합니다. (예: 1588-1234)';
+      }
+      return '';
+    }
+    
+    return '올바른 전화번호 형식이 아닙니다.';
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target as HTMLInputElement & { name: keyof SignupFormData };
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    
+    // 전화번호 자동 포맷팅 적용
+    const processedValue = name === 'phone' ? formatPhoneNumber(value) : value;
+    
+    setFormData((prev) => ({ ...prev, [name]: processedValue }));
 
     let error = '';
-    if (name === 'email') error = validateEmail(value);
-    if (name === 'password') error = validatePassword(value);
-    if (name === 'confirmPassword') error = prevPasswordMatch(value) ? '' : '비밀번호가 일치하지 않습니다.';
-    if (name === 'nickname') error = validateNickname(value);
-    if (name === 'phone') error = validatePhone(value);
-    if (name === 'name' && !value) error = '이름을 입력해주세요.';
+    if (name === 'email') error = validateEmail(processedValue);
+    if (name === 'password') error = validatePassword(processedValue);
+    if (name === 'confirmPassword') error = prevPasswordMatch(processedValue) ? '' : '비밀번호가 일치하지 않습니다.';
+    if (name === 'nickname') error = validateNickname(processedValue);
+    if (name === 'phone') error = validatePhone(processedValue);
+    if (name === 'name' && !processedValue) error = '이름을 입력해주세요.';
     if (name === 'verificationCode') {
       // 인증번호가 6자리 완성되면 자동 검증
-      if (value.length === 6) {
-        handleVerifyCode(value);
+      if (processedValue.length === 6) {
+        handleVerifyCode(processedValue);
       }
     }
 
@@ -173,7 +222,7 @@ export function useSignup() {
         password: formData.password,
         nickname: formData.nickname,
         name: formData.name,
-        phone: formData.phone,
+        phone: formData.phone.replace(/[^\d]/g, ''), // 하이픈 제거하고 숫자만 전송
         marketing: agreements.marketing,
       });
       if (res.success) {

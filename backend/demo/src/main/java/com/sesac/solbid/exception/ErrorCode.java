@@ -16,6 +16,7 @@ public enum ErrorCode {
     // 회원 가입 에러
     DUPLICATE_EMAIL(HttpStatus.BAD_REQUEST, "이미 사용 중인 이메일 주소입니다."),
     DUPLICATE_NICKNAME(HttpStatus.BAD_REQUEST, "이미 사용 중인 닉네임입니다."),
+    DUPLICATE_PHONE(HttpStatus.BAD_REQUEST, "이미 사용 중인 전화번호입니다."),
 
     // 로그인 에러
     LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "이메일 또는 비밀번호가 올바르지 않습니다."),
@@ -49,6 +50,10 @@ public enum ErrorCode {
     EMAIL_ALREADY_VERIFIED(HttpStatus.BAD_REQUEST, "이미 인증된 이메일입니다."),
     EMAIL_VERIFICATION_RESEND_LIMIT_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "인증 이메일 재전송 횟수를 초과했습니다."),
     EMAIL_VERIFICATION_RESEND_TOO_FREQUENT(HttpStatus.TOO_MANY_REQUESTS, "인증번호 재전송은 1분 후에 가능합니다."),
+
+    // 이메일 변경 관련
+    EMAIL_SAME_AS_CURRENT(HttpStatus.BAD_REQUEST, "새로운 이메일이 현재 이메일과 동일합니다."),
+    PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "현재 비밀번호가 일치하지 않습니다."),
 
     // 포인트 관련 에러
     POINT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 사용자의 포인트 정보가 존재하지 않습니다."),
