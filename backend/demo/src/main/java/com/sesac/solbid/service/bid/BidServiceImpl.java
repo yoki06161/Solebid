@@ -73,21 +73,9 @@ public class BidServiceImpl implements BidService {
                     .map(product -> {
                         log.info("처리 중인 상품: productId={}, name={}", product.getProductId(), product.getName());
                         
-                        // 해당 상품의 최고 입찰가 조회
-                        List<Bid> topBids = bidRepository.findTopBidsByProductId(product.getProductId());
-                        log.info("상품 {}의 입찰 조회 결과: {} 건", product.getProductId(), topBids.size());
-                        
-                        if (!topBids.isEmpty()) {
-                            // 실제 입찰 데이터 사용
-                            Bid topBid = topBids.get(0);
-                            log.info("최고 입찰: bidId={}, amount={}, bidder={}", 
-                                    topBid.getBidId(), topBid.getBidAmount(), topBid.getBidder().getName());
-                            return bidConverter.convertToBidSellingResponseFromBid(topBid);
-                        } else {
-                            // 입찰 데이터가 없으면 기본 변환 사용
-                            log.warn("상품 {}에 입찰 데이터 없음 - 기본 변환 사용", product.getProductId());
-                            return bidConverter.convertToBidSellingResponse(product);
-                        }
+                        // BidConverter의 convertToBidSellingResponse 메서드를 사용
+                        // 이 메서드는 내부적으로 최고 입찰가를 조회하여 처리함
+                        return bidConverter.convertToBidSellingResponse(product);
                     })
                     .collect(Collectors.toList());
         } catch (Exception e) {
