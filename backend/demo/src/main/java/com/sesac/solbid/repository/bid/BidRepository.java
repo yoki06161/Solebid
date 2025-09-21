@@ -39,4 +39,26 @@ public interface BidRepository extends JpaRepository<Bid, Long> {
             "AND b.isWinning = true " +
             "ORDER BY b.bidTime DESC")
     Page<Bid> findWinningBidsByUserId(@Param("userId") Long userId, Pageable pageable);
+
+    /**
+     * 특정 상품의 낙찰 정보 조회
+     */
+    @Query("SELECT b FROM Bid b " +
+            "JOIN FETCH b.bidder " +
+            "JOIN FETCH b.auctionEvent ae " +
+            "WHERE ae.product.productId = :productId " +
+            "AND b.isWinning = true")
+    List<Bid> findWinningBidsByProductId(@Param("productId") Long productId);
+
+    /**
+     * 특정 상품의 최고 입찰가 조회 (낙찰 정보가 없을 때 대안)
+     */
+    @Query("SELECT b FROM Bid b " +
+            "JOIN FETCH b.bidder " +
+            "JOIN FETCH b.auctionEvent ae " +
+            "WHERE ae.product.productId = :productId " +
+            "ORDER BY b.bidAmount DESC")
+    List<Bid> findTopBidsByProductId(@Param("productId") Long productId);
+
+
 }

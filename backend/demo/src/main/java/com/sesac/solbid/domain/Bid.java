@@ -44,4 +44,18 @@ public class Bid {
         if (bidTime == null) bidTime = LocalDateTime.now();
         if (isWinning == null) isWinning = false;
     }
+
+    /**
+     * 낙찰 처리
+     */
+    public void markAsWinning() {
+        this.isWinning = true;
+    }
+
+    /**
+     * 낙찰 취소
+     */
+    public void unmarkAsWinning() {
+        this.isWinning = false;
+    }
 }
