@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { fetchProfileBidWinning } from "../services/ProfileBidService";
-import type { ProfileBidProps } from "../types/ProfileBidProps";
+import type { ProfileBidWinningProps } from "../types/ProfileBidWinningProps";
 
-export const useBidWinning = () => {
-    const [winningBids, setWinningBids] = useState<ProfileBidProps[]>([]);
+export const useProfileBidWinning = () => {
+    const [winningBids, setWinningBids] = useState<ProfileBidWinningProps[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -12,7 +12,7 @@ export const useBidWinning = () => {
             try {
                 setLoading(true);
                 const data = await fetchProfileBidWinning();
-                
+
                 if (Array.isArray(data)) {
                     setWinningBids(data);
                 } else {

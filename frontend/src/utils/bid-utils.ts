@@ -1,7 +1,7 @@
 import type { ProfileBidItemProps } from "../features/profile/types/ProfileBidItemProps";
-import type { ProfileBidProps } from "../features/profile/types/ProfileBidProps";
+import type { ProfileBidWinningProps } from "../features/profile/types/ProfileBidWinningProps";
 
-export const formatBidDate = (bidTime: string): string => {
+export const formatDate = (bidTime: string): string => {
     return new Date(bidTime).toLocaleDateString('ko-KR', {
         year: 'numeric',
         month: '2-digit',
@@ -13,10 +13,10 @@ export const formatPrice = (amount: number): string => {
     return `${amount.toLocaleString()}원`;
 };
 
-export const convertToBidItemProps = (bid: ProfileBidProps & { imageUrl?: string }): ProfileBidItemProps => {
+export const convertToBidItemProps = (bid: ProfileBidWinningProps & { imageUrl?: string }): ProfileBidItemProps => {
     return {
         name: bid.productName,
-        date: formatBidDate(bid.bidTime),
+        date: formatDate(bid.bidTime),
         price: formatPrice(bid.winningAmount),
         imageUrl: bid.imageUrl || '/placeholder-image.jpg'
     };

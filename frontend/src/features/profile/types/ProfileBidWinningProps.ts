@@ -1,4 +1,4 @@
-export interface ProfileBidProps {
+export interface ProfileBidWinningProps {
     bidId: number;
     productId: number;
     productName: string;
