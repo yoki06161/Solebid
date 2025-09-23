@@ -108,8 +108,8 @@ public class WithdrawnUserPurgeScheduler {
         em.createQuery("delete from SocialLogin s where s.user = :u")
                 .setParameter("u", user)
                 .executeUpdate();
-        // WishList 제거
-        em.createQuery("delete from WishList w where w.user = :u")
+        // Wish 제거
+        em.createQuery("delete from Wish w where w.user = :u")
                 .setParameter("u", user)
                 .executeUpdate();
         // Carts 제거
