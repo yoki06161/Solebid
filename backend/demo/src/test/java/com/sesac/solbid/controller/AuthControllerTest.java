@@ -143,6 +143,8 @@ class AuthControllerTest {
                 1L,
                 "test@gmail.com",
                 "테스트사용자",
+                "테스트이름",
+                "010-1234-5678",
                 UserType.USER,
                 "jwt-access-token",
                 "jwt-refresh-token"
@@ -203,6 +205,8 @@ class AuthControllerTest {
                 2L,
                 "user@kakao.com",
                 "카카오사용자",
+                "카카오이름",
+                "010-9876-5432",
                 UserType.USER,
                 "kakao-jwt-access",
                 "kakao-jwt-refresh"
@@ -588,6 +592,8 @@ class AuthControllerTest {
                 1L,
                 "test@example.com",
                 "테스트",
+                "테스트이름",
+                "010-1111-2222",
                 UserType.USER,
                 "token",
                 "refresh"
@@ -625,6 +631,8 @@ class AuthControllerTest {
                 2L,
                 "kakao@example.com",
                 "카카오",
+                "카카오이름",
+                "010-3333-4444",
                 UserType.USER,
                 "token",
                 "refresh"

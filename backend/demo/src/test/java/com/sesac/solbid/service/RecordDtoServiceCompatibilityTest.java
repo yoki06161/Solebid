@@ -286,6 +286,8 @@ class RecordDtoServiceCompatibilityTest {
                 1L,
                 "test@example.com",
                 "testuser",
+                "테스트이름",
+                "010-7777-8888",
                 UserType.USER,
                 "access-token",
                 "refresh-token"

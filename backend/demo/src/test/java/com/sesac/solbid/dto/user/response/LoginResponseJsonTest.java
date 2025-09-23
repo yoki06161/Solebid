@@ -20,6 +20,8 @@ class LoginResponseJsonTest {
                 1L, 
                 "test@example.com", 
                 "testuser", 
+                "테스트이름",
+                "010-1234-5678",
                 UserType.USER, 
                 "access-token-123", 
                 "refresh-token-456"
@@ -63,6 +65,8 @@ class LoginResponseJsonTest {
                 2L, 
                 "admin@example.com", 
                 "admin", 
+                "관리자이름",
+                "010-9999-8888",
                 UserType.ADMIN, 
                 "admin-access-token", 
                 "admin-refresh-token"
@@ -85,6 +89,8 @@ class LoginResponseJsonTest {
                 null, 
                 null, 
                 null, 
+                null,
+                null,
                 null
         );
 
@@ -104,6 +110,8 @@ class LoginResponseJsonTest {
                 1L, 
                 "test@example.com", 
                 "testuser", 
+                "테스트이름",
+                "010-5555-6666",
                 UserType.USER, 
                 "access-token-123", 
                 "refresh-token-456"
