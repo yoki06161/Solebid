@@ -20,7 +20,7 @@ import java.util.List;
 public class OrderController {
 
     private final OrderService orderService;
-
+    /**
     @PostMapping
     public ResponseEntity<OrderResponse> createOrder(
             @RequestBody OrderRequest request,
@@ -31,7 +31,7 @@ public class OrderController {
         }
         OrderResponse createdOrder = orderService.createOrder(request, user.getUserId());
         return new ResponseEntity<>(createdOrder, HttpStatus.CREATED);
-    }
+    }*/
 
     @GetMapping("/winnings")
     public ResponseEntity<List<OrderResponse>> getWinningOrders(@AuthenticationPrincipal User user) {

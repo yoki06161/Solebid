@@ -111,7 +111,6 @@ public class AuctionEvent  extends BaseEntity {
         this.status = AuctionStatus.CANCELED;
     }
 
-    // AuctionEvent.java
     public void setProduct(Product product) {
         this.product = product;
         if (product != null) {
@@ -124,6 +123,30 @@ public class AuctionEvent  extends BaseEntity {
         if (this.product != null) {
             this.seller = this.product.getSeller();
         }
+    }
+
+    /** 최고 입찰 갱신 (정규화 포함) */
+    public void applyHighestBid(User bidder, BigDecimal amount) {
+        if (bidder == null) throw new IllegalArgumentException("bidder is null");
+        if (amount == null) throw new IllegalArgumentException("amount is null");
+        this.highestBidder = bidder;
+        this.highestBidAmount = normalize(amount);
+    }
+
+    /** 스나이핑 연장: 남은 시간이 extendSeconds 이하이면 endAt += extendSeconds */
+    public boolean extendIfSniping(LocalDateTime now) {
+        if (this.extendSeconds == null || this.endAt == null) return false;
+        long remain = java.time.Duration.between(now, this.endAt).getSeconds();
+        if (remain <= this.extendSeconds) {
+            this.endAt = this.endAt.plusSeconds(this.extendSeconds);
+            return true;
+        }
+        return false;
+    }
+
+    /** 경매 종료(도메인 규칙에 맞는 진입점) */
+    public void markEnded() {
+        this.status = AuctionStatus.ENDED;
     }
 
 }

@@ -9,6 +9,7 @@ import com.sesac.solbid.repository.AuctionEventRepository;
 import com.sesac.solbid.repository.UserRepository;
 import com.sesac.solbid.repository.order.OrderRepository;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.query.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,7 @@ public class OrderServiceImpl implements OrderService {
     private final AuctionEventRepository auctionEventRepository;
     private final UserRepository userRepository;
 
+    /**
     @Override
     @Transactional
     public OrderResponse createOrder(OrderRequest request, Long winnerId) {
@@ -43,7 +45,7 @@ public class OrderServiceImpl implements OrderService {
 
         OrderInfo savedOrder = orderRepository.save(newOrder);
         return OrderResponse.from(savedOrder);
-    }
+    }*/
 
     @Override
     public OrderResponse findOrder(Long orderId) {

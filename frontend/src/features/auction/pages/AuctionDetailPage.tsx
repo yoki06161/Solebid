@@ -1,7 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useAuctionDetail } from "../hooks/useAuctionDetail";
+import { useAuctionStream } from "../hooks/useAuctionStream";
+import { AuctionsApi } from "../services/auctions";
+import { idemKey } from "../../../utils/idempotency";
 import { toImageUrl } from "../../../utils/toImageUrl";
+import type { AuctionStatus } from "../types/auctionDetail";
 
 const krw = (v: number | null | undefined) =>
     v == null
@@ -31,15 +35,13 @@ const AuctionDetailPage: React.FC = () => {
     const { auctionId: idStr } = useParams<{ auctionId: string }>();
     const auctionId = useMemo(() => (idStr ? Number(idStr) : undefined), [idStr]);
 
-    const { data, loading, err } = useAuctionDetail(auctionId);
+    const { data, setData, loading, err } = useAuctionDetail(auctionId);
 
-    const [activeTab, setActiveTab] = useState<"info" | "bids" | "shipping">(
-        "info"
-    );
+    const [activeTab, setActiveTab] = useState<"info" | "bids" | "shipping">("info");
     const [showBidModal, setShowBidModal] = useState(false);
-    const [bidAmount, setBidAmount] = useState<string>("");
+    const [bidAmount, setBidAmount] = useState("");
+    const [bidding, setBidding] = useState(false); // 이중 전송 방지
 
-    // 여러 이미지 배열 지원
     const images = useMemo(() => data?.product.images ?? [], [data?.product.images]);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -49,12 +51,7 @@ const AuctionDetailPage: React.FC = () => {
         setCurrentImageIndex(thumbIdx >= 0 ? thumbIdx : 0);
     }, [images]);
 
-    const [clock, setClock] = useState({
-        hh: 0,
-        mm: 0,
-        ss: 0,
-        finished: false,
-    });
+    const [clock, setClock] = useState({ hh: 0, mm: 0, ss: 0, finished: false });
 
     useEffect(() => {
         if (!data?.endAt) return;
@@ -64,40 +61,77 @@ const AuctionDetailPage: React.FC = () => {
         return () => window.clearInterval(id);
     }, [data?.endAt]);
 
-    const currentImageSrc = toImageUrl(images[currentImageIndex]?.filePath);
+    const currentImageSrc = toImageUrl(images[currentImageIndex]?.filePath || undefined);
 
-    const handleBidSubmit: React.FormEventHandler = (e) => {
+    // ----- SSE -----
+    useAuctionStream(auctionId, {
+        onBid: ({ currentPrice, version }) => {
+            setData((prev) => (prev ? { ...prev, currentPrice, version } : prev));
+        },
+        onExtended: ({ endAt }) => {
+            setData((prev) => (prev ? { ...prev, endAt } : prev));
+        },
+        onStatus: ({ status }) => {
+            setData((prev) => (prev ? { ...prev, status: status as AuctionStatus } : prev));
+        },
+    });
+
+    // ----- 입찰 -----
+    const handleBidSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
         e.preventDefault();
-        // TODO: POST /api/auctions/{id}/bids
-        setShowBidModal(false);
-        setBidAmount("");
+        if (!auctionId || !data || bidding) return;
+
+        const amount = Number(bidAmount);
+        if (!Number.isFinite(amount)) return;
+
+        const base = data.currentPrice ?? data.startPrice;
+        const minNext = base + data.tickSize;
+        if (amount < minNext) {
+            alert(`최소 입찰가는 ${krw(minNext)} 입니다.`);
+            return;
+        }
+
+        try {
+            setBidding(true);
+            await AuctionsApi.placeBid(auctionId, amount, idemKey(`bid:${auctionId}`));
+
+            // 낙관적 갱신 (SSE 오기 전 UI 반응)
+            setData((prev) => (prev ? { ...prev, currentPrice: amount, version: (prev.version ?? 0) + 1 } : prev));
+
+            alert("입찰이 완료되었습니다!");
+
+            setShowBidModal(false);
+            setBidAmount("");
+
+            // 폴백: SSE 누락 대비 강제 동기화
+            setTimeout(async () => {
+                try {
+                    const fresh = await AuctionsApi.getDetail(auctionId);
+                    setData(fresh);
+                } catch {}
+            }, 300);
+        } catch (e) {
+            console.error(e);
+            alert(e instanceof Error ? e.message : "입찰에 실패했습니다.");
+        } finally {
+            setBidding(false);
+        }
     };
 
-    if (loading)
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                불러오는 중…
-            </div>
-        );
+    // ----- 로딩/에러 -----
+    if (loading) return <div className="min-h-screen flex items-center justify-center">불러오는 중…</div>;
     if (err || !data)
-        return (
-            <div className="min-h-screen flex items-center justify-center text-red-600">
-                {err ?? "데이터가 없습니다."}
-            </div>
-        );
+        return <div className="min-h-screen flex items-center justify-center text-red-600">{err ?? "데이터가 없습니다."}</div>;
 
+    // ----- UI -----
     return (
         <div className="min-h-screen bg-gray-50">
             {/* Breadcrumb */}
             <div className="max-w-[1440px] mx-auto px-6 py-4">
                 <div className="flex items-center space-x-2 text-sm text-gray-500">
-                    <a href="/" className="hover:text-gray-700 cursor-pointer">
-                        홈
-                    </a>
+                    <a href="/" className="hover:text-gray-700 cursor-pointer">홈</a>
                     <i className="fas fa-chevron-right text-xs" />
-                    <a href="#" className="hover:text-gray-700 cursor-pointer">
-                        {data.product.category}
-                    </a>
+                    <a href="#" className="hover:text-gray-700 cursor-pointer">{data.product.category}</a>
                     <i className="fas fa-chevron-right text-xs" />
                     <span className="text-gray-900">{data.product.name}</span>
                 </div>
@@ -110,11 +144,7 @@ const AuctionDetailPage: React.FC = () => {
                     <div className="space-y-4">
                         <div className="aspect-square bg-white rounded-lg overflow-hidden flex items-center justify-center">
                             {currentImageSrc ? (
-                                <img
-                                    src={currentImageSrc}
-                                    alt={data.product.name}
-                                    className="w-full h-full object-cover object-top"
-                                />
+                                <img src={currentImageSrc} alt={data.product.name} className="w-full h-full object-cover object-top" />
                             ) : (
                                 <div className="text-gray-400">이미지가 없습니다</div>
                             )}
@@ -122,22 +152,16 @@ const AuctionDetailPage: React.FC = () => {
                         {images.length > 1 && (
                             <div className="grid grid-cols-4 gap-2">
                                 {images.map((img, idx) => {
-                                    const thumb = toImageUrl(img.filePath)!;
+                                    const thumb = toImageUrl(img.filePath) || "";
                                     return (
                                         <button
                                             key={`${img.filePath}-${idx}`}
                                             onClick={() => setCurrentImageIndex(idx)}
                                             className={`aspect-square bg-white rounded-lg overflow-hidden border-2 cursor-pointer ${
-                                                currentImageIndex === idx
-                                                    ? "border-blue-500"
-                                                    : "border-gray-200"
+                                                currentImageIndex === idx ? "border-blue-500" : "border-gray-200"
                                             }`}
                                         >
-                                            <img
-                                                src={thumb}
-                                                alt={`Product ${idx + 1}`}
-                                                className="w-full h-full object-cover object-top"
-                                            />
+                                            <img src={thumb} alt={`Product ${idx + 1}`} className="w-full h-full object-cover object-top" />
                                         </button>
                                     );
                                 })}
@@ -148,12 +172,9 @@ const AuctionDetailPage: React.FC = () => {
                     {/* Product Info */}
                     <div className="space-y-6">
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-900">
-                                {data.product.name}
-                            </h1>
+                            <h1 className="text-3xl font-bold text-gray-900">{data.product.name}</h1>
                             <p className="text-lg text-gray-600 mt-2">
-                                {data.product.brand} · {data.product.colorway ?? "-"} ·{" "}
-                                {data.product.size}mm
+                                {data.product.brand} · {data.product.colorway ?? "-"} · {data.product.size}mm
                             </p>
                         </div>
 
@@ -163,22 +184,12 @@ const AuctionDetailPage: React.FC = () => {
                                 <div>
                                     <div className="mb-3">
                                         <p className="text-sm text-gray-500">시작가</p>
-                                        <p className="text-xl font-semibold text-gray-600">
-                                            {krw(data.startPrice)}
-                                        </p>
+                                        <p className="text-xl font-semibold text-gray-600">{krw(data.startPrice)}</p>
                                     </div>
                                     <div>
                                         <p className="text-sm text-gray-500">현재 입찰가</p>
-                                        <p className="text-3xl font-bold text-blue-600">
-                                            {krw(data.currentPrice)}
-                                        </p>
+                                        <p className="text-3xl font-bold text-blue-600">{krw(data.currentPrice)}</p>
                                     </div>
-                                </div>
-                                <div className="text-right">
-                                    <p className="text-sm text-gray-500">상태</p>
-                                    <p className="text-xl font-semibold text-gray-900">
-                                        {data.status}
-                                    </p>
                                 </div>
                             </div>
 
@@ -203,15 +214,24 @@ const AuctionDetailPage: React.FC = () => {
                                 disabled={data.status !== "LIVE" || clock.finished}
                                 onClick={() => setShowBidModal(true)}
                                 className={`w-full py-4 text-white text-lg font-semibold !rounded-button cursor-pointer whitespace-nowrap ${
-                                    data.status !== "LIVE" || clock.finished
-                                        ? "bg-gray-300"
-                                        : "bg-blue-500 hover:bg-blue-600"
+                                    data.status !== "LIVE" || clock.finished ? "bg-gray-300" : "bg-blue-500 hover:bg-blue-600"
                                 }`}
                             >
-                                {data.status === "LIVE" && !clock.finished
-                                    ? "입찰하기"
-                                    : "입찰 불가"}
+                                {data.status === "LIVE" && !clock.finished ? "입찰하기" : "입찰 불가"}
                             </button>
+
+                            {/* 종료 배너 */}
+                            {data.status === "ENDED" && (
+                                <div className="mt-4 p-4 rounded bg-amber-50 text-amber-800">
+                                    경매가 종료되었습니다. 낙찰 결과를 확인해 주세요.
+                                    <button
+                                        onClick={() => window.location.assign(`/order`)} // TODO: /order/:id 확정시 수정
+                                        className="ml-3 px-3 py-1 rounded bg-amber-600 text-white"
+                                    >
+                                        주문 확인
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -220,30 +240,9 @@ const AuctionDetailPage: React.FC = () => {
                 <div className="mt-12">
                     <div className="border-b border-gray-200">
                         <nav className="flex space-x-8">
-                            <button
-                                onClick={() => setActiveTab("info")}
-                                className={`py-4 px-1 border-b-2 font-medium text-sm cursor-pointer ${
-                                    activeTab === "info" ? "border-blue-500 text-blue-600" : "border-transparent text-gray-500 hover:text-gray-700"
-                                }`}
-                            >
-                                상품정보
-                            </button>
-                            <button
-                                onClick={() => setActiveTab("bids")}
-                                className={`py-4 px-1 border-b-2 font-medium text-sm cursor-pointer ${
-                                    activeTab === "bids" ? "border-blue-500 text-blue-600" : "border-transparent text-gray-500 hover:text-gray-700"
-                                }`}
-                            >
-                                입찰내역
-                            </button>
-                            <button
-                                onClick={() => setActiveTab("shipping")}
-                                className={`py-4 px-1 border-b-2 font-medium text-sm cursor-pointer ${
-                                    activeTab === "shipping" ? "border-blue-500 text-blue-600" : "border-transparent text-gray-500 hover:text-gray-700"
-                                }`}
-                            >
-                                배송/반품 안내
-                            </button>
+                            <TabButton active={activeTab === "info"} onClick={() => setActiveTab("info")}>상품정보</TabButton>
+                            <TabButton active={activeTab === "bids"} onClick={() => setActiveTab("bids")}>입찰내역</TabButton>
+                            <TabButton active={activeTab === "shipping"} onClick={() => setActiveTab("shipping")}>배송/반품 안내</TabButton>
                         </nav>
                     </div>
 
@@ -269,9 +268,7 @@ const AuctionDetailPage: React.FC = () => {
                                 <div className="px-6 py-4 border-b border-gray-200">
                                     <h4 className="text-lg font-semibold text-gray-900">입찰 내역</h4>
                                 </div>
-                                <div className="px-6 py-10 text-center text-gray-500">
-                                    SSE 연동 후 표시됩니다.
-                                </div>
+                                <div className="px-6 py-10 text-center text-gray-500">SSE 연동 후 표시됩니다.</div>
                             </div>
                         )}
 
@@ -297,7 +294,7 @@ const AuctionDetailPage: React.FC = () => {
                 </div>
             </div>
 
-            {/* Bid Modal (POST는 다음 스텝에서 붙임) */}
+            {/* Bid Modal */}
             {showBidModal && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
                     <div className="bg-white rounded-lg p-8 w-full max-w-md relative">
@@ -322,17 +319,23 @@ const AuctionDetailPage: React.FC = () => {
                                     id="bidAmount"
                                     value={bidAmount}
                                     onChange={(e) => setBidAmount(e.target.value)}
-                                    min={data.currentPrice + data.tickSize}
+                                    min={(data.currentPrice ?? data.startPrice) + data.tickSize}
                                     step={data.tickSize}
-                                    placeholder={String(Math.ceil((data.currentPrice + data.tickSize) / 10) * 10)}
+                                    placeholder={String(Math.ceil(((data.currentPrice ?? data.startPrice) + data.tickSize) / 10) * 10)}
                                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg
-                            [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                     required
                                 />
-                                <p className="text-xs text-gray-500 mt-1">최소 입찰가: {krw(data.currentPrice + data.tickSize)}</p>
+                                <p className="text-xs text-gray-500 mt-1">
+                                    최소 입찰가: {krw((data.currentPrice ?? data.startPrice) + data.tickSize)}
+                                </p>
                             </div>
-                            <button type="submit" className="w-full py-3 bg-blue-500 text-white text-lg font-semibold !rounded-button hover:bg-blue-600">
-                                입찰하기
+                            <button
+                                type="submit"
+                                disabled={bidding}
+                                className="w-full py-3 bg-blue-500 text-white text-lg font-semibold !rounded-button hover:bg-blue-600 disabled:opacity-50"
+                            >
+                                {bidding ? "입찰 중..." : "입찰하기"}
                             </button>
                         </form>
                     </div>
@@ -342,30 +345,38 @@ const AuctionDetailPage: React.FC = () => {
     );
 };
 
+// ----- 서브 컴포넌트 -----
 const TimerBox: React.FC<{ value: number }> = ({ value }) => (
-    <div className="bg-red-500 text-white px-3 py-1 rounded text-lg font-mono">
-        {pad2(value)}
-    </div>
+    <div className="bg-red-500 text-white px-3 py-1 rounded text-lg font-mono">{pad2(value)}</div>
 );
 
-const InfoRow: React.FC<{ title: string; value: string }> = ({
-                                                                 title,
-                                                                 value,
-                                                             }) => (
+const InfoRow: React.FC<{ title: string; value: string }> = ({ title, value }) => (
     <div className="flex justify-between">
         <span className="text-gray-600">{title}</span>
         <span className="text-gray-900">{value}</span>
     </div>
 );
 
-const Section: React.FC<{ title: string; children: React.ReactNode }> = ({
-                                                                             title,
-                                                                             children,
-                                                                         }) => (
+const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
     <div>
         <h4 className="text-lg font-semibold text-gray-900 mb-4">{title}</h4>
         {children}
     </div>
+);
+
+const TabButton: React.FC<{ active: boolean; onClick: () => void; children: React.ReactNode }> = ({
+                                                                                                      active,
+                                                                                                      onClick,
+                                                                                                      children,
+                                                                                                  }) => (
+    <button
+        onClick={onClick}
+        className={`py-4 px-1 border-b-2 font-medium text-sm cursor-pointer ${
+            active ? "border-blue-500 text-blue-600" : "border-transparent text-gray-500 hover:text-gray-700"
+        }`}
+    >
+        {children}
+    </button>
 );
 
 export default AuctionDetailPage;

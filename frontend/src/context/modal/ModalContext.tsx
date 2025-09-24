@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react";
-import Modal from "../../components/Modal";
-import { ModalContext } from "./modal";
+import Modal from "../../components/Modal.tsx";
+import { ModalContext } from "./modal.ts";
 
 export const ModalProvider = ({ children }: { children: ReactNode }) => {
     const [modalContent, setModalContent] = useState<ReactNode | null>(null);

@@ -16,7 +16,7 @@ public class ProductFinalizeController {
 
     /**
      * 상품 이미지 최종 확정
-     * POST /{id}/finalize-images
+     * POST api/products/{id}/finalize-images
      *
      * @param id 상품 ID
      * @param authUser 인증된 사용자 (JWT 인증 객체)

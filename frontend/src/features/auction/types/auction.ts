@@ -16,7 +16,6 @@ export type AuctionCreateResponse = {
 };
 */
 
-// src/features/auction/types/auction.ts
 export interface AuctionCreateRequest {
     productId: number;
     startPrice: number;

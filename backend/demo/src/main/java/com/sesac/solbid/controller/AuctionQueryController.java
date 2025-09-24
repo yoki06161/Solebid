@@ -18,7 +18,12 @@ public class AuctionQueryController {
     private final AuctionQueryService auctionQueryService;
 
     /**
-     * 상품 상세 조회
+     * 경매 상세 조회
+     * GET /api/auctions/{auctionId}
+     *
+     * @header JWT (선택적)
+     * @pathVariable        auctionId (조회할 경매 ID)
+     * @return              AuctionDetailResponse
      * */
     @GetMapping("/{auctionId}")
     public AuctionDetailResponse getDetail(

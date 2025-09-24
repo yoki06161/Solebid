@@ -69,14 +69,19 @@ public enum ErrorCode {
     FORBIDDEN(HttpStatus.UNAUTHORIZED, "해당 상품에 대한 권한이 없습니다."),
 
     // S3 관련 에러
-    S3_IO_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S3 입출력 처리 중 오류가 발생했습니다."),
+    S3_IO_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "파일을 읽는 중 오류가 발생했습니다."),
     UNSUPPORTED_CONTENT_TYPE(HttpStatus.BAD_REQUEST, "지원하지 않는 Content-Type 입니다. (image/jpeg, image/png만 허용)"),
     NOT_FOUND(HttpStatus.NOT_FOUND, "대상을 찾을 수 없습니다."),
     INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "요청 값이 잘못되었습니다."),
     PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다."),
 
     // 경매 관련
-    AUCTION_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 진행 중인 경매가 있습니다.");
+    AUCTION_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 진행 중인 경매가 있습니다."),
+    AUCTION_NOT_FOUND(HttpStatus.NOT_FOUND, "경매를 찾을 수 없습니다."),
+    CONFLICT_VERSION(HttpStatus.CONFLICT, "경합으로 인해 처리하지 못했습니다. 다시 시도해주세요."),
+
+    // 스트림 관련 에러
+    INVALID_STREAM_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않거나 만료된 스트림 토큰입니다.");
 
     private final HttpStatus status;
     private final String message;

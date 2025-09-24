@@ -7,7 +7,7 @@ import com.sesac.solbid.dto.order.response.OrderResponse;
 
 public interface OrderService {
 
-        OrderResponse createOrder(OrderRequest request, Long winnerId);
+       // OrderResponse createOrder(OrderRequest request, Long winnerId);
 
         OrderResponse findOrder(Long orderId);
 

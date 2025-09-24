@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { presign, uploadToS3 } from "../../upload/services/uploads";
 import { makeSafeFileName } from "../../upload/utils/naming";
 import { createProduct, finalizeImages } from "../services/products";
-import { createAuction } from "../../auction/services/auctions";
+import { AuctionsApi } from "../../auction/services/auctions";
 
 import type { Brand, Category, Condition, ProductCreatePayload } from "../types/product";
 
@@ -191,10 +191,10 @@ const NewAuctionProductPage: React.FC = () => {
             // 4) 경매 자동 생성(시작가 & 종료일 있을 때만)
             try {
                 if (startPrice !== "" && auctionEndAt) {
-                    await createAuction({
+                    await AuctionsApi.create({
                         productId,
                         startPrice: Number(startPrice),
-                        endAt: new Date(auctionEndAt).toISOString(), // 로컬 → ISO
+                        endAt: new Date(auctionEndAt).toISOString(),
                     }); // 쿠키 인증
                 }
             } catch (e) {

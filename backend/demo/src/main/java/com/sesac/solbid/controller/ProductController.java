@@ -30,7 +30,6 @@ public class ProductController {
      * @param authUser 인증된 사용자 정보 (로그인된 회원)
      * @param req      상품 등록 요청 본문 (상품명, 이미지 목록 등)
      * @return 생성된 상품의 ID를 담은 응답 (201 Created)
-     *
      * 사용자가 전달한 상품 정보(ProductCreateRequest)를 기반으로
      * 새로운 상품을 생성한다.
      * 생성 과정에서 인증 사용자 ID를 함께 기록하며,

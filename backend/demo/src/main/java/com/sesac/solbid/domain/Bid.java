@@ -1,6 +1,7 @@
 package com.sesac.solbid.domain;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -29,7 +30,6 @@ public class Bid {
     @Column(name = "bid_amount", nullable = false, precision = 38, scale = 2)
     private BigDecimal bidAmount;
 
-    //고유키
     @Column(name = "idempotency_key", nullable = false, length = 64, unique = true)
     private String idempotencyKey;
 
@@ -37,7 +37,18 @@ public class Bid {
     private LocalDateTime bidTime;
 
     @Column(name = "is_winning", nullable = false)
-    private Boolean isWinning = false;
+    private Boolean isWinning;
+
+    @Builder
+    public Bid(AuctionEvent auctionEvent, User bidder, BigDecimal bidAmount, String idempotencyKey) {
+        this.auctionEvent = auctionEvent;
+        this.bidder = bidder;
+        this.bidAmount = bidAmount;
+        this.idempotencyKey = idempotencyKey;
+        this.bidTime = LocalDateTime.now();
+        this.isWinning = false;
+    }
+
 
     @PrePersist
     void onCreate() {

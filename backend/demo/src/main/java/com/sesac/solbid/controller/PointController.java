@@ -18,8 +18,8 @@ public class PointController {
     private final PointService pointService;
 
     /*
-    * 관리자용 유저 아이디 기반 포인트 단건 조회*/
-    /*
+    * 관리자용 유저 아이디 기반 포인트 단건 조회
+
     @GetMapping("/{userId}/points")
     public ResponseEntity<PointSummaryResponse> getCurrentPoint(@PathVariable Long userId) {
         PointSummaryResponse body = pointService.getCurrentPoint(userId);
@@ -30,7 +30,7 @@ public class PointController {
 
     /**
      * 로그인한 사용자 본인의 포인트 단건 조회
-     * GET /me/points
+     * GET /api/users/me/points
      *
      * @param authUser 현재 인증된 사용자 객체
      * @return 사용자의 포인트 요약 응답

@@ -2,6 +2,8 @@ package com.sesac.solbid.domain;
 
 import com.sesac.solbid.domain.enums.UserStatus;
 import com.sesac.solbid.domain.enums.UserType;
+import com.sesac.solbid.exception.CustomException;
+import com.sesac.solbid.exception.ErrorCode;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -13,6 +15,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -256,5 +259,26 @@ public class User extends BaseEntity implements UserDetails {
     @Override
     public boolean isEnabled() {
         return this.userStatus == UserStatus.ACTIVE;
+    }
+
+    /** 포인트 차감 (잔액 검증 + 소수점 정규화) */
+    public void debitPoint(BigDecimal amount) {
+        if (amount == null || amount.signum() <= 0) {
+            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "INVALID_AMOUNT");
+        }
+        BigDecimal cur = this.point == null ? BigDecimal.ZERO : this.point;
+        if (cur.compareTo(amount) < 0) {
+            throw new CustomException(ErrorCode.INSUFFICIENT_POINT);
+        }
+        this.point = cur.subtract(amount).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    /** 포인트 적립 */
+    public void creditPoint(BigDecimal amount) {
+        if (amount == null || amount.signum() <= 0) {
+            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "INVALID_AMOUNT");
+        }
+        BigDecimal cur = this.point == null ? BigDecimal.ZERO : this.point;
+        this.point = cur.add(amount).setScale(2, RoundingMode.HALF_UP);
     }
 }

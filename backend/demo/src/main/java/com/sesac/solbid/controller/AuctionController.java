@@ -37,11 +37,8 @@ public class AuctionController {
      *                    또한 Location 헤더에 "/api/auctions/{id}" 반환
      *
      * @status 201 Created  성공적으로 생성, Location 헤더 포함
-     * @status 400 Bad Request  요청 본문 검증 실패(@Valid)
-     * @status 401 Unauthorized  사용자 인증/헤더 누락 등
      * @status 404 Not Found     productId에 해당하는 상품 없음
      * @status 409 Conflict      경매 생성 규칙 충돌(예: 이미 진행 중인 경매)
-     * @status 500 Internal Server Error  서버 오류
      */
     @PostMapping(consumes = "application/json", produces = "application/json")
     public ResponseEntity<AuctionCreateResponse> create(

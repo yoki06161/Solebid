@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import {useNotificationStream} from "../context/notification/seNotificationStream.ts";
+
 
 function AppHeader() {
     const navigate = useNavigate();
     const location = useLocation();
+    const { unread } = useNotificationStream();
 
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -154,24 +157,21 @@ function AppHeader() {
                                 </button>
 
                                 {isLoggedIn && (
-                                    <>
-                                        <button
-                                            onClick={() => navigate('/wish')}
-                                            className="text-gray-700 hover:text-black"
-                                            style={{ fontSize: '1.5rem' }}
-                                            aria-label="위시리스트"
-                                        >
-                                            <i className="fas fa-heart" />
-                                        </button>
-                                        <button
-                                            onClick={() => navigate('/notification')}
-                                            className="text-gray-700 hover:text-black"
-                                            style={{ fontSize: '1.5rem' }}
-                                            aria-label="알림"
-                                        >
-                                            <i className="fas fa-bell" />
-                                        </button>
-                                    </>
+                                    <button
+                                        onClick={() => navigate('/notification')}
+                                        className="relative text-gray-700 hover:text-black"
+                                        style={{ fontSize: '1.5rem' }}
+                                        aria-label={`알림${unread > 0 ? `, 읽지 않은 ${unread}건` : ""}`}
+                                    >
+                                        <i className="fas fa-bell" />
+                                        {unread > 0 && (
+                                            <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px]
+                                                             px-1 rounded-full bg-red-600 text-white text-[11px]
+                                                             leading-[18px] text-center select-none">
+                                            {unread > 99 ? "99+" : unread}
+                                         </span>
+                                        )}
+                                    </button>
                                 )}
                             </div>
                         </div>

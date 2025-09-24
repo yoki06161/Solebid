@@ -1,8 +1,15 @@
-import { useEffect, useMemo, useState } from "react";
+import {useEffect, useMemo, useRef, useState} from "react";
 import { AuctionsApi } from "../services/auctions";
 import type { AuctionDetailResponse } from "../types/auctionDetail";
 
-export function useAuctionDetail(auctionId?: number) {
+type UseAuctionDetailReturn = {
+    data: AuctionDetailResponse | null;
+    setData: React.Dispatch<React.SetStateAction<AuctionDetailResponse | null>>;
+    loading: boolean;
+    err: string | null;
+};
+
+export function useAuctionDetail(auctionId?: number): UseAuctionDetailReturn {
     const validId = useMemo(
         () => (typeof auctionId === "number" && Number.isFinite(auctionId) ? auctionId : undefined),
         [auctionId]
@@ -12,29 +19,46 @@ export function useAuctionDetail(auctionId?: number) {
     const [loading, setLoading] = useState(true);
     const [err, setErr] = useState<string | null>(null);
 
+    // 최신 요청만 반영되도록 요청 번호 추적
+    const reqSeq = useRef(0);
+
     useEffect(() => {
         if (!validId) {
             setErr("유효하지 않은 경매 ID입니다.");
+            setData(null);
             setLoading(false);
             return;
         }
-        let cancel = false;
+
+        // ID 바뀌면 초기화
+        setData(null);
+        setErr(null);
+        setLoading(true);
+
+        const seq = ++reqSeq.current;
+        const ac = new AbortController();
+
         (async () => {
             try {
-                setLoading(true);
-                setErr(null);
                 const res = await AuctionsApi.getDetail(validId);
-                if (!cancel) setData(res);
+                if (!ac.signal.aborted && seq === reqSeq.current) {
+                    setData(res);
+                }
             } catch (e: unknown) {
-                if (!cancel) setErr(e instanceof Error ? e.message : "불러오기 실패");
+                if (!ac.signal.aborted && seq === reqSeq.current) {
+                    setErr(e instanceof Error ? e.message : "불러오기 실패");
+                }
             } finally {
-                if (!cancel) setLoading(false);
+                if (!ac.signal.aborted && seq === reqSeq.current) {
+                    setLoading(false);
+                }
             }
         })();
+
         return () => {
-            cancel = true;
+            ac.abort();
         };
     }, [validId]);
 
-    return { data, loading, err };
+    return { data, setData, loading, err };
 }

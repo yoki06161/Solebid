@@ -1,7 +1,8 @@
 import { RouterProvider } from "react-router-dom";
 import TokenRefreshManager from "./components/TokenRefreshManager";
-import { ModalProvider } from "./contexts/modal/ModalContext";
-import { ToastProvider } from "./contexts/toast/ToastContext";
+import { ModalProvider } from "./context/modal/ModalContext";
+import { ToastProvider } from "./context/toast/ToastContext";
+import NotificationStreamProvider from "./context/notification/NotificationStreamProvider.tsx";
 import router from "./router";
 
 function App() {
@@ -9,8 +10,10 @@ function App() {
         <>
             <ToastProvider>
                 <ModalProvider>
+                    <NotificationStreamProvider>
                     <TokenRefreshManager />
                     <RouterProvider router={router} />
+                    </NotificationStreamProvider>
                 </ModalProvider>
             </ToastProvider>
         </>

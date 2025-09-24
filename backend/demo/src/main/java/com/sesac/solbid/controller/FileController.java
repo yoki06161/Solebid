@@ -37,7 +37,6 @@ public class FileController {
 
     /**
      * S3 키를 받아 이미지/파일을 스트리밍 반환
-     *
      * GET /api/files/products/tmp/202509/example.png
      *
      * @param request   {@link HttpServletRequest}.
@@ -96,9 +95,13 @@ public class FileController {
         String lower = key.toLowerCase(Locale.ROOT);
         if (lower.endsWith(".png"))  return MediaType.IMAGE_PNG;
         if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) return MediaType.IMAGE_JPEG;
-        //if (lower.endsWith(".gif"))  return MediaType.IMAGE_GIF;
-        //if (lower.endsWith(".webp")) return MediaType.parseMediaType("image/webp");
-        //if (lower.endsWith(".svg"))  return MediaType.parseMediaType("image/svg+xml");
+        /* content-type 확장 고려
+        if (lower.endsWith(".gif"))  return MediaType.IMAGE_GIF;
+        if (lower.endsWith(".webp")) return MediaType.parseMediaType("image/webp");
+        if (lower.endsWith(".svg"))  return MediaType.parseMediaType("image/svg+xml");
+         */
         return MediaType.APPLICATION_OCTET_STREAM;
     }
+
+
 }

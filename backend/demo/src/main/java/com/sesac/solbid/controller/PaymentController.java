@@ -18,7 +18,7 @@ public class PaymentController {
 
     /**
      * 포트원 결제 요청 준비
-     * POST /charge/prepare
+     * POST /api/payments/charge/prepare
      *
      * @param request 결제 준비 요청 DTO
      * @return 결제 준비 응답 DTO(orderId, redirectUrl 포함)
@@ -32,8 +32,5 @@ public class PaymentController {
     public Map<String, Object> ping() {
         return Map.of("ok", true, "ts", System.currentTimeMillis());
     }
-
-
-
 
 }

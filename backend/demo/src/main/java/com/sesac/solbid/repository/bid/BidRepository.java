@@ -60,5 +60,6 @@ public interface BidRepository extends JpaRepository<Bid, Long> {
             "ORDER BY b.bidAmount DESC")
     List<Bid> findTopBidsByProductId(@Param("productId") Long productId);
 
+    boolean existsByIdempotencyKey(String idempotencyKey);
 
 }
