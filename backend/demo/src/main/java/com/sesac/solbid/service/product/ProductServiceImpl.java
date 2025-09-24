@@ -1,5 +1,14 @@
 package com.sesac.solbid.service.product;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.sesac.solbid.domain.Product;
 import com.sesac.solbid.domain.ProductImage;
 import com.sesac.solbid.domain.User;
@@ -13,16 +22,9 @@ import com.sesac.solbid.mapper.ProductImageMapper;
 import com.sesac.solbid.mapper.ProductMapper;
 import com.sesac.solbid.repository.ProductRepository;
 import com.sesac.solbid.repository.UserRepository;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,12 +37,12 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
-    private final ProductMapper productMapper;           // MapStruct
+    private final ProductMapper productMapper; // MapStruct
     private final ProductImageMapper productImageMapper; // MapStruct
 
     // S3 검증/이동 컴포넌트
-    private final S3ObjectVerifier s3ObjectVerifier;     // S3 HEAD 존재 확인
-    private final S3ObjectMover s3ObjectMover;           // tmp → 최종 경로 이동(Copy+Delete)
+    private final S3ObjectVerifier s3ObjectVerifier; // S3 HEAD 존재 확인
+    private final S3ObjectMover s3ObjectMover; // tmp → 최종 경로 이동(Copy+Delete)
 
     /**
      * 상품 등록
@@ -54,7 +56,8 @@ public class ProductServiceImpl implements ProductService {
     public Long create(Long sellerId, ProductCreateRequest req) {
 
         // 판매자 조회
-        User seller = userRepository.findById(sellerId)
+        User seller = userRepository
+                .findById(sellerId)
                 .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED));
 
         // 이미지 검증
@@ -75,12 +78,11 @@ public class ProductServiceImpl implements ProductService {
         return id;
     }
 
-    /**상품 이미지 최종 확정*/
+    /** 상품 이미지 최종 확정 */
     @Override
-    public void finalizeImages(Long id, Long userId) {
-    }
+    public void finalizeImages(Long id, Long userId) {}
 
-    //디버깅 로그
+    // 디버깅 로그
     private void validateImages(ProductCreateRequest req) {
         if (req.images() == null || req.images().isEmpty()) {
             log.warn("images is null or empty");
@@ -89,15 +91,19 @@ public class ProductServiceImpl implements ProductService {
 
         log.debug("validateImages start size={} imgs={}", req.size(), req.images().size());
 
-        long thumbs = req.images().stream()
+        long thumbs = req
+                .images()
+                .stream()
                 .filter(ProductCreateRequest.ImageDto::isThumbnail)
                 .count();
+
         if (thumbs > 1) {
             log.warn("thumbnail duplicated: thumbs={}", thumbs);
             throw new CustomException(ErrorCode.THUMBNAIL_DUPLICATED);
         }
 
         Set<Integer> orders = new HashSet<>();
+
         for (var img : req.images()) {
             if (!orders.add(img.sortOrder())) {
                 log.warn("sortOrder duplicated: {}", img.sortOrder());
@@ -108,20 +114,21 @@ public class ProductServiceImpl implements ProductService {
                 throw new CustomException(ErrorCode.INVALID_IMAGE_KEY);
             }
 
-
             // S3에 객체가 존재하는지 확인 (PUT 실패/위조 키 차단)
             s3ObjectVerifier.requireExists(img.filePath());
         }
     }
 
-    /**상품의 판매자를 다른 사용자로 변경*/
+    /** 상품의 판매자를 다른 사용자로 변경 */
     @Override
     @Transactional
     public void changeSeller(Long productId, Long newSellerId) {
-        Product product = productRepository.findById(productId)
+        Product product = productRepository
+                .findById(productId)
                 .orElseThrow(() -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND));
 
-        User newSeller = userRepository.findById(newSellerId)
+        User newSeller = userRepository
+                .findById(newSellerId)
                 .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED));
 
         try {
@@ -135,33 +142,76 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public List<ProductResponse> getProducts(String sortBy, Integer limit) {
-        List<ProductResponse> productResponses = productRepository
-                .findAll()
-                .stream()
-                .map(ProductResponse::fromEntity)
-                .collect(Collectors.toList());
+        try {
+            // 1단계: 기본 상품 정보 조회 (페이징 적용)
+            List<Product> products;
 
-        if (SORT_BY_OPTION.equals(sortBy)) {
-            productResponses.sort(Comparator.comparingInt(ProductResponse::bidders).reversed());
-        }
+            if (limit != null && limit > 0) {
+                Pageable pageable = PageRequest.of(0, limit);
+                if (SORT_BY_OPTION.equals(sortBy)) {
+                    products = productRepository.findAllOrderByBidCount(pageable);
+                } else {
+                    products = productRepository.findAllOrderByCreatedAtDesc(pageable);
+                }
+            } else {
+                // limit이 없으면 기본 100개로 제한
+                Pageable pageable = PageRequest.of(0, 100);
+                if (SORT_BY_OPTION.equals(sortBy)) {
+                    products = productRepository.findAllOrderByBidCount(pageable);
+                } else {
+                    products = productRepository.findAllOrderByCreatedAtDesc(pageable);
+                }
+            }
 
-        if (limit != null && limit > 0) {
-            return productResponses
+            // 2단계: N+1 문제 해결을 위한 연관 엔티티 페치 조인
+            if (!products.isEmpty()) {
+                List<Long> productIds = products
+                        .stream()
+                        .map(Product::getProductId)
+                        .toList();
+
+                // 이미지 정보 페치 조인
+                products = productRepository.findByProductIdsWithImages(productIds);
+            }
+
+            // 3단계: DTO 변환
+            return products
                     .stream()
-                    .limit(limit)
+                    .map(ProductResponse::fromEntity)
                     .toList();
-        }
 
-        return productResponses;
+        } catch (Exception e) {
+            log.error("Error in getProducts: ", e);
+            throw e;
+        }
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<ProductResponse> searchProducts(String keyword) {
-        return productRepository
-                .findByNameContainingIgnoreCase(keyword)
-                .stream()
-                .map(ProductResponse::fromEntity)
-                .toList();
+        try {
+            // 1단계: 검색 조건으로 상품 조회
+            List<Product> products = productRepository.findByNameContainingIgnoreCase(keyword);
+
+            // 2단계: N+1 문제 해결을 위한 연관 엔티티 페치 조인
+            if (!products.isEmpty()) {
+                List<Long> productIds = products
+                        .stream()
+                        .map(Product::getProductId)
+                        .toList();
+
+                // 이미지 정보 페치 조인
+                products = productRepository.findByProductIdsWithImages(productIds);
+            }
+
+            // 3단계: DTO 변환
+            return products
+                    .stream()
+                    .map(ProductResponse::fromEntity)
+                    .toList();
+        } catch (Exception e) {
+            log.error("Error in searchProducts: ", e);
+            throw e;
+        }
     }
 }
