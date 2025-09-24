@@ -26,12 +26,10 @@ import com.sesac.solbid.service.wish.WishService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/wishes")
-@Log4j2
 public class WishController {
 
     private final WishService wishService;

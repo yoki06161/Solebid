@@ -29,7 +29,22 @@ public class WishServiceImpl implements WishService {
 
         @Override
         @Transactional
-        public WishActionResponse addWish(Long userId, Long productId) {
+        public List<ProductResponse> getWishes(Long userId) {
+                User user = userRepository
+                                .findById(userId)
+                                .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
+
+                return wishRepository
+                                .findByUser(user)
+                                .stream()
+                                .map(Wish::getProduct)
+                                .map(ProductResponse::fromEntity)
+                                .toList();
+        }
+
+        @Override
+        @Transactional
+        public void addWish(Long userId, Long productId) {
                 User user = userRepository
                                 .findById(userId)
                                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
@@ -70,19 +85,5 @@ public class WishServiceImpl implements WishService {
 
                 wishRepository.delete(wish);
                 return WishActionResponse.removed(productId);
-        }
-
-        @Override
-        @Transactional
-        public List<WishResponse> getWishes(Long userId) {
-                User user = userRepository
-                                .findById(userId)
-                                .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
-
-                return wishRepository
-                                .findByUser(user)
-                                .stream()
-                                .map(WishResponse::from)
-                                .toList();
         }
 }
