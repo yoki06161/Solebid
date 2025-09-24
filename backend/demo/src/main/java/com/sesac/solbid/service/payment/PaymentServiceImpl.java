@@ -40,13 +40,9 @@ public class PaymentServiceImpl implements PaymentService {
     /** 결제 준비 */
     @Override
     @Transactional
-    public PaymentPrepareResponse preparePayment(PaymentPrepareRequest request) {
+    public PaymentPrepareResponse preparePayment(PaymentPrepareRequest request,  User authUser) {
         String orderId = UUID.randomUUID().toString();
         String redirectUrl = request.getRedirectUrl();
-
-        // TODO: 실제 로그인 연동되면 인증 사용자 사용
-        User dummyUser = userRepository.findById(1L)
-                .orElseThrow(() -> new IllegalStateException("테스트용 유저가 없습니다."));
 
         log.info("[결제 준비] orderId={}, amount={}, method={}, redirectUrl={}",
                 orderId, request.getAmount(), request.getPaymentMethod(), redirectUrl);
@@ -58,19 +54,17 @@ public class PaymentServiceImpl implements PaymentService {
                 .paymentStatus(PaymentStatus.WAITING)
                 .convertedPoint(0)
                 .charged(false)
-                .user(dummyUser)
+                .user(authUser)
                 .build();
 
         paymentsRepository.save(payment);
 
-        log.info("[결제 준비 완료] orderId={} → redirectUrl={}", orderId, redirectUrl);
         return new PaymentPrepareResponse(orderId, redirectUrl);
     }
 
     /** 결제 승인(성공) */
     @Override
-    //@Transactional
-    @org.springframework.transaction.annotation.Transactional
+    @Transactional
     public String handlePaymentSuccess(String impUid, String accessToken) {
         log.info("[결제 승인 요청] impUid={}", impUid);
 
