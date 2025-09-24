@@ -1,5 +1,5 @@
 // 서버 DTO
-export type ServerPaymentStatus = 'SUCCESS' | 'CANCELLED' | 'FAILED' | 'PENDING';
+export type ServerPaymentStatus = 'WAITING' | 'SUCCESS' | 'FAIL';
 
 export interface ServerPayment {
     paymentId: number;

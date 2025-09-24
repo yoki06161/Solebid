@@ -56,7 +56,8 @@ public class PortOneController {
      *
      * @param impUid PortOne 결제 고유 ID
      * @return 처리 결과 문자열
-     **/    @GetMapping("/approve")
+     **/
+    @GetMapping("/approve")
     public ResponseEntity<String> approve(@RequestParam String impUid) {
         String token = portOneService.getAccessToken();
         String result = paymentService.handlePaymentSuccess(impUid, token);

@@ -10,7 +10,7 @@ export function useUpload(max = 5) {
     const [keys, setKeys] = useState<string[]>([]);
     const [uploading, setUploading] = useState(false);
 
-    async function addFiles(selected: File[], opts?: { userId?: number }) {
+    async function addFiles(selected: File[]) {
         if (files.length + selected.length > max) throw new Error(`최대 ${max}장`);
 
         for (const f of selected) {
@@ -27,7 +27,7 @@ export function useUpload(max = 5) {
             for (const f of selected) {
                 const ct = f.type === "image/png" ? "image/png" : "image/jpeg";
                 const safeName = makeSafeFileName(f.name, ct);
-                const { key, putUrl } = await presign(safeName, ct, { userId: opts?.userId });
+                const { key, putUrl } = await presign(safeName, ct);
                 await uploadToS3(putUrl, f, ct);
 
                 nextFiles.push(f);

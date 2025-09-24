@@ -19,7 +19,8 @@ function mapMethodToKo(code: string) {
     }
 }
 function mapStatusToUi(s: ServerPaymentStatus): 'completed' | 'cancelled' {
-    return s === 'SUCCESS' ? 'completed' : 'cancelled';
+    if (s === 'SUCCESS') return 'completed';
+    return 'cancelled'; // FAIL/WAITING 표시는 현재 UI에서 '취소'로 통일
 }
 function toYmd(isoOrYmd?: string | null) {
     if (!isoOrYmd) return '';
@@ -52,7 +53,7 @@ function mapServerPayment(p: ServerPayment): Payment {
 // UI 필터값 → 서버 상태값 변환 (그대로 유지)
 export function toServerStatus(ui: 'all' | 'completed' | 'cancelled'): ServerPaymentStatus | 'ALL' {
     if (ui === 'all') return 'ALL';
-    return ui === 'completed' ? 'SUCCESS' : 'CANCELLED';
+    return ui === 'completed' ? 'SUCCESS' : 'FAIL';
 }
 
 export function useServerPayments(initial: FetchPaymentsParams) {

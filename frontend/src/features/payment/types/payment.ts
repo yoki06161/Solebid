@@ -1,11 +1,12 @@
-// 서버 상태값
-export type PaymentStatus = 'SUCCESS' | 'CANCELLED' | 'FAILED' | 'PENDING';
+// 서버 상태값 (백엔드 enum과 일치)
+export type PaymentStatus = 'WAITING' | 'SUCCESS' | 'FAIL';
 export type ServerPaymentStatus = PaymentStatus;
 
 // 서버 호출 파라미터
 export interface FetchPaymentsParams {
     page?: number;   // 0-based
     size?: number;
+    userId?: number;
     status?: PaymentStatus | 'ALL';
     from?: string;   // 'YYYY-MM-DD'
     to?: string;     // 'YYYY-MM-DD'
