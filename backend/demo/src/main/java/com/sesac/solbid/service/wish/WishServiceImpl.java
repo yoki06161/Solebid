@@ -8,7 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.sesac.solbid.domain.Product;
 import com.sesac.solbid.domain.User;
 import com.sesac.solbid.domain.Wish;
-import com.sesac.solbid.dto.product.response.ProductResponse;
+import com.sesac.solbid.dto.wish.response.WishActionResponse;
+import com.sesac.solbid.dto.wish.response.WishResponse;
 import com.sesac.solbid.repository.ProductRepository;
 import com.sesac.solbid.repository.UserRepository;
 import com.sesac.solbid.repository.wish.WishRepository;
@@ -28,7 +29,7 @@ public class WishServiceImpl implements WishService {
 
         @Override
         @Transactional
-        public void addWish(Long userId, Long productId) {
+        public WishActionResponse addWish(Long userId, Long productId) {
                 User user = userRepository
                                 .findById(userId)
                                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
@@ -48,12 +49,13 @@ public class WishServiceImpl implements WishService {
                                 .product(product)
                                 .build();
 
-                wishRepository.save(wish);
+                Wish savedWish = wishRepository.save(wish);
+                return WishActionResponse.added(savedWish.getId(), productId);
         }
 
         @Override
         @Transactional
-        public void removeWish(Long userId, Long productId) {
+        public WishActionResponse removeWish(Long userId, Long productId) {
                 User user = userRepository
                                 .findById(userId)
                                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
@@ -67,11 +69,12 @@ public class WishServiceImpl implements WishService {
                                 .orElseThrow(() -> new IllegalArgumentException("Wish not found"));
 
                 wishRepository.delete(wish);
+                return WishActionResponse.removed(productId);
         }
 
         @Override
         @Transactional
-        public List<ProductResponse> getWishes(Long userId) {
+        public List<WishResponse> getWishes(Long userId) {
                 User user = userRepository
                                 .findById(userId)
                                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
@@ -79,8 +82,7 @@ public class WishServiceImpl implements WishService {
                 return wishRepository
                                 .findByUser(user)
                                 .stream()
-                                .map(Wish::getProduct)
-                                .map(ProductResponse::fromEntity)
+                                .map(WishResponse::from)
                                 .toList();
         }
 }
