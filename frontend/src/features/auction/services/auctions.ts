@@ -2,10 +2,7 @@ import { apiFetch } from "../../../utils/http";
 import type { AuctionDetailResponse } from "../types/auctionDetail";
 import type { AuctionCreateRequest, AuctionCreateResponse } from "../types/auction";
 
-// 서버 공통 envelope을 반영한 커스텀 타입
-type BidResponse =
-    | { success: true }
-    | { success: false; data: null; errorCode?: string; message?: string };
+type BidResponse = { success: true } | { success: false; message?: string };
 
 export const AuctionsApi = {
     getDetail(auctionId: number) {
@@ -18,11 +15,13 @@ export const AuctionsApi = {
             headers: { "X-Idempotent-Key": idempotencyKey },
             body: { amount, idempotencyKey },
         });
-        if (!res.success) {
-            // 서버가 200이어도 success:false면 에러로 처리
-            throw new Error(res.message || "입찰에 실패했습니다.");
-        }
-        return res;
+
+        if (res?.success === true) return true;
+
+        const message = res && "message" in res && typeof res.message === "string"
+            ? res.message
+            : "입찰에 실패했습니다.";
+        throw new Error(message);
     },
 
     create(payload: AuctionCreateRequest) {

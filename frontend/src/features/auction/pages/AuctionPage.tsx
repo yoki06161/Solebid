@@ -1,13 +1,33 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useWishes } from "../../wish/hooks/useWishes.ts";
 import { AuctionList, AuctionModal, AuctionSearch } from "../components";
 import { categories, sortOptions } from "../components/mockData";
-import { useAuctions } from "../hooks/useAuctions.ts";
+import { useAuctionEventCards } from "../hooks/useAuctionEventCards.ts";
 import type { AuctionItem } from "../types/AuctionItem";
 
 const AuctionPage = () => {
-    const { auctions: products, isLoading, isError, error } = useAuctions();
+    const navigate = useNavigate();
+    const { data: cards, isLoading, isError, error } = useAuctionEventCards();
     const { wishes, addWish, removeWish, isAdding, isRemoving } = useWishes();
+
+    const eventIdMap = useMemo(() => new Map(
+        (cards ?? []).map((card) => [card.productId, card.auctionEventId])
+    ), [cards]);
+
+    const products = useMemo<AuctionItem[]>(() => (
+        cards ?? []
+    ).map((card) => ({
+        id: card.productId,
+        brand: card.brand,
+        name: card.name,
+        image: null,
+        imageUrl: card.imageUrl ?? undefined,
+        currentBid: card.currentBid,
+        timeLeft: card.endAt,
+        bidders: card.bidders,
+        category: card.category,
+    })), [cards]);
 
     const wishedIds = useMemo(() => new Set(
         wishes?.map(wish => wish.id) ?? []
@@ -48,20 +68,6 @@ const AuctionPage = () => {
         setIsModalOpen(true);
     };
 
-    // TODO: Refactor this block, Temporarily commented out
-    // const handleBidSubmit = (bidAmount: number) => {
-    //    if (selectedItem) {
-    //        console.log(`Submitted bid: ₩${bidAmount.toLocaleString()} for ${selectedItem.name}`);
-    //        // 실제 API 호출 로직 추가
-    //        const updatedItems = products.map(item =>
-    //            item.id === selectedItem.id
-    //                ? { ...item, currentBid: bidAmount.toLocaleString(), bidders: item.bidders + 1 }
-    //                : item
-    //        );
-    //        setProducts(updatedItems);
-    //    }
-    //};
-
     if (isLoading) {
         return (
             <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center">
@@ -72,7 +78,7 @@ const AuctionPage = () => {
 
     if (isError) {
         return (
-            <div>Error: {error ? error.message : 'An unknown error occurred'}</div>
+            <div>Error: {error?.message ?? 'An unknown error occurred'}</div>
         );
     }
 
@@ -96,6 +102,10 @@ const AuctionPage = () => {
                     isAdding={isAdding}
                     isRemoving={isRemoving}
                     onBidClick={handleBidClick}
+                    onSelect={(item) => {
+                        const targetId = eventIdMap.get(item.id) ?? item.id;
+                        navigate(`/auction/${targetId}`);
+                    }}
                 />
             </main>
             {isModalOpen && selectedItem && (

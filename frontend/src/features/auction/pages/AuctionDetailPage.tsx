@@ -95,20 +95,16 @@ const AuctionDetailPage: React.FC = () => {
             setBidding(true);
             await AuctionsApi.placeBid(auctionId, amount, idemKey(`bid:${auctionId}`));
 
-            // 낙관적 갱신 (SSE 오기 전 UI 반응)
-            setData((prev) => (prev ? { ...prev, currentPrice: amount, version: (prev.version ?? 0) + 1 } : prev));
-
-            alert("입찰이 완료되었습니다!");
-
             setShowBidModal(false);
             setBidAmount("");
 
-            // 폴백: SSE 누락 대비 강제 동기화
             setTimeout(async () => {
                 try {
                     const fresh = await AuctionsApi.getDetail(auctionId);
                     setData(fresh);
-                } catch {}
+                } catch (syncError) {
+                    console.error(syncError);
+                }
             }, 300);
         } catch (e) {
             console.error(e);
