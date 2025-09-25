@@ -10,7 +10,7 @@ const WishEmptyList = () => (
             마음에 드는 상품을 찜해보세요!
         </p>
         <Link
-            to="https://readdy.ai/home/..."
+            to=""
             className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer !rounded-button whitespace-nowrap"
         >
             <i className="fas fa-shopping-bag mr-2" />
