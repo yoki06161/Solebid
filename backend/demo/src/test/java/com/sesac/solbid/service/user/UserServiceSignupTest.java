@@ -4,7 +4,7 @@ import com.sesac.solbid.domain.User;
 import com.sesac.solbid.dto.user.request.SignupRequest;
 import com.sesac.solbid.exception.CustomException;
 import com.sesac.solbid.exception.ErrorCode;
-import com.sesac.solbid.repository.UserRepository;
+import com.sesac.solbid.repository.user.UserRepository;
 import com.sesac.solbid.util.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

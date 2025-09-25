@@ -9,12 +9,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sesac.solbid.domain.User;
-import com.sesac.solbid.dto.ApiResponse;
+import com.sesac.solbid.dto.api.ApiResponse;
 import com.sesac.solbid.dto.bid.response.BidSellingResponse;
 import com.sesac.solbid.dto.bid.response.BidWinningResponse;
 import com.sesac.solbid.exception.CustomException;
 import com.sesac.solbid.exception.ErrorCode;
-import com.sesac.solbid.repository.ProductRepository;
+import com.sesac.solbid.repository.product.ProductRepository;
 import com.sesac.solbid.repository.bid.BidRepository;
 import com.sesac.solbid.service.bid.BidService;
 

@@ -5,7 +5,7 @@ import com.sesac.solbid.domain.User;
 import com.sesac.solbid.domain.enums.ProviderType;
 import com.sesac.solbid.exception.CustomException;
 import com.sesac.solbid.exception.ErrorCode;
-import com.sesac.solbid.repository.SocialLoginRepository;
+import com.sesac.solbid.repository.auth.SocialLoginRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

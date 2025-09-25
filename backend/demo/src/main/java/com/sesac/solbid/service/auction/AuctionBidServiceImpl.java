@@ -6,7 +6,7 @@ import com.sesac.solbid.domain.User;
 import com.sesac.solbid.domain.enums.AuctionStatus;
 import com.sesac.solbid.exception.CustomException;
 import com.sesac.solbid.exception.ErrorCode;
-import com.sesac.solbid.repository.AuctionEventRepository;
+import com.sesac.solbid.repository.auction.AuctionEventRepository;
 
 import com.sesac.solbid.repository.bid.BidRepository;
 import com.sesac.solbid.service.notification.NotificationService;

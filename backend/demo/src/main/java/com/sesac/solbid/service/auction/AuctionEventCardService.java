@@ -3,7 +3,7 @@ package com.sesac.solbid.service.auction;
 import com.sesac.solbid.domain.AuctionEvent;
 import com.sesac.solbid.domain.ProductImage;
 import com.sesac.solbid.dto.auction.response.AuctionEventCardResponse;
-import com.sesac.solbid.repository.AuctionEventCardRepository;
+import com.sesac.solbid.repository.auction.AuctionEventCardRepository;
 import com.sesac.solbid.service.s3.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

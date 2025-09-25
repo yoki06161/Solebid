@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sesac.solbid.domain.User;
-import com.sesac.solbid.dto.ApiResponse;
+import com.sesac.solbid.dto.api.ApiResponse;
 import com.sesac.solbid.dto.cart.response.CartResponse;
 import com.sesac.solbid.exception.CustomException;
 import com.sesac.solbid.exception.ErrorCode;

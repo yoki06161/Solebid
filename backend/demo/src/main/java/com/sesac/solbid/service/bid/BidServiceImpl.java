@@ -14,8 +14,8 @@ import com.sesac.solbid.dto.bid.response.BidSellingResponse;
 import com.sesac.solbid.dto.bid.response.BidWinningResponse;
 import com.sesac.solbid.exception.CustomException;
 import com.sesac.solbid.exception.ErrorCode;
-import com.sesac.solbid.repository.ProductRepository;
-import com.sesac.solbid.repository.UserRepository;
+import com.sesac.solbid.repository.product.ProductRepository;
+import com.sesac.solbid.repository.user.UserRepository;
 import com.sesac.solbid.repository.bid.BidRepository;
 
 import lombok.RequiredArgsConstructor;

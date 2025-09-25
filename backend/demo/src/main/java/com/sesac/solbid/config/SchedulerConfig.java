@@ -1,6 +1,6 @@
 package com.sesac.solbid.config;
 
-import com.sesac.solbid.repository.AuctionEventQueryRepository;
+import com.sesac.solbid.repository.auction.AuctionEventQueryRepository;
 import com.sesac.solbid.service.auction.AuctionSettlementService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;

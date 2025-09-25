@@ -1,6 +1,7 @@
 package com.sesac.solbid.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sesac.solbid.controller.auth.AuthController;
 import com.sesac.solbid.domain.enums.UserType;
 import com.sesac.solbid.dto.user.response.LoginResponse;
 import com.sesac.solbid.exception.ErrorCode;
@@ -14,7 +15,6 @@ import com.sesac.solbid.dto.auth.request.PasswordResetRequest;
 import com.sesac.solbid.dto.auth.request.PasswordResetVerifyRequest;
 import com.sesac.solbid.dto.auth.request.ResendOtpRequest;
 import com.sesac.solbid.exception.PasswordResetException;
-import com.sesac.solbid.exception.CustomException;
 import com.sesac.solbid.util.CookieUtil;
 import com.sesac.solbid.util.JwtUtil;
 import com.sesac.solbid.security.CustomUserDetailsService;

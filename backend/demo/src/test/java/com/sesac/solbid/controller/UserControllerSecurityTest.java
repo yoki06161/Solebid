@@ -1,6 +1,7 @@
 package com.sesac.solbid.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sesac.solbid.controller.user.UserController;
 import com.sesac.solbid.domain.User;
 import com.sesac.solbid.domain.enums.UserStatus;
 import com.sesac.solbid.domain.enums.UserType;
@@ -9,7 +10,7 @@ import com.sesac.solbid.dto.user.request.PasswordChangeRequest;
 import com.sesac.solbid.exception.CustomException;
 import com.sesac.solbid.exception.ErrorCode;
 import com.sesac.solbid.exception.GlobalExceptionHandler;
-import com.sesac.solbid.repository.SocialLoginRepository;
+import com.sesac.solbid.repository.auth.SocialLoginRepository;
 import com.sesac.solbid.security.CustomUserDetailsService;
 import com.sesac.solbid.service.auth.SocialUnlinkService;
 import com.sesac.solbid.service.user.UserService;

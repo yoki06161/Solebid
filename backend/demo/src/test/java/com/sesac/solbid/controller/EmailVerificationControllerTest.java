@@ -1,6 +1,7 @@
 package com.sesac.solbid.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sesac.solbid.controller.auth.EmailVerificationController;
 import com.sesac.solbid.dto.auth.request.ResendVerificationRequest;
 import com.sesac.solbid.exception.CustomException;
 import com.sesac.solbid.exception.EmailVerificationException;

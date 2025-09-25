@@ -3,8 +3,8 @@ package com.sesac.solbid.service.user;
 import com.sesac.solbid.domain.User;
 
 import com.sesac.solbid.exception.PasswordResetExceptionUtils;
-import com.sesac.solbid.repository.SocialLoginRepository;
-import com.sesac.solbid.repository.UserRepository;
+import com.sesac.solbid.repository.auth.SocialLoginRepository;
+import com.sesac.solbid.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;

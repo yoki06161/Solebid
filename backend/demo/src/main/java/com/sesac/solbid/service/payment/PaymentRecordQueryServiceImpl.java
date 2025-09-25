@@ -3,7 +3,7 @@ package com.sesac.solbid.service.payment;
 import com.sesac.solbid.dto.payment.request.PaymentRecordSearchRequest;
 import com.sesac.solbid.dto.payment.response.PageResponse;
 import com.sesac.solbid.dto.payment.response.PaymentRecordItemResponse;
-import com.sesac.solbid.repository.PaymentsRepository;
+import com.sesac.solbid.repository.payment.PaymentsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;

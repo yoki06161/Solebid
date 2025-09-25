@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sesac.solbid.domain.User;
 import com.sesac.solbid.dto.auth.request.*;
 import com.sesac.solbid.dto.user.request.*;
-import com.sesac.solbid.repository.UserRepository;
+import com.sesac.solbid.repository.user.UserRepository;
 import com.sesac.solbid.service.user.UserService;
 import com.sesac.solbid.util.JwtUtil;
 import jakarta.servlet.http.Cookie;

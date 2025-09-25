@@ -1,8 +1,9 @@
 package com.sesac.solbid.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sesac.solbid.controller.user.UserController;
 import com.sesac.solbid.exception.GlobalExceptionHandler;
-import com.sesac.solbid.repository.SocialLoginRepository;
+import com.sesac.solbid.repository.auth.SocialLoginRepository;
 import com.sesac.solbid.service.auth.SocialUnlinkService;
 import com.sesac.solbid.service.user.UserService;
 import com.sesac.solbid.util.CookieUtil;

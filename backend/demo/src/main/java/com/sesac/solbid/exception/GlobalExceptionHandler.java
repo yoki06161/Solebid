@@ -1,6 +1,6 @@
 package com.sesac.solbid.exception;
 
-import com.sesac.solbid.dto.ApiResponse;
+import com.sesac.solbid.dto.api.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;

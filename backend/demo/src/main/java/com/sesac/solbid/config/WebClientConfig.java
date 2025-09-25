@@ -10,8 +10,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
 public class WebClientConfig {
-    //겹쳐서 후에 수정 예정
-
     @Value("${portone.base-url}")
     private String portoneBaseUrl;
 

@@ -1,6 +1,7 @@
 package com.sesac.solbid.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sesac.solbid.controller.auth.AuthController;
 import com.sesac.solbid.exception.GlobalExceptionHandler;
 import com.sesac.solbid.service.auth.OAuth2Service;
 import com.sesac.solbid.service.user.PasswordResetService;

@@ -6,7 +6,7 @@ import com.sesac.solbid.domain.enums.UserType;
 import com.sesac.solbid.dto.user.request.SignupRequest;
 import com.sesac.solbid.dto.user.response.LoginResponse;
 import com.sesac.solbid.dto.user.response.SignupResponse;
-import com.sesac.solbid.repository.UserRepository;
+import com.sesac.solbid.repository.user.UserRepository;
 import com.sesac.solbid.service.user.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

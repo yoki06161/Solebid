@@ -1,6 +1,6 @@
 package com.sesac.solbid.exception;
 
-import com.sesac.solbid.dto.ApiResponse;
+import com.sesac.solbid.dto.api.ApiResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;

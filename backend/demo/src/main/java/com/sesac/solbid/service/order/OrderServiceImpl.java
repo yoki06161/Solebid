@@ -1,15 +1,12 @@
 package com.sesac.solbid.service.order;
 
-import com.sesac.solbid.domain.AuctionEvent;
 import com.sesac.solbid.domain.OrderInfo;
 import com.sesac.solbid.domain.User;
-import com.sesac.solbid.dto.order.request.OrderRequest;
 import com.sesac.solbid.dto.order.response.OrderResponse;
-import com.sesac.solbid.repository.AuctionEventRepository;
-import com.sesac.solbid.repository.UserRepository;
+import com.sesac.solbid.repository.auction.AuctionEventRepository;
+import com.sesac.solbid.repository.user.UserRepository;
 import com.sesac.solbid.repository.order.OrderRepository;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.query.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

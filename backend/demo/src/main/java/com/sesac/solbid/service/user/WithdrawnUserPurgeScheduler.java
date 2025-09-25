@@ -2,7 +2,7 @@ package com.sesac.solbid.service.user;
 
 import com.sesac.solbid.domain.User;
 import com.sesac.solbid.domain.enums.UserStatus;
-import com.sesac.solbid.repository.UserRepository;
+import com.sesac.solbid.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;

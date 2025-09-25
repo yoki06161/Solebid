@@ -2,7 +2,7 @@ package com.sesac.solbid.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sesac.solbid.domain.User;
-import com.sesac.solbid.dto.ApiResponse;
+import com.sesac.solbid.dto.api.ApiResponse;
 import com.sesac.solbid.exception.ErrorCode;
 import com.sesac.solbid.service.user.UserService;
 import com.sesac.solbid.util.JwtUtil;

@@ -20,8 +20,8 @@ import com.sesac.solbid.infra.S3ObjectMover;
 import com.sesac.solbid.infra.S3ObjectVerifier;
 import com.sesac.solbid.mapper.ProductImageMapper;
 import com.sesac.solbid.mapper.ProductMapper;
-import com.sesac.solbid.repository.ProductRepository;
-import com.sesac.solbid.repository.UserRepository;
+import com.sesac.solbid.repository.product.ProductRepository;
+import com.sesac.solbid.repository.user.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

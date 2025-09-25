@@ -2,17 +2,15 @@ package com.sesac.solbid.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sesac.solbid.domain.User;
-import com.sesac.solbid.domain.enums.UserType;
 import com.sesac.solbid.dto.auth.request.*;
 import com.sesac.solbid.dto.user.request.*;
-import com.sesac.solbid.repository.UserRepository;
+import com.sesac.solbid.repository.user.UserRepository;
 import com.sesac.solbid.service.user.UserService;
 import com.sesac.solbid.util.JwtUtil;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Nested;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureWebMvc;
 import org.springframework.boot.test.context.SpringBootTest;

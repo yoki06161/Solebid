@@ -3,15 +3,12 @@ package com.sesac.solbid.service.notification;
 import com.sesac.solbid.domain.Notification;
 import com.sesac.solbid.domain.User;
 import com.sesac.solbid.domain.enums.NotificationType;
-import com.sesac.solbid.repository.NotificationRepository;
+import com.sesac.solbid.repository.notification.NotificationRepository;
 import com.sesac.solbid.service.sse.SseMessages;
 import com.sesac.solbid.service.sse.SsePublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import java.util.Map;
-import java.util.Set;
 
 import static com.sesac.solbid.config.RedisPubSubConfig.CH_USER_NOTIFY;
 

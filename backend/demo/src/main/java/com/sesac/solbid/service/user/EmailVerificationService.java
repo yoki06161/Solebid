@@ -2,10 +2,9 @@ package com.sesac.solbid.service.user;
 
 import com.sesac.solbid.domain.User;
 import com.sesac.solbid.exception.CustomException;
-import com.sesac.solbid.exception.EmailVerificationException;
 import com.sesac.solbid.exception.EmailVerificationExceptionUtils;
 import com.sesac.solbid.exception.ErrorCode;
-import com.sesac.solbid.repository.UserRepository;
+import com.sesac.solbid.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
