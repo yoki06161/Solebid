@@ -4,358 +4,358 @@
 version: '3.8'
 
 services:
-  # 백엔드 서비스 (Spring Boot) - 프로덕션 최적화
-  backend:
-    build:
-      context: ./backend/demo
-      dockerfile: Dockerfile
-      # 프로덕션 빌드 최적화를 위한 빌드 인자
-      args:
-        - BUILD_ENV=production
-    container_name: solebid-backend-prod
-    ports:
-      - "8080:8080"  # 백엔드 API 포트
-    environment:
-      # Spring 프로파일 설정 (프로덕션 환경)
-      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-prod,redis}
-      
-      # Redis 설정
-      - REDIS_HOST=${REDIS_HOST:-redis}
-      - REDIS_PORT=${REDIS_PORT:-6379}
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
-      
-      # 데이터베이스 설정 (AWS RDS)
-      - DB_URL=${DB_URL}
-      - DB_USERNAME=${DB_USERNAME}
-      - DB_PASSWORD=${DB_PASSWORD}
-      
-      # JWT 설정 (프로덕션용 긴 시크릿 키 필수)
-      - JWT_SECRET=${JWT_SECRET}
-      - JWT_ACCESS_TOKEN_VALIDITY=${JWT_ACCESS_TOKEN_VALIDITY:-1800}  # 30분
-      - JWT_REFRESH_TOKEN_VALIDITY=${JWT_REFRESH_TOKEN_VALIDITY:-604800}  # 7일
-      
-      # AWS 설정
-      - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
-      - AWS_SECRET_KEY=${AWS_SECRET_KEY}
-      - AWS_REGION=${AWS_REGION:-ap-southeast-2}
-      - S3_BUCKET=${S3_BUCKET}
-      
-      # 이메일 설정
-      - MAIL_HOST=${MAIL_HOST:-smtp.gmail.com}
-      - MAIL_PORT=${MAIL_PORT:-587}
-      - MAIL_USERNAME=${MAIL_USERNAME}
-      - MAIL_DEBUG=${MAIL_DEBUG:-false}
-      - GOOGLE_MAIL_REFRESH_TOKEN=${GOOGLE_MAIL_REFRESH_TOKEN}
-      
-      # OAuth2 설정 - Google (프로덕션 도메인)
-      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
-      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
-      - GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI}
-      
-      # OAuth2 설정 - Kakao (프로덕션 도메인)
-      - KAKAO_CLIENT_ID=${KAKAO_CLIENT_ID}
-      - KAKAO_CLIENT_SECRET=${KAKAO_CLIENT_SECRET}
-      - KAKAO_REDIRECT_URI=${KAKAO_REDIRECT_URI}
-      - KAKAO_API_HOST=${KAKAO_API_HOST:-https://kapi.kakao.com}
-      - KAKAO_ADMIN_KEY=${KAKAO_ADMIN_KEY}
-      
-      # PortOne 설정
-      - PORTONE_BASE_URL=${PORTONE_BASE_URL:-https://api.iamport.kr}
-      - PORTONE_API_KEY=${PORTONE_API_KEY}
-      - PORTONE_API_SECRET=${PORTONE_API_SECRET}
-      
-      # 애플리케이션 설정 (프로덕션 도메인)
-      - FRONTEND_BASE_URL=${FRONTEND_BASE_URL}
-      - SERVER_PORT=${SERVER_PORT:-8080}
-      
-      # 프로덕션 로깅 설정 (최적화된 로그 레벨)
-      - SECURITY_LOG_LEVEL=${SECURITY_LOG_LEVEL:-warn}
-      - APP_LOG_LEVEL=${APP_LOG_LEVEL:-info}
-      - JPA_SHOW_SQL=${JPA_SHOW_SQL:-false}
-      - JPA_FORMAT_SQL=${JPA_FORMAT_SQL:-false}
-      
-      # JVM 메모리 설정 (프로덕션 최적화)
-      - JAVA_OPTS=${JAVA_OPTS:--Xms512m -Xmx2g -XX:+UseG1GC -XX:MaxGCPauseMillis=200}
-    depends_on:
-      redis:
-        condition: service_healthy
-    networks:
-      - solebid-network
-    restart: always  # 프로덕션에서는 항상 재시작
-    
-    # 리소스 제한 설정 (프로덕션 안정성)
-    deploy:
-      resources:
-        limits:
-          cpus: '2.0'      # CPU 2코어 제한
-          memory: 2.5G     # 메모리 2.5GB 제한
-        reservations:
-          cpus: '0.5'      # 최소 CPU 0.5코어 보장
-          memory: 512M     # 최소 메모리 512MB 보장
-    
-    # 보안 설정 강화
-    security_opt:
-      - no-new-privileges:true  # 새로운 권한 획득 방지
-    read_only: false  # 애플리케이션 로그 쓰기를 위해 false 유지
-    tmpfs:
-      - /tmp:noexec,nosuid,size=100m  # 임시 파일 시스템 보안 설정
-    
-    # 헬스체크 설정 (프로덕션 최적화)
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1"]
-      interval: 60s      # 프로덕션에서는 간격을 늘려 부하 감소
-      timeout: 15s
-      retries: 3
-      start_period: 120s  # 프로덕션 시작 시간 여유
-    
-    # 로깅 설정 (구조화된 로그 및 로테이션)
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "100m"    # 로그 파일 최대 크기
-        max-file: "5"       # 보관할 로그 파일 수
-        labels: "service=backend,environment=production"
+   # 백엔드 서비스 (Spring Boot) - 프로덕션 최적화
+  backend:
+    build:
+      context: ./backend/demo
+      dockerfile: Dockerfile
+      # 프로덕션 빌드 최적화를 위한 빌드 인자
+      args:
+        - BUILD_ENV=production
+    container_name: solebid-backend-prod
+    ports:
+      - "8080:8080"  # 백엔드 API 포트
+    environment:
+      # Spring 프로파일 설정 (프로덕션 환경)
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-prod,redis}
+      
+      # Redis 설정
+      - REDIS_HOST=${REDIS_HOST:-redis}
+      - REDIS_PORT=${REDIS_PORT:-6379}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      
+      # 데이터베이스 설정 (AWS RDS)
+      - DB_URL=${DB_URL}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      
+      # JWT 설정 (프로덕션용 긴 시크릿 키 필수)
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_ACCESS_TOKEN_VALIDITY=${JWT_ACCESS_TOKEN_VALIDITY:-1800}  # 30분
+      - JWT_REFRESH_TOKEN_VALIDITY=${JWT_REFRESH_TOKEN_VALIDITY:-604800}  # 7일
+      
+      # AWS 설정
+      - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
+      - AWS_SECRET_KEY=${AWS_SECRET_KEY}
+      - AWS_REGION=${AWS_REGION:-ap-southeast-2}
+      - S3_BUCKET=${S3_BUCKET}
+      
+      # 이메일 설정
+      - MAIL_HOST=${MAIL_HOST:-smtp.gmail.com}
+      - MAIL_PORT=${MAIL_PORT:-587}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_DEBUG=${MAIL_DEBUG:-false}
+      - GOOGLE_MAIL_REFRESH_TOKEN=${GOOGLE_MAIL_REFRESH_TOKEN}
+      
+      # OAuth2 설정 - Google (프로덕션 도메인)
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI}
+      
+      # OAuth2 설정 - Kakao (프로덕션 도메인)
+      - KAKAO_CLIENT_ID=${KAKAO_CLIENT_ID}
+      - KAKAO_CLIENT_SECRET=${KAKAO_CLIENT_SECRET}
+      - KAKAO_REDIRECT_URI=${KAKAO_REDIRECT_URI}
+      - KAKAO_API_HOST=${KAKAO_API_HOST:-https://kapi.kakao.com}
+      - KAKAO_ADMIN_KEY=${KAKAO_ADMIN_KEY}
+      
+      # PortOne 설정
+      - PORTONE_BASE_URL=${PORTONE_BASE_URL:-https://api.iamport.kr}
+      - PORTONE_API_KEY=${PORTONE_API_KEY}
+      - PORTONE_API_SECRET=${PORTONE_API_SECRET}
+      
+      # 애플리케이션 설정 (프로덕션 도메인)
+      - FRONTEND_BASE_URL=${FRONTEND_BASE_URL}
+      - SERVER_PORT=${SERVER_PORT:-8080}
+      
+      # 프로덕션 로깅 설정 (최적화된 로그 레벨)
+      - SECURITY_LOG_LEVEL=${SECURITY_LOG_LEVEL:-warn}
+      - APP_LOG_LEVEL=${APP_LOG_LEVEL:-info}
+      - JPA_SHOW_SQL=${JPA_SHOW_SQL:-false}
+      - JPA_FORMAT_SQL=${JPA_FORMAT_SQL:-false}
+      
+      # JVM 메모리 설정 (프로덕션 최적화)
+      - JAVA_OPTS=${JAVA_OPTS:--Xms512m -Xmx2g -XX:+UseG1GC -XX:MaxGCPauseMillis=200}
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - solebid-network
+    restart: always  # 프로덕션에서는 항상 재시작
+    
+    # 리소스 제한 설정 (프로덕션 안정성)
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'     # CPU 2코어 제한
+          memory: 2.5G     # 메모리 2.5GB 제한
+        reservations:
+          cpus: '0.5'     # 최소 CPU 0.5코어 보장
+          memory: 512M     # 최소 메모리 512MB 보장
+    
+    # 보안 설정 강화
+    security_opt:
+      - no-new-privileges:true  # 새로운 권한 획득 방지
+    read_only: false  # 애플리케이션 로그 쓰기를 위해 false 유지
+    tmpfs:
+      - /tmp:noexec,nosuid,size=100m  # 임시 파일 시스템 보안 설정
+    
+    # 헬스체크 설정 (프로덕션 최적화)
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1"]
+      interval: 60s      # 프로덕션에서는 간격을 늘려 부하 감소
+      timeout: 15s
+      retries: 3
+      start_period: 120s  # 프로덕션 시작 시간 여유
+    
+    # 로깅 설정 (구조화된 로그 및 로테이션)
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"    # 로그 파일 최대 크기
+        max-file: "5"       # 보관할 로그 파일 수
+        labels: "service=backend,environment=production"
 
-  # 프론트엔드 서비스 (React + Nginx) - 프로덕션 최적화
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      # 프로덕션 빌드 최적화
-      args:
-        - NODE_ENV=production
-        - BUILD_ENV=production
-    container_name: solebid-frontend-prod
-    ports:
-      - "80:80"      # HTTP 포트
-      - "443:443"    # HTTPS 포트 (SSL 인증서 설정 시)
-    depends_on:
-      backend:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - solebid-network
-    restart: always
-    
-    # 리소스 제한 설정 (프론트엔드는 상대적으로 가벼움)
-    deploy:
-      resources:
-        limits:
-          cpus: '1.0'      # CPU 1코어 제한
-          memory: 512M     # 메모리 512MB 제한
-        reservations:
-          cpus: '0.25'     # 최소 CPU 0.25코어 보장
-          memory: 128M     # 최소 메모리 128MB 보장
-    
-    # 보안 설정 강화
-    security_opt:
-      - no-new-privileges:true
-    read_only: true  # Nginx는 읽기 전용으로 실행 가능
-    tmpfs:
-      - /var/cache/nginx:noexec,nosuid,size=50m  # Nginx 캐시용 임시 파일 시스템
-      - /var/run:noexec,nosuid,size=10m          # PID 파일용 임시 파일 시스템
-    
-    # 헬스체크 설정
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:80/ || exit 1"]
-      interval: 60s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
-    
-    # 로깅 설정
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "50m"
-        max-file: "3"
-        labels: "service=frontend,environment=production"
+  # 프론트엔드 서비스 (React + Nginx) - 프로덕션 최적화
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      # 프로덕션 빌드 최적화
+      args:
+        - NODE_ENV=production
+        - BUILD_ENV=production
+    container_name: solebid-frontend-prod
+    ports:
+      - "80:80"      # HTTP 포트
+      - "443:443"    # HTTPS 포트 (SSL 인증서 설정 시)
+    depends_on:
+      backend:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - solebid-network
+    restart: always
+    
+    # 리소스 제한 설정 (프론트엔드는 상대적으로 가벼움)
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'     # CPU 1코어 제한
+          memory: 512M     # 메모리 512MB 제한
+        reservations:
+          cpus: '0.25'     # 최소 CPU 0.25코어 보장
+          memory: 128M     # 최소 메모리 128MB 보장
+    
+    # 보안 설정 강화
+    security_opt:
+      - no-new-privileges:true
+    read_only: true  # Nginx는 읽기 전용으로 실행 가능
+    tmpfs:
+      - /var/cache/nginx:noexec,nosuid,size=50m  # Nginx 캐시용 임시 파일 시스템
+      - /var/run:noexec,nosuid,size=10m         # PID 파일용 임시 파일 시스템
+    
+    # 헬스체크 설정
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/ || exit 1"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    
+    # 로깅 설정
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+        labels: "service=frontend,environment=production"
 
-  # Redis 캐시 서비스 - 프로덕션 최적화
-  redis:
-    image: redis:7-alpine
-    container_name: solebid-redis-prod
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis-data:/data
-      # Redis 설정 파일 마운트 (보안 강화)
-      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
-    networks:
-      - solebid-network
-    restart: always
-    
-    # 프로덕션용 Redis 명령어 (보안 및 성능 최적화)
-    command: >
-      redis-server /usr/local/etc/redis/redis.conf
-      --appendonly yes
-      --maxmemory 1g
-      --maxmemory-policy allkeys-lru
-      --save 900 1
-      --save 300 10
-      --save 60 10000
-      --requirepass ${REDIS_PASSWORD}
-      --tcp-keepalive 300
-      --timeout 0
-    
-    # 리소스 제한 설정
-    deploy:
-      resources:
-        limits:
-          cpus: '1.0'      # CPU 1코어 제한
-          memory: 1.2G     # 메모리 1.2GB 제한 (Redis 메모리 + 오버헤드)
-        reservations:
-          cpus: '0.25'     # 최소 CPU 0.25코어 보장
-          memory: 256M     # 최소 메모리 256MB 보장
-    
-    # 보안 설정 강화
-    security_opt:
-      - no-new-privileges:true
-    read_only: false  # Redis는 데이터 쓰기가 필요
-    tmpfs:
-      - /tmp:noexec,nosuid,size=50m
-    
-    # 헬스체크 설정 (비밀번호 인증 포함)
-    healthcheck:
-      test: ["CMD-SHELL", "redis-cli -a ${REDIS_PASSWORD} ping | grep PONG || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 15s
-    
-    # 로깅 설정
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "50m"
-        max-file: "3"
-        labels: "service=redis,environment=production"
+  # Redis 캐시 서비스 - 프로덕션 최적화
+  redis:
+    image: redis:7-alpine
+    container_name: solebid-redis-prod
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+      # Redis 설정 파일 마운트 (보안 강화)
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    networks:
+      - solebid-network
+    restart: always
+    
+    # 프로덕션용 Redis 명령어 (보안 및 성능 최적화)
+    command: >
+      redis-server /usr/local/etc/redis/redis.conf
+      --appendonly yes
+      --maxmemory 1g
+      --maxmemory-policy allkeys-lru
+      --save 900 1
+      --save 300 10
+      --save 60 10000
+      --requirepass ${REDIS_PASSWORD}
+      --tcp-keepalive 300
+      --timeout 0
+    
+    # 리소스 제한 설정
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'     # CPU 1코어 제한
+          memory: 1.2G     # 메모리 1.2GB 제한 (Redis 메모리 + 오버헤드)
+        reservations:
+          cpus: '0.25'     # 최소 CPU 0.25코어 보장
+          memory: 256M     # 최소 메모리 256MB 보장
+    
+    # 보안 설정 강화
+    security_opt:
+      - no-new-privileges:true
+    read_only: false  # Redis는 데이터 쓰기가 필요
+    tmpfs:
+      - /tmp:noexec,nosuid,size=50m
+    
+    # 헬스체크 설정 (비밀번호 인증 포함)
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a ${REDIS_PASSWORD} ping | grep PONG || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    
+    # 로깅 설정
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+        labels: "service=redis,environment=production"
 
-  # 모니터링 서비스 (선택사항) - Prometheus + Grafana
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: solebid-prometheus
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - prometheus-data:/prometheus
-    networks:
-      - solebid-network
-    restart: always
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/etc/prometheus/console_libraries'
-      - '--web.console.templates=/etc/prometheus/consoles'
-      - '--storage.tsdb.retention.time=30d'  # 30일간 데이터 보관
-      - '--web.enable-lifecycle'
-    
-    # 리소스 제한
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 512M
-        reservations:
-          cpus: '0.1'
-          memory: 128M
-    
-    # 보안 설정
-    security_opt:
-      - no-new-privileges:true
-    
-    # 로깅 설정
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "50m"
-        max-file: "3"
-        labels: "service=prometheus,environment=production"
+  # 모니터링 서비스 (선택사항) - Prometheus + Grafana
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: solebid-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    networks:
+      - solebid-network
+    restart: always
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=30d'  # 30일간 데이터 보관
+      - '--web.enable-lifecycle'
+    
+    # 리소스 제한
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+    
+    # 보안 설정
+    security_opt:
+      - no-new-privileges:true
+    
+    # 로깅 설정
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+        labels: "service=prometheus,environment=production"
 
-  # 로그 수집 서비스 (선택사항) - Fluentd
-  fluentd:
-    image: fluent/fluentd:v1.16-debian-1
-    container_name: solebid-fluentd
-    volumes:
-      - ./logging/fluent.conf:/fluentd/etc/fluent.conf:ro
-      - /var/log:/var/log:ro  # 호스트 로그 읽기
-    networks:
-      - solebid-network
-    restart: always
-    
-    # 리소스 제한
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 256M
-        reservations:
-          cpus: '0.1'
-          memory: 64M
-    
-    # 보안 설정
-    security_opt:
-      - no-new-privileges:true
-    
-    # 로깅 설정
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "50m"
-        max-file: "3"
-        labels: "service=fluentd,environment=production"
+  # 로그 수집 서비스 (선택사항) - Fluentd
+  fluentd:
+    image: fluent/fluentd:v1.16-debian-1
+    container_name: solebid-fluentd
+    volumes:
+      - ./logging/fluent.conf:/fluentd/etc/fluent.conf:ro
+      - /var/log:/var/log:ro  # 호스트 로그 읽기
+    networks:
+      - solebid-network
+    restart: always
+    
+    # 리소스 제한
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    
+    # 보안 설정
+    security_opt:
+      - no-new-privileges:true
+    
+    # 로깅 설정
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+        labels: "service=fluentd,environment=production"
 
 # 사용자 정의 네트워크 설정 (프로덕션 보안 강화)
 networks:
-  solebid-network:
-    driver: bridge
-    name: solebid-network-prod
-    driver_opts:
-      com.docker.network.bridge.name: solebid-br-prod
-      com.docker.network.bridge.enable_icc: "true"
-      com.docker.network.bridge.enable_ip_masquerade: "true"
-    ipam:
-      driver: default
-      config:
-        - subnet: 172.20.0.0/16  # 사용자 정의 서브넷
+  solebid-network:
+    driver: bridge
+    name: solebid-network-prod
+    driver_opts:
+      com.docker.network.bridge.name: solebid-br-prod
+      com.docker.network.bridge.enable_icc: "true"
+      com.docker.network.bridge.enable_ip_masquerade: "true"
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.0.0/16  # 사용자 정의 서브넷
 
 # 볼륨 설정 (프로덕션 데이터 영속성)
 volumes:
-  redis-data:
-    driver: local
-    name: solebid-redis-data-prod
-    driver_opts:
-      type: none
-      o: bind
-      device: ${REDIS_DATA_PATH:-./data/redis}  # 호스트 경로 지정 가능
-  
-  prometheus-data:
-    driver: local
-    name: solebid-prometheus-data
-    driver_opts:
-      type: none
-      o: bind
-      device: ${PROMETHEUS_DATA_PATH:-./data/prometheus}
+  redis-data:
+    driver: local
+    name: solebid-redis-data-prod
+    driver_opts:
+      type: none
+      o: bind
+      device: ${REDIS_DATA_PATH:-./data/redis}  # 호스트 경로 지정 가능
+  
+  prometheus-data:
+    driver: local
+    name: solebid-prometheus-data
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PROMETHEUS_DATA_PATH:-./data/prometheus}
 
 # 프로덕션 환경 설정
 x-common-variables: &common-variables
-  # 공통 환경 변수 (YAML 앵커 사용)
-  TZ: ${TZ:-Asia/Seoul}  # 타임존 설정
-  
+  # 공통 환경 변수 (YAML 앵커 사용)
+  TZ: ${TZ:-Asia/Seoul}  # 타임존 설정
+  
 x-logging: &default-logging
-  # 공통 로깅 설정 (YAML 앵커 사용)
-  driver: "json-file"
-  options:
-    max-size: "100m"
-    max-file: "5"
-    compress: "true"
+  # 공통 로깅 설정 (YAML 앵커 사용)
+  driver: "json-file"
+  options:
+    max-size: "100m"
+    max-file: "5"
+    compress: "true"
 
 x-security: &default-security
-  # 공통 보안 설정 (YAML 앵커 사용)
-  - no-new-privileges:true
-  - apparmor:unconfined  # 필요시 AppArmor 프로파일 적용
+  # 공통 보안 설정 (YAML 앵커 사용)
+  - no-new-privileges:true
+  - apparmor:unconfined  # 필요시 AppArmor 프로파일 적용
 
 # 프로덕션 배포 시 주의사항:
 # 1. 모든 환경 변수를 .env.prod 파일에 설정

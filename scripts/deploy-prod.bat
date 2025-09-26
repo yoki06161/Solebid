@@ -35,22 +35,22 @@ call :log_info "프로덕션 배포 전 필수 조건 확인 중..."
 REM Docker 설치 확인
 docker --version >nul 2>&1
 if errorlevel 1 (
-    call :log_error "Docker가 설치되지 않았습니다."
-    exit /b 1
+    call :log_error "Docker가 설치되지 않았습니다."
+    exit /b 1
 )
 
 REM Docker Compose 설치 확인
 docker-compose --version >nul 2>&1
 if errorlevel 1 (
-    call :log_error "Docker Compose가 설치되지 않았습니다."
-    exit /b 1
+    call :log_error "Docker Compose가 설치되지 않았습니다."
+    exit /b 1
 )
 
 REM .env.prod 파일 존재 확인
 if not exist ".env.prod" (
-    call :log_error ".env.prod 파일이 존재하지 않습니다."
-    call :log_info ".env.prod.example을 복사하여 .env.prod를 생성하고 값을 설정하세요."
-    exit /b 1
+    call :log_error ".env.prod 파일이 존재하지 않습니다."
+    call :log_info ".env.prod.example을 복사하여 .env.prod를 생성하고 값을 설정하세요."
+    exit /b 1
 )
 
 REM 필수 디렉토리 생성
@@ -77,20 +77,20 @@ mkdir "%backup_dir%"
 
 REM Redis 데이터 백업
 if exist "data\redis" (
-    xcopy "data\redis" "%backup_dir%\redis\" /E /I /Q >nul
-    call :log_success "Redis 데이터 백업 완료: %backup_dir%\redis"
+    xcopy "data\redis" "%backup_dir%\redis\" /E /I /Q >nul
+    call :log_success "Redis 데이터 백업 완료: %backup_dir%\redis"
 )
 
 REM Prometheus 데이터 백업
 if exist "data\prometheus" (
-    xcopy "data\prometheus" "%backup_dir%\prometheus\" /E /I /Q >nul
-    call :log_success "Prometheus 데이터 백업 완료: %backup_dir%\prometheus"
+    xcopy "data\prometheus" "%backup_dir%\prometheus\" /E /I /Q >nul
+    call :log_success "Prometheus 데이터 백업 완료: %backup_dir%\prometheus"
 )
 
 REM 로그 백업
 if exist "logs" (
-    xcopy "logs" "%backup_dir%\logs\" /E /I /Q >nul
-    call :log_success "로그 백업 완료: %backup_dir%\logs"
+    xcopy "logs" "%backup_dir%\logs\" /E /I /Q >nul
+    call :log_success "로그 백업 완료: %backup_dir%\logs"
 )
 
 call :log_success "백업 생성 완료: %backup_dir%"
@@ -106,8 +106,8 @@ docker-compose -f docker-compose.prod.yml down --remove-orphans 2>nul
 REM 이미지 빌드
 docker-compose -f docker-compose.prod.yml build --no-cache --parallel
 if errorlevel 1 (
-    call :log_error "이미지 빌드 실패"
-    exit /b 1
+    call :log_error "이미지 빌드 실패"
+    exit /b 1
 )
 
 call :log_success "이미지 빌드 완료"
@@ -120,8 +120,8 @@ call :log_info "프로덕션 서비스 배포 중..."
 REM 서비스 시작
 docker-compose -f docker-compose.prod.yml --env-file .env.prod up -d
 if errorlevel 1 (
-    call :log_error "서비스 배포 실패"
-    exit /b 1
+    call :log_error "서비스 배포 실패"
+    exit /b 1
 )
 
 call :log_success "서비스 배포 완료"
@@ -141,8 +141,8 @@ set /a max_attempts=30
 :backend_health_loop
 curl -f http://localhost:8080/actuator/health >nul 2>&1
 if not errorlevel 1 (
-    call :log_success "백엔드 헬스체크 통과"
-    goto :frontend_health
+    call :log_success "백엔드 헬스체크 통과"
+    goto :frontend_health
 )
 
 call :log_info "백엔드 시작 대기 중... (!attempt!/!max_attempts!)"
@@ -158,8 +158,8 @@ exit /b 1
 REM 프론트엔드 헬스체크
 curl -f http://localhost:80 >nul 2>&1
 if errorlevel 1 (
-    call :log_error "프론트엔드 헬스체크 실패"
-    exit /b 1
+    call :log_error "프론트엔드 헬스체크 실패"
+    exit /b 1
 )
 
 call :log_success "프론트엔드 헬스체크 통과"
@@ -213,23 +213,23 @@ REM 가장 최근 백업 찾기
 for /f "delims=" %%i in ('dir /b /od backups 2^>nul ^| findstr /r ".*"') do set "latest_backup=%%i"
 
 if defined latest_backup (
-    call :log_info "백업에서 데이터 복원 중: !latest_backup!"
-    
-    REM Redis 데이터 복원
-    if exist "backups\!latest_backup!\redis" (
-        if exist "data\redis" rmdir /s /q "data\redis"
-        xcopy "backups\!latest_backup!\redis" "data\redis\" /E /I /Q >nul
-    )
-    
-    REM Prometheus 데이터 복원
-    if exist "backups\!latest_backup!\prometheus" (
-        if exist "data\prometheus" rmdir /s /q "data\prometheus"
-        xcopy "backups\!latest_backup!\prometheus" "data\prometheus\" /E /I /Q >nul
-    )
-    
-    call :log_success "데이터 복원 완료"
+    call :log_info "백업에서 데이터 복원 중: !latest_backup!"
+    
+    REM Redis 데이터 복원
+    if exist "backups\!latest_backup!\redis" (
+        if exist "data\redis" rmdir /s /q "data\redis"
+        xcopy "backups\!latest_backup!\redis" "data\redis\" /E /I /Q >nul
+    )
+    
+    REM Prometheus 데이터 복원
+    if exist "backups\!latest_backup!\prometheus" (
+        if exist "data\prometheus" rmdir /s /q "data\prometheus"
+        xcopy "backups\!latest_backup!\prometheus" "data\prometheus\" /E /I /Q >nul
+    )
+    
+    call :log_success "데이터 복원 완료"
 ) else (
-    call :log_warning "복원할 백업이 없습니다."
+    call :log_warning "복원할 백업이 없습니다."
 )
 goto :eof
 
@@ -245,8 +245,8 @@ REM 사용자 확인
 echo.
 set /p "confirm=프로덕션 배포를 계속하시겠습니까? (y/N): "
 if /i not "%confirm%"=="y" (
-    call :log_info "배포가 취소되었습니다."
-    exit /b 0
+    call :log_info "배포가 취소되었습니다."
+    exit /b 0
 )
 
 REM 배포 실행
@@ -281,8 +281,8 @@ if /i "%~1"=="status" goto :show_status
 if /i "%~1"=="health" goto :health_check
 
 echo 사용법: %0 [deploy^|rollback^|status^|health]
-echo   deploy  : 프로덕션 배포 (기본값)
-echo   rollback: 이전 버전으로 롤백
-echo   status  : 현재 배포 상태 확인
-echo   health  : 헬스체크 수행
+echo    deploy  : 프로덕션 배포 (기본값)
+echo    rollback: 이전 버전으로 롤백
+echo    status  : 현재 배포 상태 확인
+echo    health  : 헬스체크 수행
 exit /b 1

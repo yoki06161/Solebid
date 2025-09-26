@@ -3,194 +3,194 @@
 # 사용법: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
 
 services:
-  # 백엔드 개발환경 설정 (Spring Boot)
-  backend:
-    # 개발용 빌드 설정 - 캐시 비활성화로 최신 코드 반영
-    build:
-      context: ./backend/demo
-      dockerfile: Dockerfile
-      args:
-        - BUILD_ENV=development
-    # 개발용 환경 변수 추가
-    environment:
-      # 개발 모드 활성화
-      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-docker,redis,dev}
-      
-      # 개발용 로깅 설정
-      - SECURITY_LOG_LEVEL=${SECURITY_LOG_LEVEL:-debug}
-      - APP_LOG_LEVEL=${APP_LOG_LEVEL:-debug}
-      - JPA_SHOW_SQL=${JPA_SHOW_SQL:-true}
-      - JPA_FORMAT_SQL=${JPA_FORMAT_SQL:-true}
-      
-      # 개발용 JVM 옵션 - 디버깅 및 핫스왑 지원
-      - JAVA_OPTS=-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=*:5005 -Xms512m -Xmx1024m
-      
-      # Spring Boot DevTools 활성화
-      - SPRING_DEVTOOLS_RESTART_ENABLED=true
-      - SPRING_DEVTOOLS_LIVERELOAD_ENABLED=true
-      
-      # 모든 환경 변수를 상속받아 사용
-      - REDIS_HOST=${REDIS_HOST:-redis}
-      - REDIS_PORT=${REDIS_PORT:-6379}
-      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
-      - DB_URL=${DB_URL}
-      - DB_USERNAME=${DB_USERNAME}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - JWT_SECRET=${JWT_SECRET}
-      - JWT_ACCESS_TOKEN_VALIDITY=${JWT_ACCESS_TOKEN_VALIDITY:-3600}
-      - JWT_REFRESH_TOKEN_VALIDITY=${JWT_REFRESH_TOKEN_VALIDITY:-86400}
-      - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
-      - AWS_SECRET_KEY=${AWS_SECRET_KEY}
-      - AWS_REGION=${AWS_REGION:-ap-southeast-2}
-      - S3_BUCKET=${S3_BUCKET}
-      - MAIL_HOST=${MAIL_HOST:-smtp.gmail.com}
-      - MAIL_PORT=${MAIL_PORT:-587}
-      - MAIL_USERNAME=${MAIL_USERNAME}
-      - MAIL_DEBUG=${MAIL_DEBUG:-true}
-      - GOOGLE_MAIL_REFRESH_TOKEN=${GOOGLE_MAIL_REFRESH_TOKEN}
-      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
-      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
-      - GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI:-http://localhost:3000/auth/callback/google}
-      - KAKAO_CLIENT_ID=${KAKAO_CLIENT_ID}
-      - KAKAO_CLIENT_SECRET=${KAKAO_CLIENT_SECRET}
-      - KAKAO_REDIRECT_URI=${KAKAO_REDIRECT_URI:-http://localhost:3000/auth/callback/kakao}
-      - KAKAO_API_HOST=${KAKAO_API_HOST:-https://kapi.kakao.com}
-      - KAKAO_ADMIN_KEY=${KAKAO_ADMIN_KEY}
-      - PORTONE_BASE_URL=${PORTONE_BASE_URL:-https://api.iamport.kr}
-      - PORTONE_API_KEY=${PORTONE_API_KEY}
-      - PORTONE_API_SECRET=${PORTONE_API_SECRET}
-      - FRONTEND_BASE_URL=${FRONTEND_BASE_URL:-http://localhost:3000}
-      - SERVER_PORT=${SERVER_PORT:-8080}
-    # 개발용 포트 추가 노출
-    ports:
-      - "${DOCKER_BACKEND_PORT:-8080}:8080"  # 메인 애플리케이션 포트 (환경 변수로 설정 가능)
-      - "${DOCKER_DEBUG_PORT:-5005}:5005"  # Java 원격 디버깅 포트 (환경 변수로 설정 가능)
-      - "${DOCKER_LIVERELOAD_PORT:-35729}:35729"  # Spring Boot LiveReload 포트 (환경 변수로 설정 가능)
-    # 볼륨 마운트로 실시간 코드 변경 반영
-    volumes:
-      # 소스 코드 디렉토리 마운트 (읽기 전용)
-      - ./backend/demo/src:/app/src:ro
-      # 설정 파일 마운트로 실시간 설정 변경 반영
-      - ./backend/demo/src/main/resources:/app/resources:ro
-      # Gradle 캐시 볼륨으로 빌드 속도 향상
-      - gradle-cache:/root/.gradle
-    # 개발용 의존성 관리 - Redis가 healthy 상태가 될 때까지 대기
-    depends_on:
-      redis:
-        condition: service_healthy
-    # 개발용 재시작 정책 - 실패 시에만 재시작
-    restart: on-failure
-    # 개발용 헬스체크 - Java 프로세스 확인으로 변경
-    healthcheck:
-      test: ["CMD-SHELL", "pgrep java || exit 1"]
-      interval: 15s  # 프로덕션보다 빠른 체크 간격
-      timeout: 5s
-      retries: 5
-      start_period: 60s  # 개발 환경에서도 충분한 시작 시간 제공
+  # 백엔드 개발환경 설정 (Spring Boot)
+  backend:
+    # 개발용 빌드 설정 - 캐시 비활성화로 최신 코드 반영
+    build:
+      context: ./backend/demo
+      dockerfile: Dockerfile
+      args:
+        - BUILD_ENV=development
+    # 개발용 환경 변수 추가
+    environment:
+      # 개발 모드 활성화
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-docker,redis,dev}
+      
+      # 개발용 로깅 설정
+      - SECURITY_LOG_LEVEL=${SECURITY_LOG_LEVEL:-debug}
+      - APP_LOG_LEVEL=${APP_LOG_LEVEL:-debug}
+      - JPA_SHOW_SQL=${JPA_SHOW_SQL:-true}
+      - JPA_FORMAT_SQL=${JPA_FORMAT_SQL:-true}
+      
+      # 개발용 JVM 옵션 - 디버깅 및 핫스왑 지원
+      - JAVA_OPTS=-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=*:5005 -Xms512m -Xmx1024m
+      
+      # Spring Boot DevTools 활성화
+      - SPRING_DEVTOOLS_RESTART_ENABLED=true
+      - SPRING_DEVTOOLS_LIVERELOAD_ENABLED=true
+      
+      # 모든 환경 변수를 상속받아 사용
+      - REDIS_HOST=${REDIS_HOST:-redis}
+      - REDIS_PORT=${REDIS_PORT:-6379}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+      - DB_URL=${DB_URL}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_ACCESS_TOKEN_VALIDITY=${JWT_ACCESS_TOKEN_VALIDITY:-3600}
+      - JWT_REFRESH_TOKEN_VALIDITY=${JWT_REFRESH_TOKEN_VALIDITY:-86400}
+      - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
+      - AWS_SECRET_KEY=${AWS_SECRET_KEY}
+      - AWS_REGION=${AWS_REGION:-ap-southeast-2}
+      - S3_BUCKET=${S3_BUCKET}
+      - MAIL_HOST=${MAIL_HOST:-smtp.gmail.com}
+      - MAIL_PORT=${MAIL_PORT:-587}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_DEBUG=${MAIL_DEBUG:-true}
+      - GOOGLE_MAIL_REFRESH_TOKEN=${GOOGLE_MAIL_REFRESH_TOKEN}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI:-http://localhost:3000/auth/callback/google}
+      - KAKAO_CLIENT_ID=${KAKAO_CLIENT_ID}
+      - KAKAO_CLIENT_SECRET=${KAKAO_CLIENT_SECRET}
+      - KAKAO_REDIRECT_URI=${KAKAO_REDIRECT_URI:-http://localhost:3000/auth/callback/kakao}
+      - KAKAO_API_HOST=${KAKAO_API_HOST:-https://kapi.kakao.com}
+      - KAKAO_ADMIN_KEY=${KAKAO_ADMIN_KEY}
+      - PORTONE_BASE_URL=${PORTONE_BASE_URL:-https://api.iamport.kr}
+      - PORTONE_API_KEY=${PORTONE_API_KEY}
+      - PORTONE_API_SECRET=${PORTONE_API_SECRET}
+      - FRONTEND_BASE_URL=${FRONTEND_BASE_URL:-http://localhost:3000}
+      - SERVER_PORT=${SERVER_PORT:-8080}
+    # 개발용 포트 추가 노출
+    ports:
+      - "${DOCKER_BACKEND_PORT:-8080}:8080"  # 메인 애플리케이션 포트 (환경 변수로 설정 가능)
+      - "${DOCKER_DEBUG_PORT:-5005}:5005"  # Java 원격 디버깅 포트 (환경 변수로 설정 가능)
+      - "${DOCKER_LIVERELOAD_PORT:-35729}:35729"  # Spring Boot LiveReload 포트 (환경 변수로 설정 가능)
+    # 볼륨 마운트로 실시간 코드 변경 반영
+    volumes:
+      # 소스 코드 디렉토리 마운트 (읽기 전용)
+      - ./backend/demo/src:/app/src:ro
+      # 설정 파일 마운트로 실시간 설정 변경 반영
+      - ./backend/demo/src/main/resources:/app/resources:ro
+      # Gradle 캐시 볼륨으로 빌드 속도 향상
+      - gradle-cache:/root/.gradle
+    # 개발용 의존성 관리 - Redis가 healthy 상태가 될 때까지 대기
+    depends_on:
+      redis:
+        condition: service_healthy
+    # 개발용 재시작 정책 - 실패 시에만 재시작
+    restart: on-failure
+    # 개발용 헬스체크 - Java 프로세스 확인으로 변경
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep java || exit 1"]
+      interval: 15s  # 프로덕션보다 빠른 체크 간격
+      timeout: 5s
+      retries: 5
+      start_period: 60s  # 개발 환경에서도 충분한 시작 시간 제공
 
-  # 프론트엔드 개발환경 설정 (React)
-  frontend:
-    # 개발용 빌드 설정
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      target: development  # 개발용 빌드 스테이지 사용
-    # 개발용 환경 변수
-    environment:
-      # React 개발 서버 설정
-      - NODE_ENV=development
-      - CHOKIDAR_USEPOLLING=true  # 파일 변경 감지 향상 (Docker 환경)
-      - WATCHPACK_POLLING=true
-      - FAST_REFRESH=true  # React Fast Refresh 활성화
-      # Node.js 및 Vite 최적화 설정
-      - NODE_OPTIONS=--max-old-space-size=4096
-      - VITE_LEGACY_DEPS_OPTIMIZER=false
-      # API 연결 설정
-      - VITE_API_BASE_URL=http://localhost:${DOCKER_BACKEND_PORT:-8080}
-    # 개발용 포트 설정 (메인 설정 오버라이드)
-    ports:
-      - "${DOCKER_FRONTEND_PORT:-3000}:3000"  # React 개발 서버 포트 (환경 변수로 설정 가능)
-    # 개발용 의존성 관리 - 백엔드와 Redis가 healthy 상태가 될 때까지 대기
-    depends_on:
-      backend:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    # 볼륨 마운트로 실시간 코드 변경 반영
-    volumes:
-      # 소스 코드 디렉토리 마운트
-      - ./frontend/src:/app/src
-      - ./frontend/public:/app/public
-      # 설정 파일 마운트
-      - ./frontend/package.json:/app/package.json:ro
-      - ./frontend/package-lock.json:/app/package-lock.json:ro
-      - ./frontend/vite.config.ts:/app/vite.config.ts:ro
-      - ./frontend/tsconfig.json:/app/tsconfig.json:ro
-      - ./frontend/tailwind.config.js:/app/tailwind.config.js:ro
-      # node_modules 볼륨으로 성능 향상
-      - frontend-node-modules:/app/node_modules
-    # 개발용 명령어 오버라이드 - 개발 서버 실행
-    command: npm run dev -- --host 0.0.0.0 --port 3000
-    # 개발용 재시작 정책
-    restart: on-failure
-    # 개발용 헬스체크 - Vite 개발 서버 상태 확인
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:3000/ || exit 1"]
-      interval: 20s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
-    # stdin과 tty 활성화로 인터랙티브 모드 지원
-    stdin_open: true
-    tty: true
+  # 프론트엔드 개발환경 설정 (React)
+  frontend:
+    # 개발용 빌드 설정
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: development  # 개발용 빌드 스테이지 사용
+    # 개발용 환경 변수
+    environment:
+      # React 개발 서버 설정
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true  # 파일 변경 감지 향상 (Docker 환경)
+      - WATCHPACK_POLLING=true
+      - FAST_REFRESH=true  # React Fast Refresh 활성화
+      # Node.js 및 Vite 최적화 설정
+      - NODE_OPTIONS=--max-old-space-size=4096
+      - VITE_LEGACY_DEPS_OPTIMIZER=false
+      # API 연결 설정
+      - VITE_API_BASE_URL=http://localhost:${DOCKER_BACKEND_PORT:-8080}
+    # 개발용 포트 설정 (메인 설정 오버라이드)
+    ports:
+      - "${DOCKER_FRONTEND_PORT:-3000}:3000"  # React 개발 서버 포트 (환경 변수로 설정 가능)
+    # 개발용 의존성 관리 - 백엔드와 Redis가 healthy 상태가 될 때까지 대기
+    depends_on:
+      backend:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    # 볼륨 마운트로 실시간 코드 변경 반영
+    volumes:
+      # 소스 코드 디렉토리 마운트
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+      # 설정 파일 마운트
+      - ./frontend/package.json:/app/package.json:ro
+      - ./frontend/package-lock.json:/app/package-lock.json:ro
+      - ./frontend/vite.config.ts:/app/vite.config.ts:ro
+      - ./frontend/tsconfig.json:/app/tsconfig.json:ro
+      - ./frontend/tailwind.config.js:/app/tailwind.config.js:ro
+      # node_modules 볼륨으로 성능 향상
+      - frontend-node-modules:/app/node_modules
+    # 개발용 명령어 오버라이드 - 개발 서버 실행
+    command: npm run dev -- --host 0.0.0.0 --port 3000
+    # 개발용 재시작 정책
+    restart: on-failure
+    # 개발용 헬스체크 - Vite 개발 서버 상태 확인
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/ || exit 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    # stdin과 tty 활성화로 인터랙티브 모드 지원
+    stdin_open: true
+    tty: true
 
-  # Redis 개발환경 설정
-  redis:
-    # 개발용 Redis 설정 - 더 많은 로깅과 디버깅 옵션
-    command: >
-      redis-server 
-      --appendonly yes 
-      --loglevel verbose
-      --save 60 1000
-      --maxmemory 256mb
-      --maxmemory-policy allkeys-lru
-    # 개발용 포트 노출 - 외부 Redis 클라이언트 접근 허용
-    ports:
-      - "${DOCKER_REDIS_PORT:-6379}:6379"  # Redis 포트 (환경 변수로 설정 가능)
-    # 개발용 볼륨 설정 - 로컬 데이터 디렉토리 마운트
-    volumes:
-      - redis-dev-data:/data
-      # Redis 설정 파일 마운트 (필요시)
-      # - ./redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
-    # 개발용 재시작 정책
-    restart: on-failure
-    # 개발용 헬스체크 - 더 빠른 간격으로 체크
-    healthcheck:
-      test: ["CMD-SHELL", "redis-cli ping | grep PONG || exit 1"]
-      interval: 5s
-      timeout: 3s
-      retries: 3
-      start_period: 5s
+  # Redis 개발환경 설정
+  redis:
+    # 개발용 Redis 설정 - 더 많은 로깅과 디버깅 옵션
+    command: >
+      redis-server 
+      --appendonly yes 
+      --loglevel verbose
+      --save 60 1000
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+    # 개발용 포트 노출 - 외부 Redis 클라이언트 접근 허용
+    ports:
+      - "${DOCKER_REDIS_PORT:-6379}:6379"  # Redis 포트 (환경 변수로 설정 가능)
+    # 개발용 볼륨 설정 - 로컬 데이터 디렉토리 마운트
+    volumes:
+      - redis-dev-data:/data
+      # Redis 설정 파일 마운트 (필요시)
+      # - ./redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    # 개발용 재시작 정책
+    restart: on-failure
+    # 개발용 헬스체크 - 더 빠른 간격으로 체크
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
 
 # 개발환경용 추가 볼륨 정의
 volumes:
-  # Gradle 캐시 볼륨 - 백엔드 빌드 속도 향상
-  gradle-cache:
-    driver: local
-    name: solebid-gradle-cache
-  
-  # 프론트엔드 node_modules 볼륨 - 성능 향상
-  frontend-node-modules:
-    driver: local
-    name: solebid-frontend-node-modules
-  
-  # 개발용 Redis 데이터 볼륨 - 프로덕션과 분리
-  redis-dev-data:
-    driver: local
-    name: solebid-redis-dev-data
+  # Gradle 캐시 볼륨 - 백엔드 빌드 속도 향상
+  gradle-cache:
+    driver: local
+    name: solebid-gradle-cache
+  
+  # 프론트엔드 node_modules 볼륨 - 성능 향상
+  frontend-node-modules:
+    driver: local
+    name: solebid-frontend-node-modules
+  
+  # 개발용 Redis 데이터 볼륨 - 프로덕션과 분리
+  redis-dev-data:
+    driver: local
+    name: solebid-redis-dev-data
 
 # 개발환경용 네트워크 설정 (메인 설정 상속)
 networks:
-  solebid-network:
-    driver: bridge  # 브리지 네트워크 드라이버 사용
-    name: solebid-network
+  solebid-network:
+    driver: bridge  # 브리지 네트워크 드라이버 사용
+    name: solebid-network
