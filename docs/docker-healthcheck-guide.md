@@ -11,31 +11,31 @@
 #### Redis 헬스체크
 ```yaml
 healthcheck:
-  test: ["CMD-SHELL", "redis-cli ping | grep PONG || exit 1"]
-  interval: 10s
-  timeout: 5s
-  retries: 3
-  start_period: 10s
+  test: ["CMD-SHELL", "redis-cli ping | grep PONG || exit 1"]
+  interval: 10s
+  timeout: 5s
+  retries: 3
+  start_period: 10s
 ```
 
 #### Backend (Spring Boot) 헬스체크
 ```yaml
 healthcheck:
-  test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1"]
-  interval: 30s
-  timeout: 10s
-  retries: 5
-  start_period: 90s
+  test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1"]
+  interval: 30s
+  timeout: 10s
+  retries: 5
+  start_period: 90s
 ```
 
 #### Frontend (Nginx) 헬스체크
 ```yaml
 healthcheck:
-  test: ["CMD-SHELL", "curl -f http://localhost:80/ || exit 1"]
-  interval: 30s
-  timeout: 10s
-  retries: 3
-  start_period: 30s
+  test: ["CMD-SHELL", "curl -f http://localhost:80/ || exit 1"]
+  interval: 30s
+  timeout: 10s
+  retries: 3
+  start_period: 30s
 ```
 
 ### 2. 헬스체크 매개변수 설명
@@ -52,20 +52,20 @@ healthcheck:
 
 ```yaml
 services:
-  redis:
-    # Redis는 의존성이 없으므로 가장 먼저 시작
-    
-  backend:
-    depends_on:
-      redis:
-        condition: service_healthy  # Redis가 healthy 상태가 될 때까지 대기
-        
-  frontend:
-    depends_on:
-      backend:
-        condition: service_healthy  # Backend가 healthy 상태가 될 때까지 대기
-      redis:
-        condition: service_healthy  # Redis도 healthy 상태 확인
+  redis:
+    # Redis는 의존성이 없으므로 가장 먼저 시작
+    
+  backend:
+    depends_on:
+      redis:
+        condition: service_healthy  # Redis가 healthy 상태가 될 때까지 대기
+        
+  frontend:
+    depends_on:
+      backend:
+        condition: service_healthy  # Backend가 healthy 상태가 될 때까지 대기
+      redis:
+        condition: service_healthy  # Redis도 healthy 상태 확인
 ```
 
 ### 2. 의존성 조건 설명
@@ -79,10 +79,10 @@ services:
 ### 1. 재시작 정책 종류
 
 ```yaml
-restart: unless-stopped  # 프로덕션 환경 (수동으로 중지하지 않는 한 항상 재시작)
-restart: on-failure      # 개발 환경 (실패 시에만 재시작)
-restart: always          # 항상 재시작
-restart: no              # 재시작 안함 (기본값)
+restart: unless-stopped  # 프로덕션 환경 (수동으로 중지하지 않는 한 항상 재시작)
+restart: on-failure      # 개발 환경 (실패 시에만 재시작)
+restart: always          # 항상 재시작
+restart: no              # 재시작 안함 (기본값)
 ```
 
 ### 2. 환경별 재시작 정책
@@ -211,10 +211,10 @@ watch -n 5 'docker ps --format "table {{.Names}}\t{{.Status}}"'
 
 # 헬스체크 실패 시 알림 (예시)
 while true; do
-  if ! ./scripts/healthcheck/docker-health-check.sh; then
-    echo "헬스체크 실패 알림을 여기에 추가"
-  fi
-  sleep 60
+  if ! ./scripts/healthcheck/docker-health-check.sh; then
+    echo "헬스체크 실패 알림을 여기에 추가"
+  fi
+  sleep 60
 done
 ```
 
