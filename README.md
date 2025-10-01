@@ -15,8 +15,36 @@ Solebid는 희소성과 수집 가치를 중시하는 스니커즈를 경매 방
 ### 사전 요구 사항
 - Node.js 20 LTS 이상 권장
 - npm 10 이상 (프로젝트 루트 `frontend/`에서 실행)
+- Docker & Docker Compose (로컬 MySQL 환경용)
 
-### 로컬 개발 서버
+### 로컬 MySQL 환경 (권장)
+프로젝트가 AWS RDS에서 로컬 MySQL로 변경되었습니다. Docker를 사용하여 쉽게 설정할 수 있습니다.
+
+```bash
+# 빠른 시작 (Windows)
+scripts\start-local-mysql.bat
+
+# 빠른 시작 (Linux/Mac)
+./scripts/start-local-mysql.sh
+
+# 수동 실행
+docker-compose up -d
+```
+
+**서비스 URL:**
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:8080
+- MySQL: localhost:3306
+- Redis: localhost:6379
+
+**MySQL 접속 정보:**
+- 데이터베이스: solebid
+- 사용자: solebid
+- 비밀번호: solebidpassword
+
+자세한 설정 방법은 [로컬 MySQL 설정 가이드](docs/local-mysql-setup.md)를 참고하세요.
+
+### 로컬 개발 서버 (프론트엔드만)
 ```bash
 cd frontend
 npm install

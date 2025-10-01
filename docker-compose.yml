@@ -17,6 +17,10 @@ services:
       - DB_URL=${DB_URL}
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
       - JWT_SECRET=${JWT_SECRET}
       - JWT_ACCESS_TOKEN_VALIDITY=${JWT_ACCESS_TOKEN_VALIDITY:-3600}
       - JWT_REFRESH_TOKEN_VALIDITY=${JWT_REFRESH_TOKEN_VALIDITY:-86400}
@@ -47,6 +51,8 @@ services:
       - JPA_SHOW_SQL=${JPA_SHOW_SQL:-false}
       - JPA_FORMAT_SQL=${JPA_FORMAT_SQL:-false}
     depends_on:
+      mysql:
+        condition: service_healthy
       redis:
         condition: service_healthy
     networks:
@@ -70,6 +76,8 @@ services:
     depends_on:
       backend:
         condition: service_healthy
+      mysql:
+        condition: service_healthy
       redis:
         condition: service_healthy
     networks:
@@ -80,6 +88,30 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 30s
+
+  mysql:
+    image: mysql:8.0
+    container_name: solebid-mysql
+    ports:
+      - "${DOCKER_MYSQL_PORT:-3306}:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-rootpassword}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-solebid}
+      - MYSQL_USER=${MYSQL_USER:-solebid}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-solebidpassword}
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./scripts/mysql-init:/docker-entrypoint-initdb.d
+    networks:
+      - solebid-network
+    restart: unless-stopped
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p${MYSQL_ROOT_PASSWORD:-rootpassword} || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
       start_period: 30s
 
   redis:
@@ -106,6 +138,9 @@ networks:
     name: solebid-network
 
 volumes:
+  mysql-data:
+    driver: local
+    name: solebid-mysql-data
   redis-data:
     driver: local
     name: solebid-redis-data
