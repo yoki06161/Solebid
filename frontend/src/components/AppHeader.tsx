@@ -132,14 +132,24 @@ function AppHeader() {
                         </div>
 
                         <div className="flex items-center space-x-8">
-                            <div className="hidden md:flex items-center space-x-8 font-bold">
-                                <span className="text-gray-800 hover:text-black cursor-pointer"
+                            <div className="hidden md:flex items-center space-x-8">
+                                <span 
+                                    className={`cursor-pointer transition-all ${
+                                        location.pathname === '/' 
+                                            ? 'text-black font-black border-b-2 border-black' 
+                                            : 'text-gray-600 hover:text-black font-semibold'
+                                    }`}
                                     style={{ fontSize: '1.125rem' }}
                                     onClick={() => navigate("/")}
                                 >
                                     HOME
                                 </span>
-                                <span className="text-gray-800 hover:text-black cursor-pointer"
+                                <span 
+                                    className={`cursor-pointer transition-all ${
+                                        location.pathname.startsWith('/auction')
+                                            ? 'text-black font-black border-b-2 border-black' 
+                                            : 'text-gray-600 hover:text-black font-semibold'
+                                    }`}
                                     style={{ fontSize: '1.125rem' }}
                                     onClick={() => navigate("/auction")}
                                 >
