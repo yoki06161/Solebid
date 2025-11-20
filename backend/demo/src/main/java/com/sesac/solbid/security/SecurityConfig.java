@@ -90,12 +90,16 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         
-        // 허용할 오리진 설정 (Docker 환경 포함)
+        // 허용할 오리진 설정 (HTTP와 HTTPS 모두 지원)
         configuration.setAllowedOriginPatterns(Arrays.asList(
-                "http://localhost:*", 
-                "http://127.0.0.1:*",
-                "http://frontend:*",  // Docker 네트워크 내부 통신
-                "http://solebid-frontend:*"  // Docker 컨테이너명 기반 통신
+                "http://localhost:*",           // HTTP 로컬호스트
+                "https://localhost:*",          // HTTPS 로컬호스트
+                "http://127.0.0.1:*",           // HTTP 127.0.0.1
+                "https://127.0.0.1:*",          // HTTPS 127.0.0.1
+                "http://frontend:*",            // Docker 네트워크 내부 통신 (HTTP)
+                "https://frontend:*",           // Docker 네트워크 내부 통신 (HTTPS)
+                "http://solebid-frontend:*",   // Docker 컨테이너명 기반 통신 (HTTP)
+                "https://solebid-frontend:*"   // Docker 컨테이너명 기반 통신 (HTTPS)
         ));
         
         // 허용할 HTTP 메서드 설정
@@ -106,8 +110,15 @@ public class SecurityConfig {
         // 허용할 헤더
         configuration.setAllowedHeaders(Arrays.asList("*"));
         
-        // 인증 정보 포함 허용
+        // 인증 정보 포함 허용 (쿠키, Authorization 헤더 등)
         configuration.setAllowCredentials(true);
+        
+        // 노출할 헤더 (클라이언트에서 접근 가능한 헤더)
+        configuration.setExposedHeaders(Arrays.asList(
+                "Authorization",
+                "Content-Type",
+                "X-Requested-With"
+        ));
         
         // 프리플라이트 요청 캐시 시간 (초)
         configuration.setMaxAge(3600L);
