@@ -127,8 +127,17 @@ services:
         - BUILD_ENV=production
     container_name: solebid-frontend-prod
     ports:
-      - "80:80"      # HTTP 포트
-      - "443:443"    # HTTPS 포트 (SSL 인증서 설정 시)
+      - "80:80"      # HTTP 포트 (HTTPS로 리다이렉트)
+      - "443:443"    # HTTPS 포트
+    volumes:
+      # SSL 인증서 마운트 (읽기 전용)
+      # Let's Encrypt 인증서 경로 또는 자체 인증서 경로
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      # SSL 지원 Nginx 설정 파일 마운트
+      - ./frontend/nginx-ssl.conf:/etc/nginx/nginx.conf:ro
+    environment:
+      # HTTPS 활성화 (프로덕션에서는 항상 true)
+      - NGINX_SSL_ENABLED=true
     depends_on:
       backend:
         condition: service_healthy
@@ -156,9 +165,9 @@ services:
       - /var/cache/nginx:noexec,nosuid,size=50m  # Nginx 캐시용 임시 파일 시스템
       - /var/run:noexec,nosuid,size=10m         # PID 파일용 임시 파일 시스템
     
-    # 헬스체크 설정
+    # 헬스체크 설정 (HTTPS 우선)
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:80/ || exit 1"]
+      test: ["CMD-SHELL", "curl -k -f https://localhost:443/ || curl -f http://localhost:80/ || exit 1"]
       interval: 60s
       timeout: 10s
       retries: 3
