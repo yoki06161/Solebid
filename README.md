@@ -44,6 +44,56 @@ docker-compose up -d
 
 자세한 설정 방법은 [로컬 MySQL 설정 가이드](docs/local-mysql-setup.md)를 참고하세요.
 
+### HTTPS/SSL 설정 (선택사항)
+
+프로젝트는 개발 및 프로덕션 환경 모두에서 HTTPS를 지원합니다.
+
+#### 개발 환경 HTTPS
+
+```bash
+# 1. 자체 서명 인증서 생성
+./scripts/generate-ssl-cert.sh  # Linux/Mac
+scripts\generate-ssl-cert.bat   # Windows
+
+# 2. .env 파일에서 HTTPS 활성화
+NGINX_SSL_ENABLED=true
+DOCKER_FRONTEND_HTTPS_PORT=3443
+
+# 3. SSL 설정 검증
+./scripts/validate-ssl-setup.sh --environment dev
+
+# 4. Docker Compose 시작
+docker-compose up -d
+```
+
+**HTTPS 접속:**
+- HTTPS: https://localhost:3443
+- HTTP: http://localhost:3000 (자동으로 HTTPS로 리다이렉트)
+
+**참고**: 자체 서명 인증서를 사용하므로 브라우저에서 보안 경고가 표시됩니다. "고급" → "계속 진행"을 클릭하여 접속하세요.
+
+#### 프로덕션 환경 HTTPS
+
+```bash
+# 1. Let's Encrypt 인증서 발급
+./scripts/setup-letsencrypt.sh your-domain.com admin@your-domain.com
+
+# 2. 환경 변수 설정 (.env.prod)
+NGINX_SSL_ENABLED=true
+DOMAIN=your-domain.com
+EMAIL=admin@your-domain.com
+
+# 3. SSL 설정 검증
+./scripts/validate-ssl-setup.sh --environment prod
+
+# 4. 프로덕션 배포
+docker-compose -f docker-compose.prod.yml up -d
+```
+
+**자세한 내용:**
+- [SSL/HTTPS 설정 가이드](docs/ssl-https-setup-guide.md) - 전체 설정 방법
+- [SSL 문제 해결 가이드](docs/ssl-troubleshooting-guide.md) - 일반적인 문제 해결
+
 ### 로컬 개발 서버 (프론트엔드만)
 ```bash
 cd frontend
