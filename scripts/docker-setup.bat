@@ -82,13 +82,54 @@ if not exist "data\redis" mkdir data\redis
 if not exist "data\prometheus" mkdir data\prometheus
 if not exist "logs" mkdir logs
 if not exist "backups" mkdir backups
+if not exist "nginx" mkdir nginx
+if not exist "nginx\ssl" mkdir nginx\ssl
 
 echo ✅ 디렉토리 생성 완료
 echo    - data\redis: Redis 데이터 저장
 echo    - data\prometheus: Prometheus 메트릭 저장
 echo    - logs: 애플리케이션 로그
 echo    - backups: 백업 파일
+echo    - nginx\ssl: SSL 인증서 저장
 echo.
+
+REM SSL 인증서 생성 (개발 환경)
+echo ℹ️  SSL 인증서를 설정합니다...
+
+REM SSL 인증서가 이미 존재하는지 확인
+if exist "nginx\ssl\cert.pem" if exist "nginx\ssl\key.pem" (
+    echo ⚠️  SSL 인증서가 이미 존재합니다. 건너뜁니다.
+    echo.
+    goto :skip_ssl
+)
+
+REM 사용자에게 SSL 인증서 생성 여부 확인
+set /p create_ssl="개발용 자체 서명 SSL 인증서를 생성하시겠습니까? (HTTPS 사용 시 필요) (y/N): "
+if /i "!create_ssl!"=="y" (
+    if exist "scripts\generate-ssl-cert.bat" (
+        call scripts\generate-ssl-cert.bat localhost 365
+        if errorlevel 1 (
+            echo ❌ SSL 인증서 생성 실패
+            echo 수동으로 생성하려면: scripts\generate-ssl-cert.bat
+        ) else (
+            echo ✅ SSL 인증서 생성 완료
+            echo    - 인증서: nginx\ssl\cert.pem
+            echo    - 개인키: nginx\ssl\key.pem
+            echo    - 유효기간: 365일
+            echo.
+            echo    ⚠️  자체 서명 인증서이므로 브라우저에서 보안 경고가 표시됩니다.
+            echo       개발 환경에서만 사용하세요.
+        )
+    ) else (
+        echo ❌ SSL 인증서 생성 스크립트를 찾을 수 없습니다.
+    )
+) else (
+    echo ℹ️  SSL 인증서 생성을 건너뜁니다.
+    echo    나중에 생성하려면: scripts\generate-ssl-cert.bat
+)
+echo.
+
+:skip_ssl
 
 REM Docker 이미지 사전 다운로드
 echo ℹ️  기본 Docker 이미지를 다운로드합니다...
@@ -151,14 +192,16 @@ echo 2. 개발환경 시작:
 echo    scripts\dev-start.bat
 echo.
 echo 3. 접속 URL:
-echo    - 프론트엔드: http://localhost:3000
+echo    - 프론트엔드 (HTTP): http://localhost:3000
+echo    - 프론트엔드 (HTTPS): https://localhost:3443 (SSL 인증서 생성 시)
 echo    - 백엔드 API: http://localhost:8080
 echo    - 백엔드 헬스체크: http://localhost:8080/actuator/health
 echo.
 echo 📚 추가 문서:
 echo    - Docker 가이드: README-Docker.md
 echo    - 환경 변수 가이드: docs/environment-variables-guide.md
-echo    - 시스템 테스트 가이드: docs/docker-system-testing-guide.md
+echo    - SSL/HTTPS 설정 가이드: docs/ssl-https-setup-guide.md
+echo    - SSL 문제 해결 가이드: docs/ssl-troubleshooting-guide.md
 echo.
 echo ❓ 문제가 발생하면:
 echo    - 로그 확인: docker-compose logs -f

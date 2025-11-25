@@ -79,13 +79,28 @@ check_health_status() {
         overall_status=1
     fi
     
-    # 프론트엔드 헬스체크
-    echo "    - 프론트엔드 웹서버 헬스체크..."
+    # 프론트엔드 HTTP 헬스체크
+    echo "    - 프론트엔드 웹서버 헬스체크 (HTTP)..."
     if curl -f -s http://localhost:3000/ >/dev/null 2>&1; then
-        log_success "프론트엔드 웹서버가 정상 응답합니다."
+        log_success "프론트엔드 웹서버 (HTTP)가 정상 응답합니다."
     else
-        log_error "프론트엔드 웹서버가 응답하지 않습니다."
+        log_error "프론트엔드 웹서버 (HTTP)가 응답하지 않습니다."
         overall_status=1
+    fi
+    
+    # 프론트엔드 HTTPS 헬스체크 (SSL 인증서가 있는 경우)
+    if [ -f "nginx/ssl/cert.pem" ] && [ -f "nginx/ssl/key.pem" ]; then
+        echo "    - 프론트엔드 웹서버 헬스체크 (HTTPS)..."
+        if curl -f -s -k https://localhost:3443/ >/dev/null 2>&1; then
+            log_success "프론트엔드 웹서버 (HTTPS)가 정상 응답합니다."
+            
+            # SSL 헬스 체크 엔드포인트 확인
+            if curl -f -s -k https://localhost:3443/health/ssl >/dev/null 2>&1; then
+                log_success "SSL 헬스 체크 엔드포인트가 정상 작동합니다."
+            fi
+        else
+            log_warning "프론트엔드 웹서버 (HTTPS)가 응답하지 않습니다."
+        fi
     fi
     
     # Redis 헬스체크
@@ -154,9 +169,41 @@ check_logs_for_errors() {
     echo ""
 }
 
-# 8. 환경 변수 검증
+# 8. SSL 인증서 만료 확인
+check_ssl_certificate_expiry() {
+    log_info "8. SSL 인증서 만료일을 확인합니다..."
+    
+    if [ -f "nginx/ssl/cert.pem" ]; then
+        # 인증서 만료일 확인
+        local not_after=$(openssl x509 -in nginx/ssl/cert.pem -noout -enddate 2>/dev/null | cut -d= -f2)
+        
+        if [ -n "$not_after" ]; then
+            local expiry_epoch=$(date -d "$not_after" +%s 2>/dev/null || date -j -f "%b %d %T %Y %Z" "$not_after" +%s 2>/dev/null)
+            local current_epoch=$(date +%s)
+            local days_until_expiry=$(( ($expiry_epoch - $current_epoch) / 86400 ))
+            
+            if [ $days_until_expiry -gt 30 ]; then
+                log_success "SSL 인증서가 유효합니다: ${days_until_expiry}일 남음"
+            elif [ $days_until_expiry -gt 0 ]; then
+                log_warning "SSL 인증서가 곧 만료됩니다: ${days_until_expiry}일 남음"
+                echo "    인증서를 갱신하세요: ./scripts/renew-certificates.sh"
+            else
+                log_error "SSL 인증서가 만료되었습니다!"
+                echo "    인증서를 갱신하세요: ./scripts/renew-certificates.sh"
+                overall_status=1
+            fi
+        else
+            log_warning "SSL 인증서 만료일을 확인할 수 없습니다."
+        fi
+    else
+        log_info "SSL 인증서가 없습니다. HTTPS를 사용하지 않는 환경입니다."
+    fi
+    echo ""
+}
+
+# 9. 환경 변수 검증
 check_environment_variables() {
-    log_info "8. 환경 변수를 검증합니다..."
+    log_info "9. 환경 변수를 검증합니다..."
     
     if [ -f "scripts/validate-env.sh" ]; then
         if ./scripts/validate-env.sh >/dev/null 2>&1; then
@@ -179,7 +226,10 @@ print_final_result() {
         echo "=================================================="
         echo ""
         echo "🎯 접속 정보:"
-        echo "    - 프론트엔드: http://localhost:3000"
+        echo "    - 프론트엔드 (HTTP): http://localhost:3000"
+        if [ -f "nginx/ssl/cert.pem" ]; then
+            echo "    - 프론트엔드 (HTTPS): https://localhost:3443"
+        fi
         echo "    - 백엔드 API: http://localhost:8080"
         echo "    - 백엔드 헬스체크: http://localhost:8080/actuator/health"
         echo "    - Redis: localhost:6379"
@@ -212,6 +262,7 @@ main() {
     check_resource_usage
     check_volumes
     check_logs_for_errors
+    check_ssl_certificate_expiry
     check_environment_variables
     print_final_result
 }
