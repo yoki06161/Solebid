@@ -79,7 +79,7 @@ services:
       - ./nginx/ssl:/etc/nginx/ssl:ro
       # SSL 지원 Nginx 설정 파일 마운트 (선택사항)
       # 기본 nginx.conf 대신 nginx-ssl.conf 사용하려면 아래 주석 해제
-      # - ./frontend/nginx-ssl.conf:/etc/nginx/nginx.conf:ro
+      - ./frontend/nginx-ssl.conf:/etc/nginx/nginx.conf:ro
     environment:
       # HTTPS 활성화 플래그
       - NGINX_SSL_ENABLED=${NGINX_SSL_ENABLED:-false}
