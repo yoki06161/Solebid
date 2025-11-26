@@ -1,0 +1,133 @@
+# ============================================================================
+# Let's Encrypt 인증서 자동 갱신 Cron Job 설정
+# ============================================================================
+# 
+# 이 파일은 Let's Encrypt 인증서를 자동으로 갱신하기 위한 cron job 설정입니다.
+# 
+# 설치 방법:
+#   1. 이 파일의 내용을 복사합니다
+#   2. crontab 편집기를 엽니다: sudo crontab -e
+#   3. 아래 내용을 붙여넣고 저장합니다
+#   4. 경로를 실제 프로젝트 경로로 수정합니다
+#
+# 또는 명령어로 직접 추가:
+#   sudo crontab -l > mycron
+#   cat scripts/cert-renewal-cron.txt >> mycron
+#   sudo crontab mycron
+#   rm mycron
+#
+# Cron 작업 확인:
+#   sudo crontab -l
+#
+# Cron 로그 확인:
+#   tail -f /var/log/cert-renewal.log
+# ============================================================================
+
+# 환경 변수 설정 (필요시 수정)
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+# ============================================================================
+# 인증서 갱신 작업
+# ============================================================================
+# 매일 오전 0시와 오후 12시에 인증서 갱신 시도
+# Let's Encrypt는 만료 30일 전부터 갱신 가능
+# 갱신이 필요하지 않으면 자동으로 건너뜁니다
+#
+# 형식: 분 시 일 월 요일 명령어
+# 0 0,12 * * * : 매일 0시와 12시에 실행
+# ============================================================================
+
+# 프로젝트 경로를 실제 경로로 수정하세요
+0 0,12 * * * cd /path/to/solebid && /path/to/solebid/scripts/renew-certificates.sh >> /var/log/cert-renewal.log 2>&1
+
+# ============================================================================
+# 대체 스케줄 옵션
+# ============================================================================
+# 아래는 다양한 스케줄 예시입니다. 필요에 따라 선택하세요.
+
+# 매일 오전 2시에 실행 (권장)
+# 0 2 * * * cd /path/to/solebid && /path/to/solebid/scripts/renew-certificates.sh >> /var/log/cert-renewal.log 2>&1
+
+# 매주 월요일 오전 3시에 실행
+# 0 3 * * 1 cd /path/to/solebid && /path/to/solebid/scripts/renew-certificates.sh >> /var/log/cert-renewal.log 2>&1
+
+# 매월 1일과 15일 오전 2시에 실행
+# 0 2 1,15 * * cd /path/to/solebid && /path/to/solebid/scripts/renew-certificates.sh >> /var/log/cert-renewal.log 2>&1
+
+# ============================================================================
+# Systemd Timer 대안 (선택사항)
+# ============================================================================
+# Cron 대신 systemd timer를 사용하려면 다음 파일들을 생성하세요:
+#
+# /etc/systemd/system/cert-renewal.service:
+# ---
+# [Unit]
+# Description=Renew Let's Encrypt certificates
+# After=network.target
+#
+# [Service]
+# Type=oneshot
+# User=root
+# WorkingDirectory=/path/to/solebid
+# ExecStart=/path/to/solebid/scripts/renew-certificates.sh
+# StandardOutput=append:/var/log/cert-renewal.log
+# StandardError=append:/var/log/cert-renewal.log
+# ---
+#
+# /etc/systemd/system/cert-renewal.timer:
+# ---
+# [Unit]
+# Description=Run cert renewal twice daily
+# Requires=cert-renewal.service
+#
+# [Timer]
+# OnCalendar=00:00
+# OnCalendar=12:00
+# Persistent=true
+#
+# [Install]
+# WantedBy=timers.target
+# ---
+#
+# 활성화:
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable cert-renewal.timer
+#   sudo systemctl start cert-renewal.timer
+#   sudo systemctl status cert-renewal.timer
+#
+# ============================================================================
+# 로그 로테이션 설정 (권장)
+# ============================================================================
+# 로그 파일이 너무 커지지 않도록 로테이션 설정을 추가하세요.
+#
+# /etc/logrotate.d/cert-renewal 파일 생성:
+# ---
+# /var/log/cert-renewal.log {
+#     daily
+#     rotate 30
+#     compress
+#     delaycompress
+#     missingok
+#     notifempty
+#     create 0640 root root
+# }
+# ---
+#
+# ============================================================================
+# 알림 설정 (선택사항)
+# ============================================================================
+# 갱신 실패 시 이메일 알림을 받으려면 cron 앞에 MAILTO를 추가하세요:
+#
+# MAILTO=admin@example.com
+# 0 0,12 * * * cd /path/to/solebid && /path/to/solebid/scripts/renew-certificates.sh >> /var/log/cert-renewal.log 2>&1
+#
+# ============================================================================
+# 테스트
+# ============================================================================
+# Cron job이 제대로 작동하는지 테스트:
+#   1. 수동으로 스크립트 실행: sudo /path/to/solebid/scripts/renew-certificates.sh --dry-run
+#   2. Cron 로그 확인: tail -f /var/log/cert-renewal.log
+#   3. Cron 작업 확인: sudo crontab -l
+#
+# ============================================================================

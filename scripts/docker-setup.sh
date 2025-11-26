@@ -109,6 +109,7 @@ create_directories() {
     mkdir -p data/prometheus
     mkdir -p logs
     mkdir -p backups
+    mkdir -p nginx/ssl
     
     # 권한 설정 (Linux/Mac)
     if [[ "$OSTYPE" == "linux-gnu"* ]] || [[ "$OSTYPE" == "darwin"* ]]; then
@@ -116,6 +117,7 @@ create_directories() {
         chmod 755 data/prometheus
         chmod 755 logs
         chmod 755 backups
+        chmod 755 nginx/ssl
     fi
     
     log_success "디렉토리 생성 완료"
@@ -123,6 +125,69 @@ create_directories() {
     echo "  - data/prometheus: Prometheus 메트릭 저장"
     echo "  - logs: 애플리케이션 로그"
     echo "  - backups: 백업 파일"
+    echo "  - nginx/ssl: SSL 인증서 저장"
+    echo ""
+}
+
+# SSL 인증서 생성 (개발 환경)
+setup_ssl_certificates() {
+    log_info "SSL 인증서를 설정합니다..."
+    
+    # SSL 인증서가 이미 존재하는지 확인
+    if [ -f "nginx/ssl/cert.pem" ] && [ -f "nginx/ssl/key.pem" ]; then
+        log_warning "SSL 인증서가 이미 존재합니다. 건너뜁니다."
+        echo ""
+        return
+    fi
+    
+    # 사용자에게 SSL 인증서 생성 여부 확인
+    read -p "개발용 자체 서명 SSL 인증서를 생성하시겠습니까? (HTTPS 사용 시 필요) (y/N): " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        if [ -f "scripts/generate-ssl-cert.sh" ]; then
+            chmod +x scripts/generate-ssl-cert.sh
+            if ./scripts/generate-ssl-cert.sh localhost 365; then
+                log_success "SSL 인증서 생성 완료"
+                echo "  - 인증서: nginx/ssl/cert.pem"
+                echo "  - 개인키: nginx/ssl/key.pem"
+                echo "  - 유효기간: 365일"
+                echo ""
+                echo "  ⚠️  자체 서명 인증서이므로 브라우저에서 보안 경고가 표시됩니다."
+                echo "     개발 환경에서만 사용하세요."
+            else
+                log_error "SSL 인증서 생성 실패"
+                echo "수동으로 생성하려면: ./scripts/generate-ssl-cert.sh"
+            fi
+        else
+            log_error "SSL 인증서 생성 스크립트를 찾을 수 없습니다."
+        fi
+    else
+        log_info "SSL 인증서 생성을 건너뜁니다."
+        echo "  나중에 생성하려면: ./scripts/generate-ssl-cert.sh"
+    fi
+    echo ""
+}
+
+# SSL 설정 검증
+validate_ssl_setup() {
+    log_info "SSL 설정을 검증합니다..."
+    
+    # SSL 인증서가 존재하는 경우에만 검증
+    if [ -f "nginx/ssl/cert.pem" ] && [ -f "nginx/ssl/key.pem" ]; then
+        if [ -f "scripts/validate-ssl-setup.sh" ]; then
+            chmod +x scripts/validate-ssl-setup.sh
+            if ./scripts/validate-ssl-setup.sh --environment dev; then
+                log_success "SSL 설정 검증 완료"
+            else
+                log_warning "SSL 설정 검증에서 경고가 발생했습니다."
+                echo "자세한 내용은 docs/ssl-troubleshooting-guide.md를 참고하세요."
+            fi
+        else
+            log_warning "SSL 검증 스크립트를 찾을 수 없습니다."
+        fi
+    else
+        log_info "SSL 인증서가 없습니다. 검증을 건너뜁니다."
+    fi
     echo ""
 }
 
@@ -205,14 +270,16 @@ print_completion() {
     echo "    ./scripts/dev-start.sh"
     echo ""
     echo "3. 접속 URL:"
-    echo "    - 프론트엔드: http://localhost:3000"
+    echo "    - 프론트엔드 (HTTP): http://localhost:3000"
+    echo "    - 프론트엔드 (HTTPS): https://localhost:3443 (SSL 인증서 생성 시)"
     echo "    - 백엔드 API: http://localhost:8080"
     echo "    - 백엔드 헬스체크: http://localhost:8080/actuator/health"
     echo ""
     echo "📚 추가 문서:"
     echo "    - Docker 가이드: README-Docker.md"
     echo "    - 환경 변수 가이드: docs/environment-variables-guide.md"
-    echo "    - 시스템 테스트 가이드: docs/docker-system-testing-guide.md"
+    echo "    - SSL/HTTPS 설정 가이드: docs/ssl-https-setup-guide.md"
+    echo "    - SSL 문제 해결 가이드: docs/ssl-troubleshooting-guide.md"
     echo ""
     echo "❓ 문제가 발생하면:"
     echo "    - 로그 확인: docker-compose logs -f"
@@ -228,6 +295,8 @@ main() {
     setup_env_files
     create_directories
     setup_script_permissions
+    setup_ssl_certificates
+    validate_ssl_setup
     pull_base_images
     validate_env
     test_build

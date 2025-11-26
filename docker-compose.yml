@@ -72,7 +72,17 @@ services:
       target: production
     container_name: solebid-frontend
     ports:
-      - "${DOCKER_FRONTEND_PORT:-3000}:80"
+      - "${DOCKER_FRONTEND_PORT:-3000}:80"      # HTTP 포트 (HTTPS로 리다이렉트)
+      - "${DOCKER_FRONTEND_HTTPS_PORT:-3443}:443"  # HTTPS 포트
+    volumes:
+      # SSL 인증서 마운트 (읽기 전용)
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      # SSL 지원 Nginx 설정 파일 마운트 (선택사항)
+      # 기본 nginx.conf 대신 nginx-ssl.conf 사용하려면 아래 주석 해제
+      - ./frontend/nginx-ssl.conf:/etc/nginx/nginx.conf:ro
+    environment:
+      # HTTPS 활성화 플래그
+      - NGINX_SSL_ENABLED=${NGINX_SSL_ENABLED:-false}
     depends_on:
       backend:
         condition: service_healthy
@@ -84,7 +94,8 @@ services:
       - solebid-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:80/ || exit 1"]
+      # HTTPS가 활성화된 경우 HTTPS 엔드포인트 체크
+      test: ["CMD-SHELL", "curl -f http://localhost:80/ || curl -k -f https://localhost:443/ || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3

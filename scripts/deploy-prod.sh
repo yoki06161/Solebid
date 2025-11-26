@@ -52,9 +52,80 @@ check_prerequisites() {
     fi
     
     # 필수 디렉토리 생성
-    mkdir -p data/redis data/prometheus logs
+    mkdir -p data/redis data/prometheus logs nginx/ssl
     
     log_success "필수 조건 확인 완료"
+}
+
+# SSL 인증서 확인 및 설정
+check_ssl_certificates() {
+    log_info "SSL 인증서 확인 중..."
+    
+    # .env.prod에서 NGINX_SSL_ENABLED 확인
+    source .env.prod
+    
+    if [ "${NGINX_SSL_ENABLED:-false}" = "true" ]; then
+        log_info "HTTPS가 활성화되어 있습니다. SSL 인증서를 확인합니다..."
+        
+        # SSL 인증서 파일 존재 확인
+        if [ ! -f "nginx/ssl/cert.pem" ] || [ ! -f "nginx/ssl/key.pem" ]; then
+            log_warning "SSL 인증서가 없습니다."
+            
+            # Let's Encrypt 설정 제안
+            if [ -n "${DOMAIN:-}" ] && [ -n "${EMAIL:-}" ]; then
+                echo ""
+                read -p "Let's Encrypt 인증서를 발급하시겠습니까? (y/N): " -n 1 -r
+                echo
+                if [[ $REPLY =~ ^[Yy]$ ]]; then
+                    if [ -f "scripts/setup-letsencrypt.sh" ]; then
+                        chmod +x scripts/setup-letsencrypt.sh
+                        if ./scripts/setup-letsencrypt.sh "$DOMAIN" "$EMAIL"; then
+                            log_success "Let's Encrypt 인증서 발급 완료"
+                        else
+                            log_error "Let's Encrypt 인증서 발급 실패"
+                            log_info "수동으로 인증서를 설정하거나 NGINX_SSL_ENABLED=false로 설정하세요."
+                            exit 1
+                        fi
+                    else
+                        log_error "Let's Encrypt 설정 스크립트를 찾을 수 없습니다."
+                        exit 1
+                    fi
+                else
+                    log_error "SSL 인증서가 필요합니다."
+                    log_info "인증서를 생성하거나 NGINX_SSL_ENABLED=false로 설정하세요."
+                    exit 1
+                fi
+            else
+                log_error "DOMAIN 또는 EMAIL 환경 변수가 설정되지 않았습니다."
+                log_info ".env.prod 파일에서 DOMAIN과 EMAIL을 설정하세요."
+                exit 1
+            fi
+        else
+            log_success "SSL 인증서가 존재합니다."
+            
+            # SSL 설정 검증
+            if [ -f "scripts/validate-ssl-setup.sh" ]; then
+                chmod +x scripts/validate-ssl-setup.sh
+                if ./scripts/validate-ssl-setup.sh --environment prod; then
+                    log_success "SSL 설정 검증 완료"
+                else
+                    log_warning "SSL 설정 검증에서 경고가 발생했습니다."
+                    echo ""
+                    read -p "경고를 무시하고 계속하시겠습니까? (y/N): " -n 1 -r
+                    echo
+                    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+                        log_info "배포가 취소되었습니다."
+                        log_info "자세한 내용은 docs/ssl-troubleshooting-guide.md를 참고하세요."
+                        exit 1
+                    fi
+                fi
+            fi
+        fi
+    else
+        log_info "HTTPS가 비활성화되어 있습니다. SSL 인증서 확인을 건너뜁니다."
+    fi
+    
+    echo ""
 }
 
 # 환경 변수 검증
@@ -189,11 +260,23 @@ health_check() {
     fi
     
     # 프론트엔드 헬스체크
-    if curl -f http://localhost:80 &> /dev/null; then
-        log_success "프론트엔드 헬스체크 통과"
+    source .env.prod
+    if [ "${NGINX_SSL_ENABLED:-false}" = "true" ]; then
+        # HTTPS 헬스체크 (자체 서명 인증서 허용)
+        if curl -f -k https://localhost:443 &> /dev/null; then
+            log_success "프론트엔드 HTTPS 헬스체크 통과"
+        else
+            log_error "프론트엔드 HTTPS 헬스체크 실패"
+            return 1
+        fi
     else
-        log_error "프론트엔드 헬스체크 실패"
-        return 1
+        # HTTP 헬스체크
+        if curl -f http://localhost:80 &> /dev/null; then
+            log_success "프론트엔드 HTTP 헬스체크 통과"
+        else
+            log_error "프론트엔드 HTTP 헬스체크 실패"
+            return 1
+        fi
     fi
     
     log_success "모든 서비스 헬스체크 통과"
@@ -225,7 +308,21 @@ show_status() {
     
     echo ""
     echo "=== 서비스 URL ==="
-    echo "프론트엔드: http://localhost:80"
+    
+    # HTTPS 활성화 여부 확인
+    source .env.prod
+    if [ "${NGINX_SSL_ENABLED:-false}" = "true" ]; then
+        if [ -n "${DOMAIN:-}" ]; then
+            echo "프론트엔드 (HTTPS): https://$DOMAIN"
+            echo "프론트엔드 (HTTP): http://$DOMAIN (자동 리다이렉트)"
+        else
+            echo "프론트엔드 (HTTPS): https://localhost:443"
+            echo "프론트엔드 (HTTP): http://localhost:80 (자동 리다이렉트)"
+        fi
+    else
+        echo "프론트엔드: http://localhost:80"
+    fi
+    
     echo "백엔드 API: http://localhost:8080"
     echo "백엔드 헬스체크: http://localhost:8080/actuator/health"
     echo "Prometheus: http://localhost:9090"
@@ -275,6 +372,7 @@ main() {
     # 배포 전 확인
     check_prerequisites
     validate_environment
+    check_ssl_certificates
     
     # 사용자 확인
     echo ""

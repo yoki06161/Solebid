@@ -35,3 +35,15 @@ dist-ssr
 !.env.*.example
 
 
+
+# ==================================
+#     SSL Certificates
+# ==================================
+# SSL 인증서와 개인키는 절대 커밋하지 않음
+nginx/ssl/*.pem
+nginx/ssl/*.key
+nginx/ssl/*.crt
+nginx/ssl/*.csr
+
+# Let's Encrypt 인증서 (프로덕션)
+/etc/letsencrypt/
